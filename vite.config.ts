@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.svg'],
       manifest: {
-        name: 'Expense Tracker',
-        short_name: 'Expenses',
-        description: 'Track your daily expenses',
+        name: 'Pocket Ledger',
+        short_name: 'Pocket Ledger',
+        description: 'Track your expenses and manage your budget',
         theme_color: '#3b82f6',
         background_color: '#ffffff',
         display: 'standalone',
