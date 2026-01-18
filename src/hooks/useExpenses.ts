@@ -94,17 +94,3 @@ export function useDeleteExpense() {
     },
   })
 }
-
-export function useDuplicateExpense() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (input: CreateExpenseInput) => {
-      return createExpense(input)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
-    },
-  })
-}

@@ -166,20 +166,42 @@ export function CategoryManagerModal({ isOpen, onClose }: CategoryManagerModalPr
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={resetForm} className="flex-1">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSave}
-                className="flex-1"
-                disabled={
-                  !name.trim() ||
-                  createCategory.isPending ||
-                  updateCategory.isPending
-                }
-              >
-                {editingCategory ? 'Save' : 'Create'}
-              </Button>
+              {editingCategory ? (
+                <>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleDelete(editingCategory)}
+                    className="flex-1"
+                    disabled={deleteCategoryMutation.isPending}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    className="flex-1"
+                    disabled={!name.trim() || updateCategory.isPending}
+                  >
+                    Save
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="secondary"
+                    onClick={resetForm}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    className="flex-1"
+                    disabled={!name.trim() || createCategory.isPending}
+                  >
+                    Create
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}

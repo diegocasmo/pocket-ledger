@@ -6,7 +6,6 @@ import {
   useCreateExpense,
   useUpdateExpense,
   useDeleteExpense,
-  useDuplicateExpense,
 } from '../../hooks/useExpenses'
 import type { Expense } from '../../types'
 
@@ -28,14 +27,12 @@ export function ExpenseFormModal({
   const createExpense = useCreateExpense()
   const updateExpense = useUpdateExpense()
   const deleteExpense = useDeleteExpense()
-  const duplicateExpense = useDuplicateExpense()
 
   const isEditing = !!expense
   const isSubmitting =
     createExpense.isPending ||
     updateExpense.isPending ||
-    deleteExpense.isPending ||
-    duplicateExpense.isPending
+    deleteExpense.isPending
 
   const handleSubmit = async (data: {
     amountCents: number
@@ -68,18 +65,6 @@ export function ExpenseFormModal({
     }
   }
 
-  const handleDuplicate = async () => {
-    if (expense) {
-      await duplicateExpense.mutateAsync({
-        date: expense.date,
-        amountCents: expense.amountCents,
-        categoryId: expense.categoryId,
-        note: expense.note,
-      })
-      onClose()
-    }
-  }
-
   return (
     <>
       <BottomSheet
@@ -92,7 +77,6 @@ export function ExpenseFormModal({
           expense={expense}
           onSubmit={handleSubmit}
           onDelete={isEditing ? handleDelete : undefined}
-          onDuplicate={isEditing ? handleDuplicate : undefined}
           isSubmitting={isSubmitting}
         />
       </BottomSheet>

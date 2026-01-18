@@ -1,6 +1,4 @@
-import { useState } from 'react'
 import { Button } from '../../components/ui/Button'
-import { CategoryManagerModal } from '../categories/CategoryManagerModal'
 import { useSettings, useUpdateSettings } from '../../hooks/useSettings'
 import type { ThemeOption } from '../../types'
 
@@ -16,7 +14,6 @@ const weekStartOptions: { value: 0 | 1; label: string }[] = [
 ]
 
 export function SettingsPage() {
-  const [showCategoryManager, setShowCategoryManager] = useState(false)
   const { data: settings } = useSettings()
   const updateSettings = useUpdateSettings()
 
@@ -70,24 +67,7 @@ export function SettingsPage() {
             ))}
           </div>
         </div>
-
-        <div>
-          <h2 className="text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-            Categories
-          </h2>
-          <Button
-            variant="secondary"
-            onClick={() => setShowCategoryManager(true)}
-          >
-            Manage Categories
-          </Button>
-        </div>
       </div>
-
-      <CategoryManagerModal
-        isOpen={showCategoryManager}
-        onClose={() => setShowCategoryManager(false)}
-      />
     </div>
   )
 }

@@ -2,14 +2,15 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { format, addMonths, subMonths } from 'date-fns'
 import { MonthNavigator } from './MonthNavigator'
 import { MonthGrid } from './MonthGrid'
-import { DayExpenseModal } from './DayExpenseModal'
+import { DayExpensePanel } from './DayExpensePanel'
 import { useExpensesForMonth } from '../../hooks/useExpenses'
 import { aggregateExpenses } from '../../services/aggregation'
+import { useCalendarContext } from '../../components/layout/AppLayout'
 
 export function CalendarPage() {
   const [viewDate, setViewDate] = useState(() => new Date())
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const touchStartX = useRef<number | null>(null)
+  const { selectedDate, setSelectedDate, openExpenseForm } = useCalendarContext()
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth() + 1 // 1-indexed
@@ -27,11 +28,7 @@ export function CalendarPage() {
 
   const handleDayClick = useCallback((date: string) => {
     setSelectedDate(date)
-  }, [])
-
-  const handleCloseModal = useCallback(() => {
-    setSelectedDate(null)
-  }, [])
+  }, [setSelectedDate])
 
   // Swipe gesture handling
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -79,17 +76,19 @@ export function CalendarPage() {
         month={month}
         dayTotals={aggregate.byDay}
         onDayClick={handleDayClick}
+        selectedDate={selectedDate}
       />
-      {expenses.length === 0 && (
+      {expenses.length === 0 && !selectedDate && (
         <p className="text-center text-[var(--color-text-secondary)] mt-6">
-          Tap a day to add your first expense
+          Tap the + button to add your first expense
         </p>
       )}
-      <DayExpenseModal
-        date={selectedDate}
-        isOpen={selectedDate !== null}
-        onClose={handleCloseModal}
-      />
+      {selectedDate && (
+        <DayExpensePanel
+          date={selectedDate}
+          onEditExpense={openExpenseForm}
+        />
+      )}
     </div>
   )
 }

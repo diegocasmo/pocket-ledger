@@ -14,9 +14,10 @@ interface MonthGridProps {
   month: number // 1-indexed
   dayTotals: Record<string, number>
   onDayClick: (date: string) => void
+  selectedDate?: string | null
 }
 
-export function MonthGrid({ year, month, dayTotals, onDayClick }: MonthGridProps) {
+export function MonthGrid({ year, month, dayTotals, onDayClick, selectedDate }: MonthGridProps) {
   const monthDate = new Date(year, month - 1, 1)
   const monthStart = startOfMonth(monthDate)
   const monthEnd = endOfMonth(monthDate)
@@ -58,6 +59,7 @@ export function MonthGrid({ year, month, dayTotals, onDayClick }: MonthGridProps
               key={dateStr}
               date={dateStr}
               isCurrentMonth={isCurrentMonth}
+              isSelected={dateStr === selectedDate}
               totalCents={totalCents}
               onClick={() => onDayClick(dateStr)}
             />

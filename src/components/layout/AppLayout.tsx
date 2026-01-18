@@ -1,6 +1,25 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useState, createContext, useContext, useCallback } from 'react'
 import { BottomNav } from './BottomNav'
+import { ExpenseFormModal } from '../../features/expenses/ExpenseFormModal'
 import { useSettings } from '../../hooks/useSettings'
+import { getTodayISO, isFutureDate } from '../../lib/dates'
+import type { Expense } from '../../types'
+
+interface CalendarContextValue {
+  selectedDate: string | null
+  setSelectedDate: (date: string | null) => void
+  openExpenseForm: (expense?: Expense) => void
+}
+
+const CalendarContext = createContext<CalendarContextValue | null>(null)
+
+export function useCalendarContext() {
+  const context = useContext(CalendarContext)
+  if (!context) {
+    throw new Error('useCalendarContext must be used within AppLayout')
+  }
+  return context
+}
 
 interface AppLayoutProps {
   children: ReactNode
@@ -8,6 +27,26 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { data: settings } = useSettings()
+  const [selectedDate, setSelectedDate] = useState<string | null>(getTodayISO())
+  const [showExpenseForm, setShowExpenseForm] = useState(false)
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+
+  const openExpenseForm = useCallback((expense?: Expense) => {
+    setEditingExpense(expense ?? null)
+    setShowExpenseForm(true)
+  }, [])
+
+  const handleCloseExpenseForm = useCallback(() => {
+    setShowExpenseForm(false)
+    setEditingExpense(null)
+  }, [])
+
+  const handleAddExpense = useCallback(() => {
+    // Use selected date if available and not in the future, otherwise use today
+    const dateToUse = selectedDate && !isFutureDate(selectedDate) ? selectedDate : getTodayISO()
+    setSelectedDate(dateToUse)
+    openExpenseForm()
+  }, [selectedDate, openExpenseForm])
 
   useEffect(() => {
     const root = document.documentElement
@@ -44,12 +83,23 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [settings?.theme])
 
+  // Determine which date to use for the expense form
+  const expenseFormDate = selectedDate && !isFutureDate(selectedDate) ? selectedDate : getTodayISO()
+
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] pb-16">
-      <main className="max-w-lg mx-auto">
-        {children}
-      </main>
-      <BottomNav />
-    </div>
+    <CalendarContext.Provider value={{ selectedDate, setSelectedDate, openExpenseForm }}>
+      <div className="min-h-screen bg-[var(--color-bg-primary)] pb-16">
+        <main className="max-w-lg mx-auto">
+          {children}
+        </main>
+        <BottomNav onAddExpense={handleAddExpense} />
+        <ExpenseFormModal
+          isOpen={showExpenseForm}
+          onClose={handleCloseExpenseForm}
+          date={expenseFormDate}
+          expense={editingExpense}
+        />
+      </div>
+    </CalendarContext.Provider>
   )
 }

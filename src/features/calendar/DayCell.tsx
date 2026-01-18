@@ -5,11 +5,12 @@ import { formatCentsToWholeDollars } from '../../services/money'
 interface DayCellProps {
   date: string
   isCurrentMonth: boolean
+  isSelected?: boolean
   totalCents: number
   onClick: () => void
 }
 
-export function DayCell({ date, isCurrentMonth, totalCents, onClick }: DayCellProps) {
+export function DayCell({ date, isCurrentMonth, isSelected, totalCents, onClick }: DayCellProps) {
   const dateObj = parseDateFromISO(date)
   const dayNumber = format(dateObj, 'd')
   const today = isToday(date)
@@ -26,6 +27,7 @@ export function DayCell({ date, isCurrentMonth, totalCents, onClick }: DayCellPr
         ${!isCurrentMonth ? 'opacity-40' : ''}
         ${future ? 'cursor-not-allowed opacity-30' : 'hover:bg-[var(--color-bg-tertiary)] active:bg-[var(--color-bg-tertiary)]'}
         ${today ? 'ring-2 ring-primary-500' : ''}
+        ${isSelected ? 'bg-primary-500/20' : ''}
       `}
       aria-label={`${format(dateObj, 'MMMM d, yyyy')}${totalCents > 0 ? `, ${formatCentsToWholeDollars(totalCents)} spent` : ''}`}
     >

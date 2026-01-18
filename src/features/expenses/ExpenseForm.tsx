@@ -13,7 +13,6 @@ interface ExpenseFormProps {
   expense?: Expense | null
   onSubmit: (data: { amountCents: number; categoryId: string; note?: string }) => void
   onDelete?: () => void
-  onDuplicate?: () => void
   isSubmitting?: boolean
 }
 
@@ -29,7 +28,6 @@ export function ExpenseForm({
   expense,
   onSubmit,
   onDelete,
-  onDuplicate,
   isSubmitting = false,
 }: ExpenseFormProps) {
   const [amount, setAmount] = useState('')
@@ -122,24 +120,9 @@ export function ExpenseForm({
         error={errors.note}
       />
 
-      <div className="space-y-2 pt-2">
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Expense'}
-        </Button>
-
-        {isEditing && (
+      <div className="pt-2">
+        {isEditing ? (
           <div className="flex gap-2">
-            {onDuplicate && (
-              <Button
-                type="button"
-                variant="secondary"
-                className="flex-1"
-                onClick={onDuplicate}
-                disabled={isSubmitting}
-              >
-                Duplicate
-              </Button>
-            )}
             {onDelete && (
               <Button
                 type="button"
@@ -151,7 +134,14 @@ export function ExpenseForm({
                 Delete
               </Button>
             )}
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save'}
+            </Button>
           </div>
+        ) : (
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : 'Add Expense'}
+          </Button>
         )}
       </div>
     </form>
