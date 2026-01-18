@@ -36,15 +36,15 @@ describe('AmountInput', () => {
   })
 
   describe('decimal handling', () => {
-    it('prevents multiple decimal points', () => {
+    it('prevents multiple decimal points and limits to 2 decimal places', () => {
       const onChange = vi.fn()
       render(<AmountInput value="" onChange={onChange} />)
 
       const input = screen.getByLabelText('Amount')
       fireEvent.change(input, { target: { value: '12.34.56' } })
 
-      // Should join extra decimal parts without separator
-      expect(onChange).toHaveBeenCalledWith('12.3456')
+      // Joins extra decimal parts (12.3456) then limits to 2 decimal places (12.34)
+      expect(onChange).toHaveBeenCalledWith('12.34')
     })
 
     it('limits to 2 decimal places', () => {
