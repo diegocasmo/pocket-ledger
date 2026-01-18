@@ -1,4 +1,4 @@
-import { db } from '../db'
+import { db } from './index'
 import type { Settings } from '../types'
 
 const DEFAULT_SETTINGS: Settings = {

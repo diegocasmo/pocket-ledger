@@ -1,4 +1,4 @@
-import { db } from '../db'
+import { db } from './index'
 import type { Category } from '../types'
 
 const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = [
