@@ -5,9 +5,11 @@ interface MonthNavigatorProps {
   monthLabel: string
   onPrevious: () => void
   onNext: () => void
+  onToday: () => void
+  isCurrentMonth: boolean
 }
 
-export function MonthNavigator({ monthLabel, onPrevious, onNext }: MonthNavigatorProps) {
+export function MonthNavigator({ monthLabel, onPrevious, onNext, onToday, isCurrentMonth }: MonthNavigatorProps) {
   return (
     <div className="flex items-center justify-between mb-4">
       <Button
@@ -18,9 +20,22 @@ export function MonthNavigator({ monthLabel, onPrevious, onNext }: MonthNavigato
       >
         <ChevronLeft className="w-5 h-5" />
       </Button>
-      <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">
-        {monthLabel}
-      </h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">
+          {monthLabel}
+        </h1>
+        {!isCurrentMonth && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToday}
+            aria-label="Go to today"
+            className="text-sm text-[var(--color-text-secondary)]"
+          >
+            Today
+          </Button>
+        )}
+      </div>
       <Button
         variant="ghost"
         size="sm"

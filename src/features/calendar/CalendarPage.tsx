@@ -1,11 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { format, addMonths, subMonths } from 'date-fns'
+import { format, addMonths, subMonths, isSameMonth } from 'date-fns'
 import { MonthNavigator } from './MonthNavigator'
 import { MonthGrid } from './MonthGrid'
 import { DayExpensePanel } from './DayExpensePanel'
 import { useExpensesForMonth } from '../../hooks/useExpenses'
 import { aggregateExpenses } from '../../services/aggregation'
 import { useCalendarContext } from '../../components/layout/CalendarContext'
+import { getTodayISO } from '../../lib/dates'
 
 export function CalendarPage() {
   const [viewDate, setViewDate] = useState(() => new Date())
@@ -25,6 +26,13 @@ export function CalendarPage() {
   const goToNextMonth = useCallback(() => {
     setViewDate((prev) => addMonths(prev, 1))
   }, [])
+
+  const goToToday = useCallback(() => {
+    setViewDate(new Date())
+    setSelectedDate(getTodayISO())
+  }, [setSelectedDate])
+
+  const isCurrentMonth = isSameMonth(viewDate, new Date())
 
   const handleDayClick = useCallback((date: string) => {
     setSelectedDate(date)
@@ -70,6 +78,8 @@ export function CalendarPage() {
         monthLabel={format(viewDate, 'MMMM yyyy')}
         onPrevious={goToPreviousMonth}
         onNext={goToNextMonth}
+        onToday={goToToday}
+        isCurrentMonth={isCurrentMonth}
       />
       <MonthGrid
         year={year}
