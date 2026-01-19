@@ -40,9 +40,8 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
           return
         }
 
-        // Allow only numbers and single decimal point
-        // Also allow starting with a decimal point
-        const sanitized = input.replace(/[^0-9.]/g, '')
+        // Allow only numbers, dots, and commas (normalize commas to dots)
+        const sanitized = input.replace(/[^0-9.,]/g, '').replace(/,/g, '.')
 
         // Prevent multiple decimal points
         const parts = sanitized.split('.')

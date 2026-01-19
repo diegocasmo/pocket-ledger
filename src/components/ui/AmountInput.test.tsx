@@ -76,6 +76,37 @@ describe('AmountInput', () => {
 
       expect(onChange).toHaveBeenCalledWith('99.99')
     })
+
+    it('normalizes comma to decimal point', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      fireEvent.change(input, { target: { value: '12,50' } })
+
+      expect(onChange).toHaveBeenCalledWith('12.50')
+    })
+
+    it('handles multiple commas by normalizing to single decimal point', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      fireEvent.change(input, { target: { value: '12,34,56' } })
+
+      // Normalizes commas to dots, then handles multiple decimals
+      expect(onChange).toHaveBeenCalledWith('12.34')
+    })
+
+    it('handles mixed commas and dots', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      fireEvent.change(input, { target: { value: '12.34,56' } })
+
+      expect(onChange).toHaveBeenCalledWith('12.34')
+    })
   })
 
   describe('empty input', () => {
