@@ -1,4 +1,5 @@
-import { forwardRef, useState, useEffect, useCallback } from 'react'
+import { forwardRef } from 'react'
+import CurrencyInput from 'react-currency-input-field'
 
 interface AmountInputProps {
   value: string
@@ -23,50 +24,6 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
     },
     ref
   ) => {
-    const [displayValue, setDisplayValue] = useState(value)
-
-    useEffect(() => {
-      setDisplayValue(value)
-    }, [value])
-
-    const handleChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const input = e.target.value
-
-        // Allow empty input
-        if (input === '') {
-          setDisplayValue('')
-          onChange('')
-          return
-        }
-
-        // Normalize locale-specific decimal separators to period
-        // Covers: comma (U+002C), Arabic comma (U+060C), Arabic decimal separator (U+066B), Fullwidth comma (U+FF0C)
-        const sanitized = input
-          .replace(/[^0-9.\u002C\u060C\u066B\uFF0C]/g, '')
-          .replace(/[\u002C\u060C\u066B\uFF0C]/g, '.')
-
-        // Prevent multiple decimal points
-        const parts = sanitized.split('.')
-        let formatted: string
-        if (parts.length > 2) {
-          formatted = parts[0] + '.' + parts.slice(1).join('')
-        } else {
-          formatted = sanitized
-        }
-
-        // Limit to 2 decimal places
-        const decimalIndex = formatted.indexOf('.')
-        if (decimalIndex !== -1 && formatted.length - decimalIndex > 3) {
-          formatted = formatted.substring(0, decimalIndex + 3)
-        }
-
-        setDisplayValue(formatted)
-        onChange(formatted)
-      },
-      [onChange]
-    )
-
     const inputId = label.toLowerCase().replace(/\s+/g, '-')
 
     return (
@@ -81,16 +38,27 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]">
             $
           </span>
-          <input
+          <CurrencyInput
             ref={ref}
             id={inputId}
-            type="text"
-            inputMode="decimal"
-            value={displayValue}
-            onChange={handleChange}
+            value={value}
+            onValueChange={(newValue) => {
+              onChange(newValue ?? '')
+            }}
             placeholder={placeholder}
             disabled={disabled}
             autoFocus={autoFocus}
+            decimalsLimit={2}
+            allowNegativeValue={false}
+            decimalSeparator="."
+            groupSeparator=""
+            transformRawValue={(rawValue) => {
+              // Normalize locale-specific decimal separators to period
+              // Covers: comma (U+002C), Arabic comma (U+060C), Arabic decimal separator (U+066B), Fullwidth comma (U+FF0C)
+              const normalized = rawValue.replace(/[\u002C\u060C\u066B\uFF0C]/g, '.')
+              // Filter out non-numeric characters (keep only digits and decimal point)
+              return normalized.replace(/[^0-9.]/g, '')
+            }}
             className={`
               w-full pl-7 pr-3 py-2 rounded-lg border
               bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
