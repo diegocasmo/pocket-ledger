@@ -190,7 +190,9 @@ describe('useExpenses hooks', () => {
 
       const { result } = renderHook(() => useDeleteExpense(), { wrapper })
 
-      await result.current.mutateAsync('delete-expense')
+      await act(async () => {
+        await result.current.mutateAsync('delete-expense')
+      })
 
       await waitFor(() => {
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['expenses'] })

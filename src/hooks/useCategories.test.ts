@@ -158,7 +158,9 @@ describe('useCategories hooks', () => {
 
       const { result } = renderHook(() => useDeleteCategory(), { wrapper })
 
-      await result.current.mutateAsync('cat-to-delete')
+      await act(async () => {
+        await result.current.mutateAsync('cat-to-delete')
+      })
 
       await waitFor(() => {
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['categories'] })
