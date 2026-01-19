@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Button } from '../../components/ui/Button'
-import { Modal } from '../../components/ui/Modal'
-import { DateRangePicker } from '../../components/ui/DateRangePicker'
+import { Button } from '@/components/ui/Button'
+import { Dialog } from '@/components/ui/Dialog'
+import { DateRangePicker } from '@/components/ui/DateRangePicker'
 
 type RangeType = 'week' | 'month' | 'year' | 'custom'
 
@@ -65,7 +65,7 @@ export function RangePicker({
         </Button>
       </div>
 
-      <Modal
+      <Dialog
         isOpen={showCustomPicker}
         onClose={() => setShowCustomPicker(false)}
         title="Select Date Range"
@@ -93,7 +93,7 @@ export function RangePicker({
             </Button>
           </div>
         </div>
-      </Modal>
+      </Dialog>
     </>
   )
 }

@@ -1,6 +1,6 @@
-import { Button } from '../../components/ui/Button'
-import { useSettings, useUpdateSettings } from '../../hooks/useSettings'
-import type { Settings } from '../../types'
+import { Button } from '@/components/ui/Button'
+import { useSettings, useUpdateSettings } from '@/hooks/useSettings'
+import type { Settings } from '@/types'
 
 const themeOptions: { value: Settings['theme']; label: string }[] = [
   { value: 'light', label: 'Light' },

@@ -1,5 +1,5 @@
-import { db } from './index'
-import type { Settings } from '../types'
+import { db } from '@/db'
+import type { Settings } from '@/types'
 
 const DEFAULT_SETTINGS: Settings = {
   id: 'settings',

@@ -1,5 +1,5 @@
-import { db } from './index'
-import type { Category } from '../types'
+import { db } from '@/db'
+import type { Category } from '@/types'
 
 const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = [
   { name: 'Food & Dining', color: '#ef4444', usageCount: 0 },

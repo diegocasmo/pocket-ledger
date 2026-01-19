@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Button } from '../../components/ui/Button'
-import { useCategories } from '../../hooks/useCategories'
-import { CategoryFormModal } from './CategoryFormModal'
-import type { Category } from '../../types'
+import { Button } from '@/components/ui/Button'
+import { useCategories } from '@/hooks/useCategories'
+import { CategoryFormModal } from '@/features/categories/CategoryFormModal'
+import type { Category } from '@/types'
 
 export function CategoriesPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)

@@ -1,5 +1,5 @@
-import { useSettings, useUpdateSettings } from './useSettings'
-import type { Settings } from '../types'
+import { useSettings, useUpdateSettings } from '@/hooks/useSettings'
+import type { Settings } from '@/types'
 
 export function useTheme() {
   const { data: settings } = useSettings()

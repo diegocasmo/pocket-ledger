@@ -9,8 +9,8 @@ import {
   listExpensesByCategory,
   type CreateExpenseInput,
   type UpdateExpenseInput,
-} from '../db/expensesRepo'
-import { getMonthRange } from '../lib/dates'
+} from '@/db/expensesRepo'
+import { getMonthRange } from '@/lib/dates'
 
 const EXPENSES_KEY = ['expenses']
 

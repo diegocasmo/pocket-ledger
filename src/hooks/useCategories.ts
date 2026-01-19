@@ -5,8 +5,8 @@ import {
   updateCategory,
   deleteCategory,
   categoryHasExpenses,
-} from '../db/categoriesRepo'
-import type { Category } from '../types'
+} from '@/db/categoriesRepo'
+import type { Category } from '@/types'
 
 const CATEGORIES_KEY = ['categories']
 

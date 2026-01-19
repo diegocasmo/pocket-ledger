@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react'
-import { useCategories } from '../../hooks/useCategories'
-import { formatCentsToUsd } from '../../services/money'
+import { useCategories } from '@/hooks/useCategories'
+import { formatCentsToUsd } from '@/services/money'
 
 interface CategoryBreakdownTableProps {
   byCategory: Record<string, number>

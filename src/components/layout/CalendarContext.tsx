@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { Expense } from '../../types'
+import type { Expense } from '@/types'
 
 export interface CalendarContextValue {
   selectedDate: string | null

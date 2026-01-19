@@ -1,7 +1,7 @@
-import { Dialog } from '../../components/ui/Dialog'
-import { Button } from '../../components/ui/Button'
-import { useCategories } from '../../hooks/useCategories'
-import type { Category } from '../../types'
+import { Dialog } from '@/components/ui/Dialog'
+import { Button } from '@/components/ui/Button'
+import { useCategories } from '@/hooks/useCategories'
+import type { Category } from '@/types'
 
 interface CategoryListModalProps {
   isOpen: boolean

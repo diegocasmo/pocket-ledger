@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSettings, updateSettings } from '../db/settingsRepo'
-import type { Settings } from '../types'
+import { getSettings, updateSettings } from '@/db/settingsRepo'
+import type { Settings } from '@/types'
 
 const SETTINGS_KEY = ['settings']
 

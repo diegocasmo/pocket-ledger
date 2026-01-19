@@ -8,9 +8,9 @@ import {
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
-} from './useCategories'
-import { db } from '../db'
-import { createTestQueryClient, createWrapper } from '../test/setup'
+} from '@/hooks/useCategories'
+import { db } from '@/db'
+import { createTestQueryClient, createWrapper } from '@/test/setup'
 
 describe('useCategories hooks', () => {
   describe('useCategories', () => {

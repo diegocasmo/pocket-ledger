@@ -8,7 +8,7 @@ import {
   isToday,
   isFutureDate,
   getTodayISO,
-} from './dates'
+} from '@/lib/dates'
 
 describe('formatDateToISO', () => {
   it('formats a date to ISO string', () => {

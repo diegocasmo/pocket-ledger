@@ -1,13 +1,13 @@
-import { Dialog } from '../../components/ui/Dialog'
-import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
-import { ExpenseForm } from './ExpenseForm'
+import { Dialog } from '@/components/ui/Dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { ExpenseForm } from '@/features/expenses/ExpenseForm'
 import {
   useCreateExpense,
   useUpdateExpense,
   useDeleteExpense,
-} from '../../hooks/useExpenses'
-import { useDeleteConfirmation } from '../../hooks/useDeleteConfirmation'
-import type { Expense } from '../../types'
+} from '@/hooks/useExpenses'
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation'
+import type { Expense } from '@/types'
 
 interface ExpenseFormModalProps {
   isOpen: boolean

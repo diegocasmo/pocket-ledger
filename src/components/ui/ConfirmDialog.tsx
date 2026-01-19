@@ -1,5 +1,5 @@
-import { Dialog } from './Dialog'
-import { Button } from './Button'
+import { Dialog } from '@/components/ui/Dialog'
+import { Button } from '@/components/ui/Button'
 
 interface ConfirmDialogProps {
   isOpen: boolean

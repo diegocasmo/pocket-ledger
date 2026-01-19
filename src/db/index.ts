@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
-import type { Expense, Category, Settings } from '../types'
+import type { Expense, Category, Settings } from '@/types'
 
 const db = new Dexie('PocketLedgerDB') as Dexie & {
   expenses: EntityTable<Expense, 'id'>

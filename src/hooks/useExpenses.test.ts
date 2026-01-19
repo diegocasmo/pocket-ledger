@@ -9,9 +9,9 @@ import {
   useCreateExpense,
   useUpdateExpense,
   useDeleteExpense,
-} from './useExpenses'
-import { db } from '../db'
-import { createTestQueryClient, createWrapper } from '../test/setup'
+} from '@/hooks/useExpenses'
+import { db } from '@/db'
+import { createTestQueryClient, createWrapper } from '@/test/setup'
 
 describe('useExpenses hooks', () => {
   beforeEach(async () => {

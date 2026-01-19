@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useCategories } from '../../hooks/useCategories'
-import { CategoryListModal } from './CategoryListModal'
-import { CategoryFormModal } from './CategoryFormModal'
-import type { Category } from '../../types'
+import { useCategories } from '@/hooks/useCategories'
+import { CategoryListModal } from '@/features/categories/CategoryListModal'
+import { CategoryFormModal } from '@/features/categories/CategoryFormModal'
+import type { Category } from '@/types'
 
 interface CategorySelectProps {
   value: string

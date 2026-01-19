@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { aggregateExpenses } from './aggregation'
-import type { Expense } from '../types'
+import { aggregateExpenses } from '@/services/aggregation'
+import type { Expense } from '@/types'
 
 const createExpense = (
   overrides: Partial<Expense> & Pick<Expense, 'date' | 'amountCents' | 'categoryId'>

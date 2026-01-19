@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react'
-import { useCategories } from '../../hooks/useCategories'
-import { formatCentsToUsd } from '../../services/money'
-import type { Expense } from '../../types'
+import { useCategories } from '@/hooks/useCategories'
+import { formatCentsToUsd } from '@/services/money'
+import type { Expense } from '@/types'
 
 interface ExpenseListProps {
   expenses: Expense[]

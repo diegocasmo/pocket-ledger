@@ -1,6 +1,6 @@
 import { isSameMonth } from 'date-fns'
-import { DayCell } from './DayCell'
-import { formatDateToISO, getCalendarGrid } from '../../lib/dates'
+import { DayCell } from '@/features/calendar/DayCell'
+import { formatDateToISO, getCalendarGrid } from '@/lib/dates'
 
 interface MonthGridProps {
   year: number

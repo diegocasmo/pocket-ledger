@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AppLayout } from './components/layout/AppLayout'
-import { CalendarPage } from './features/calendar/CalendarPage'
-import { InsightsPage } from './features/insights/InsightsPage'
-import { SettingsPage } from './features/settings/SettingsPage'
-import { CategoriesPage } from './features/categories/CategoriesPage'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { CalendarPage } from '@/features/calendar/CalendarPage'
+import { InsightsPage } from '@/features/insights/InsightsPage'
+import { SettingsPage } from '@/features/settings/SettingsPage'
+import { CategoriesPage } from '@/features/categories/CategoriesPage'
 
 function App() {
   return (

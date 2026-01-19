@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Dialog } from '../../components/ui/Dialog'
-import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
-import { CategoryForm } from './CategoryForm'
+import { Dialog } from '@/components/ui/Dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { CategoryForm } from '@/features/categories/CategoryForm'
 import {
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
   useCategoryHasExpenses,
-} from '../../hooks/useCategories'
-import { useDeleteConfirmation } from '../../hooks/useDeleteConfirmation'
-import { PRESET_COLORS } from '../../constants/colors'
-import type { Category } from '../../types'
+} from '@/hooks/useCategories'
+import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation'
+import { PRESET_COLORS } from '@/constants/colors'
+import type { Category } from '@/types'
 
 interface CategoryFormModalProps {
   isOpen: boolean
@@ -24,7 +24,7 @@ export function CategoryFormModal({
   category,
 }: CategoryFormModalProps) {
   const [name, setName] = useState('')
-  const [color, setColor] = useState(PRESET_COLORS[0])
+  const [color, setColor] = useState<string>(PRESET_COLORS[0])
 
   const createCategory = useCreateCategory()
   const updateCategory = useUpdateCategory()

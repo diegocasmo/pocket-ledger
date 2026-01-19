@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ExpenseForm } from './ExpenseForm'
-import { db } from '../../db'
-import { renderWithClient } from '../../test/setup'
+import { ExpenseForm } from '@/features/expenses/ExpenseForm'
+import { db } from '@/db'
+import { renderWithClient } from '@/test/setup'
 
 describe('ExpenseForm', () => {
   beforeEach(async () => {

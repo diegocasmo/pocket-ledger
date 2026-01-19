@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '../../components/ui/Button'
-import { ExpenseFormModal } from '../expenses/ExpenseFormModal'
-import { useExpensesByCategory } from '../../hooks/useExpenses'
-import { useCategories } from '../../hooks/useCategories'
-import { formatCentsToUsd } from '../../services/money'
-import { parseDateFromISO } from '../../lib/dates'
-import type { Expense } from '../../types'
+import { Button } from '@/components/ui/Button'
+import { ExpenseFormModal } from '@/features/expenses/ExpenseFormModal'
+import { useExpensesByCategory } from '@/hooks/useExpenses'
+import { useCategories } from '@/hooks/useCategories'
+import { formatCentsToUsd } from '@/services/money'
+import { parseDateFromISO } from '@/lib/dates'
+import type { Expense } from '@/types'
 
 interface CategoryExpenseListProps {
   categoryId: string

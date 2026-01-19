@@ -4,7 +4,7 @@ import { beforeEach } from 'vitest'
 import { createElement, type ReactNode } from 'react'
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { db } from '../db'
+import { db } from '@/db'
 
 beforeEach(async () => {
   await db.expenses.clear()

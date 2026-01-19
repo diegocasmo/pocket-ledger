@@ -1,8 +1,8 @@
 import { format } from 'date-fns'
-import { ExpenseList } from './ExpenseList'
-import { useExpensesForDay } from '../../hooks/useExpenses'
-import { parseDateFromISO, isFutureDate } from '../../lib/dates'
-import type { Expense } from '../../types'
+import { ExpenseList } from '@/features/calendar/ExpenseList'
+import { useExpensesForDay } from '@/hooks/useExpenses'
+import { parseDateFromISO, isFutureDate } from '@/lib/dates'
+import type { Expense } from '@/types'
 
 interface DayExpensePanelProps {
   date: string

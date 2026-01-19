@@ -1,10 +1,10 @@
 import { ReactNode, useEffect, useState, useCallback } from 'react'
-import { BottomNav } from './BottomNav'
-import { ExpenseFormModal } from '../../features/expenses/ExpenseFormModal'
-import { useSettings } from '../../hooks/useSettings'
-import { getTodayISO, isFutureDate } from '../../lib/dates'
-import { CalendarContext } from './CalendarContext'
-import type { Expense } from '../../types'
+import { BottomNav } from '@/components/layout/BottomNav'
+import { ExpenseFormModal } from '@/features/expenses/ExpenseFormModal'
+import { useSettings } from '@/hooks/useSettings'
+import { getTodayISO, isFutureDate } from '@/lib/dates'
+import { CalendarContext } from '@/components/layout/CalendarContext'
+import type { Expense } from '@/types'
 
 interface AppLayoutProps {
   children: ReactNode

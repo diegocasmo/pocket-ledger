@@ -1,6 +1,6 @@
-import { db } from './index'
-import type { Expense } from '../types'
-import { incrementUsage } from './categoriesRepo'
+import { db } from '@/db'
+import type { Expense } from '@/types'
+import { incrementUsage } from '@/db/categoriesRepo'
 
 export interface CreateExpenseInput {
   date: string

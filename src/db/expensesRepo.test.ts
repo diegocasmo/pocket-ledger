@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { db } from './index'
+import { db } from '@/db'
 import {
   createExpense,
   updateExpense,
@@ -8,8 +8,8 @@ import {
   listExpensesForDateRange,
   listExpensesForDay,
   listExpensesByCategory,
-} from './expensesRepo'
-import * as categoriesRepo from './categoriesRepo'
+} from '@/db/expensesRepo'
+import * as categoriesRepo from '@/db/categoriesRepo'
 
 describe('expensesRepo', () => {
   beforeEach(async () => {

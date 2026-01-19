@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { db } from './index'
+import { db } from '@/db'
 import {
   initDefaultCategories,
   listCategories,
@@ -9,7 +9,7 @@ import {
   deleteCategory,
   incrementUsage,
   categoryHasExpenses,
-} from './categoriesRepo'
+} from '@/db/categoriesRepo'
 
 describe('categoriesRepo', () => {
   describe('initDefaultCategories', () => {

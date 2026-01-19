@@ -1,6 +1,6 @@
-import { Button } from '../../components/ui/Button'
-import { Input } from '../../components/ui/Input'
-import { PRESET_COLORS } from '../../constants/colors'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { PRESET_COLORS } from '@/constants/colors'
 
 interface CategoryFormProps {
   name: string

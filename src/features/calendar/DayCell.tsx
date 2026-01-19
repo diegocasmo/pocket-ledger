@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
-import { parseDateFromISO, isToday, isFutureDate } from '../../lib/dates'
-import { formatCentsToWholeDollars } from '../../services/money'
+import { parseDateFromISO, isToday, isFutureDate } from '@/lib/dates'
+import { formatCentsToWholeDollars } from '@/services/money'
 
 interface DayCellProps {
   date: string

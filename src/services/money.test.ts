@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseUsdToCents, formatCentsToUsd, formatCentsToWholeDollars } from './money'
+import { parseUsdToCents, formatCentsToUsd, formatCentsToWholeDollars } from '@/services/money'
 
 describe('parseUsdToCents', () => {
   it('parses basic decimal amounts', () => {

@@ -1,4 +1,4 @@
-import type { Expense, RangeAggregate } from '../types'
+import type { Expense, RangeAggregate } from '@/types'
 
 /**
  * Aggregate expenses for analytics.

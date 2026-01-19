@@ -1,12 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { format, addMonths, subMonths, isSameMonth } from 'date-fns'
-import { MonthNavigator } from './MonthNavigator'
-import { MonthGrid } from './MonthGrid'
-import { DayExpensePanel } from './DayExpensePanel'
-import { useExpensesForMonth } from '../../hooks/useExpenses'
-import { aggregateExpenses } from '../../services/aggregation'
-import { useCalendarContext } from '../../components/layout/CalendarContext'
-import { getTodayISO } from '../../lib/dates'
+import { MonthNavigator } from '@/features/calendar/MonthNavigator'
+import { MonthGrid } from '@/features/calendar/MonthGrid'
+import { DayExpensePanel } from '@/features/calendar/DayExpensePanel'
+import { useExpensesForMonth } from '@/hooks/useExpenses'
+import { aggregateExpenses } from '@/services/aggregation'
+import { useCalendarContext } from '@/components/layout/CalendarContext'
+import { getTodayISO } from '@/lib/dates'
 
 export function CalendarPage() {
   const [viewDate, setViewDate] = useState(() => new Date())

@@ -1,12 +1,12 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { format } from 'date-fns'
-import { AmountInput } from '../../components/ui/AmountInput'
-import { Input } from '../../components/ui/Input'
-import { Button } from '../../components/ui/Button'
-import { CategorySelect } from '../categories/CategorySelect'
-import { parseDateFromISO, isFutureDate } from '../../lib/dates'
-import { parseUsdToCents } from '../../services/money'
-import type { Expense } from '../../types'
+import { AmountInput } from '@/components/ui/AmountInput'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
+import { CategorySelect } from '@/features/categories/CategorySelect'
+import { parseDateFromISO, isFutureDate } from '@/lib/dates'
+import { parseUsdToCents } from '@/services/money'
+import type { Expense } from '@/types'
 
 interface ExpenseFormProps {
   date: string

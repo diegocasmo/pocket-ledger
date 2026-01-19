@@ -1,4 +1,4 @@
-import { formatCentsToUsd } from '../../services/money'
+import { formatCentsToUsd } from '@/services/money'
 
 interface SummaryTileProps {
   totalCents: number

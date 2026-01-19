@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { db } from './index'
-import { getSettings, updateSettings } from './settingsRepo'
+import { db } from '@/db'
+import { getSettings, updateSettings } from '@/db/settingsRepo'
 
 describe('settingsRepo', () => {
   describe('getSettings', () => {
