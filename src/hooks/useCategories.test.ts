@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createElement } from 'react'
 import {
@@ -109,9 +109,11 @@ describe('useCategories hooks', () => {
 
       const { result } = renderHook(() => useCreateCategory(), { wrapper })
 
-      await result.current.mutateAsync({
-        name: 'New Category',
-        color: '#abcdef',
+      await act(async () => {
+        await result.current.mutateAsync({
+          name: 'New Category',
+          color: '#abcdef',
+        })
       })
 
       await waitFor(() => {
@@ -139,9 +141,11 @@ describe('useCategories hooks', () => {
 
       const { result } = renderHook(() => useUpdateCategory(), { wrapper })
 
-      await result.current.mutateAsync({
-        id: 'cat-1',
-        name: 'Updated Food',
+      await act(async () => {
+        await result.current.mutateAsync({
+          id: 'cat-1',
+          name: 'Updated Food',
+        })
       })
 
       await waitFor(() => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createElement } from 'react'
 import {
@@ -138,10 +138,12 @@ describe('useExpenses hooks', () => {
 
       const { result } = renderHook(() => useCreateExpense(), { wrapper })
 
-      await result.current.mutateAsync({
-        date: '2024-01-15',
-        amountCents: 1000,
-        categoryId: 'cat-1',
+      await act(async () => {
+        await result.current.mutateAsync({
+          date: '2024-01-15',
+          amountCents: 1000,
+          categoryId: 'cat-1',
+        })
       })
 
       await waitFor(() => {
@@ -170,9 +172,11 @@ describe('useExpenses hooks', () => {
 
       const { result } = renderHook(() => useUpdateExpense(), { wrapper })
 
-      await result.current.mutateAsync({
-        id: 'update-expense',
-        amountCents: 2000,
+      await act(async () => {
+        await result.current.mutateAsync({
+          id: 'update-expense',
+          amountCents: 2000,
+        })
       })
 
       await waitFor(() => {

@@ -5,7 +5,7 @@ import { MonthGrid } from './MonthGrid'
 import { DayExpensePanel } from './DayExpensePanel'
 import { useExpensesForMonth } from '../../hooks/useExpenses'
 import { aggregateExpenses } from '../../services/aggregation'
-import { useCalendarContext } from '../../components/layout/AppLayout'
+import { useCalendarContext } from '../../components/layout/CalendarContext'
 
 export function CalendarPage() {
   const [viewDate, setViewDate] = useState(() => new Date())

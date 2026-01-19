@@ -1,25 +1,10 @@
-import { ReactNode, useEffect, useState, createContext, useContext, useCallback } from 'react'
+import { ReactNode, useEffect, useState, useCallback } from 'react'
 import { BottomNav } from './BottomNav'
 import { ExpenseFormModal } from '../../features/expenses/ExpenseFormModal'
 import { useSettings } from '../../hooks/useSettings'
 import { getTodayISO, isFutureDate } from '../../lib/dates'
+import { CalendarContext } from './CalendarContext'
 import type { Expense } from '../../types'
-
-interface CalendarContextValue {
-  selectedDate: string | null
-  setSelectedDate: (date: string | null) => void
-  openExpenseForm: (expense?: Expense) => void
-}
-
-const CalendarContext = createContext<CalendarContextValue | null>(null)
-
-export function useCalendarContext() {
-  const context = useContext(CalendarContext)
-  if (!context) {
-    throw new Error('useCalendarContext must be used within AppLayout')
-  }
-  return context
-}
 
 interface AppLayoutProps {
   children: ReactNode
