@@ -40,8 +40,11 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
           return
         }
 
-        // Allow only numbers, dots, and commas (normalize commas to dots)
-        const sanitized = input.replace(/[^0-9.,]/g, '').replace(/,/g, '.')
+        // Normalize locale-specific decimal separators to period
+        // Covers: comma (U+002C), Arabic comma (U+060C), Arabic decimal separator (U+066B), Fullwidth comma (U+FF0C)
+        const sanitized = input
+          .replace(/[^0-9.\u002C\u060C\u066B\uFF0C]/g, '')
+          .replace(/[\u002C\u060C\u066B\uFF0C]/g, '.')
 
         // Prevent multiple decimal points
         const parts = sanitized.split('.')

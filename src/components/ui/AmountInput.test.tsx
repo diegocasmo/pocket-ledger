@@ -107,6 +107,47 @@ describe('AmountInput', () => {
 
       expect(onChange).toHaveBeenCalledWith('12.34')
     })
+
+    it('normalizes Arabic comma (U+060C) to decimal point', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      fireEvent.change(input, { target: { value: '12\u060C50' } })
+
+      expect(onChange).toHaveBeenCalledWith('12.50')
+    })
+
+    it('normalizes Arabic decimal separator (U+066B) to decimal point', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      fireEvent.change(input, { target: { value: '12\u066B50' } })
+
+      expect(onChange).toHaveBeenCalledWith('12.50')
+    })
+
+    it('normalizes fullwidth comma (U+FF0C) to decimal point', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      fireEvent.change(input, { target: { value: '12\uFF0C50' } })
+
+      expect(onChange).toHaveBeenCalledWith('12.50')
+    })
+
+    it('handles mixed Unicode decimal separators (first separator wins)', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      // Mix of ASCII comma, Arabic comma, and fullwidth comma
+      fireEvent.change(input, { target: { value: '12,34\u060C56' } })
+
+      expect(onChange).toHaveBeenCalledWith('12.34')
+    })
   })
 
   describe('empty input', () => {
