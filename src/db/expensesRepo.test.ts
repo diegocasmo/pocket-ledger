@@ -81,10 +81,8 @@ describe('expensesRepo', () => {
   })
 
   describe('updateExpense', () => {
-    let expenseId: string
-
     beforeEach(async () => {
-      const expense = await db.expenses.add({
+      await db.expenses.add({
         id: 'expense-1',
         date: '2024-01-15',
         amountCents: 1000,
@@ -93,7 +91,6 @@ describe('expensesRepo', () => {
         createdAt: 1000000,
         updatedAt: 1000000,
       })
-      expenseId = expense as string
     })
 
     it('throws error if expense not found', async () => {
