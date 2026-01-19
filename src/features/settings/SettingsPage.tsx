@@ -1,8 +1,8 @@
 import { Button } from '../../components/ui/Button'
 import { useSettings, useUpdateSettings } from '../../hooks/useSettings'
-import type { ThemeOption } from '../../types'
+import type { Settings } from '../../types'
 
-const themeOptions: { value: ThemeOption; label: string }[] = [
+const themeOptions: { value: Settings['theme']; label: string }[] = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
   { value: 'system', label: 'System' },
@@ -17,7 +17,7 @@ export function SettingsPage() {
   const { data: settings } = useSettings()
   const updateSettings = useUpdateSettings()
 
-  const handleThemeChange = (theme: ThemeOption) => {
+  const handleThemeChange = (theme: Settings['theme']) => {
     updateSettings.mutate({ theme })
   }
 

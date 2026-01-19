@@ -1,14 +1,15 @@
 import { ReactNode, useEffect, useCallback, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { X } from 'lucide-react'
 
-interface BottomSheetProps {
+interface DialogProps {
   isOpen: boolean
   onClose: () => void
   title?: string
   children: ReactNode
 }
 
-export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetProps) {
+export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
   const sheetRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
@@ -78,7 +79,7 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
         }}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? 'sheet-title' : undefined}
+        aria-labelledby={title ? 'dialog-title' : undefined}
       >
         {/* Drag handle */}
         <div
@@ -92,7 +93,7 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
         {title && (
           <div className="flex items-center justify-between px-4 pb-3 border-b border-[var(--color-border)]">
             <h2
-              id="sheet-title"
+              id="dialog-title"
               className="text-lg font-semibold text-[var(--color-text-primary)]"
             >
               {title}
@@ -102,14 +103,7 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
               className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
               aria-label="Close"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-5 h-5" />
             </button>
           </div>
         )}
@@ -120,12 +114,12 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
         className="relative hidden md:block w-full max-w-md bg-[var(--color-bg-primary)] rounded-xl shadow-xl max-h-[85vh] overflow-auto"
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? 'modal-title' : undefined}
+        aria-labelledby={title ? 'dialog-title-desktop' : undefined}
       >
         {title && (
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
             <h2
-              id="modal-title"
+              id="dialog-title-desktop"
               className="text-lg font-semibold text-[var(--color-text-primary)]"
             >
               {title}
@@ -133,16 +127,9 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
             <button
               onClick={onClose}
               className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
-              aria-label="Close modal"
+              aria-label="Close"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-5 h-5" />
             </button>
           </div>
         )}

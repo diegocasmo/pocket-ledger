@@ -1,11 +1,6 @@
 import { useState, useCallback } from 'react'
 import {
   format,
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  addDays,
   isSameMonth,
   isSameDay,
   addMonths,
@@ -13,8 +8,9 @@ import {
   isAfter,
   isBefore,
 } from 'date-fns'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from './Button'
-import { formatDateToISO, parseDateFromISO } from '../../lib/dates'
+import { formatDateToISO, parseDateFromISO, getCalendarGrid } from '../../lib/dates'
 
 interface DateRangePickerProps {
   startDate: string
@@ -55,22 +51,7 @@ export function DateRangePicker({
     [selectingStart, start, onRangeChange, max]
   )
 
-  const monthStart = startOfMonth(viewDate)
-  const monthEnd = endOfMonth(viewDate)
-  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 })
-  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
-
-  const days: Date[] = []
-  let day = calendarStart
-  while (day <= calendarEnd) {
-    days.push(day)
-    day = addDays(day, 1)
-  }
-
-  const weeks: Date[][] = []
-  for (let i = 0; i < days.length; i += 7) {
-    weeks.push(days.slice(i, i + 7))
-  }
+  const { weeks } = getCalendarGrid(viewDate, 0)
 
   const isInRange = (date: Date) => {
     return (
@@ -92,14 +73,7 @@ export function DateRangePicker({
           onClick={() => setViewDate(subMonths(viewDate, 1))}
           aria-label="Previous month"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <ChevronLeft className="w-5 h-5" />
         </Button>
         <span className="font-semibold text-[var(--color-text-primary)]">
           {format(viewDate, 'MMMM yyyy')}
@@ -110,14 +84,7 @@ export function DateRangePicker({
           onClick={() => setViewDate(addMonths(viewDate, 1))}
           aria-label="Next month"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+          <ChevronRight className="w-5 h-5" />
         </Button>
       </div>
 

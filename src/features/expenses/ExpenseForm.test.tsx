@@ -1,25 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ExpenseForm } from './ExpenseForm'
 import { db } from '../../db'
-
-function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
-}
-
-function renderWithClient(ui: React.ReactElement) {
-  const queryClient = createTestQueryClient()
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
-  )
-}
+import { renderWithClient } from '../../test/setup'
 
 describe('ExpenseForm', () => {
   beforeEach(async () => {

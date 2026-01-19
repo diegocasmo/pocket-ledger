@@ -1,4 +1,4 @@
-import { Modal } from './Modal'
+import { Dialog } from './Dialog'
 import { Button } from './Button'
 
 interface ConfirmDialogProps {
@@ -25,7 +25,7 @@ export function ConfirmDialog({
   isLoading = false,
 }: ConfirmDialogProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Dialog isOpen={isOpen} onClose={onClose} title={title}>
       <p className="text-[var(--color-text-secondary)] mb-6">{message}</p>
       <div className="flex gap-3 justify-end">
         <Button variant="secondary" onClick={onClose} disabled={isLoading}>
@@ -39,6 +39,6 @@ export function ConfirmDialog({
           {isLoading ? 'Loading...' : confirmLabel}
         </Button>
       </div>
-    </Modal>
+    </Dialog>
   )
 }

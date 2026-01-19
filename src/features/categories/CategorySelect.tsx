@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useCategories } from '../../hooks/useCategories'
-import { CategoryManagerModal } from './CategoryManagerModal'
+import { CategoryListModal } from './CategoryListModal'
+import { CategoryFormModal } from './CategoryFormModal'
+import type { Category } from '../../types'
 
 interface CategorySelectProps {
   value: string
@@ -9,10 +11,32 @@ interface CategorySelectProps {
 }
 
 export function CategorySelect({ value, onChange, error }: CategorySelectProps) {
-  const [showManager, setShowManager] = useState(false)
+  const [showList, setShowList] = useState(false)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [isCreating, setIsCreating] = useState(false)
   const { data: categories = [] } = useCategories()
 
   const selectedCategory = categories.find((c) => c.id === value)
+
+  const handleEdit = (category: Category) => {
+    setShowList(false)
+    setEditingCategory(category)
+  }
+
+  const handleCreate = () => {
+    setShowList(false)
+    setIsCreating(true)
+  }
+
+  const handleCloseForm = () => {
+    setEditingCategory(null)
+    setIsCreating(false)
+    setShowList(true)
+  }
+
+  const handleCloseList = () => {
+    setShowList(false)
+  }
 
   return (
     <>
@@ -29,7 +53,7 @@ export function CategorySelect({ value, onChange, error }: CategorySelectProps) 
             value={value}
             onChange={(e) => {
               if (e.target.value === '__manage__') {
-                setShowManager(true)
+                setShowList(true)
                 return
               }
               onChange(e.target.value)
@@ -68,9 +92,16 @@ export function CategorySelect({ value, onChange, error }: CategorySelectProps) 
         </div>
         {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
       </div>
-      <CategoryManagerModal
-        isOpen={showManager}
-        onClose={() => setShowManager(false)}
+      <CategoryListModal
+        isOpen={showList}
+        onClose={handleCloseList}
+        onEdit={handleEdit}
+        onCreate={handleCreate}
+      />
+      <CategoryFormModal
+        isOpen={isCreating || editingCategory !== null}
+        onClose={handleCloseForm}
+        category={editingCategory}
       />
     </>
   )

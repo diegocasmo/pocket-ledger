@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { ExpenseFormModal } from '../expenses/ExpenseFormModal'
 import { useExpensesByCategory } from '../../hooks/useExpenses'
@@ -40,14 +41,7 @@ export function CategoryExpenseList({
     <div className="p-4">
       <div className="flex items-center gap-2 mb-4">
         <Button variant="ghost" size="sm" onClick={onBack}>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <ChevronLeft className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-2">
           {category && (
@@ -84,19 +78,7 @@ export function CategoryExpenseList({
                 </p>
               )}
             </div>
-            <svg
-              className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <ChevronRight className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
           </button>
         ))}
       </div>

@@ -1,13 +1,6 @@
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  addDays,
-  isSameMonth,
-} from 'date-fns'
+import { isSameMonth } from 'date-fns'
 import { DayCell } from './DayCell'
-import { formatDateToISO } from '../../lib/dates'
+import { formatDateToISO, getCalendarGrid } from '../../lib/dates'
 
 interface MonthGridProps {
   year: number
@@ -19,22 +12,7 @@ interface MonthGridProps {
 
 export function MonthGrid({ year, month, dayTotals, onDayClick, selectedDate }: MonthGridProps) {
   const monthDate = new Date(year, month - 1, 1)
-  const monthStart = startOfMonth(monthDate)
-  const monthEnd = endOfMonth(monthDate)
-  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 })
-  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
-
-  const days: Date[] = []
-  let day = calendarStart
-  while (day <= calendarEnd) {
-    days.push(day)
-    day = addDays(day, 1)
-  }
-
-  const weeks: Date[][] = []
-  for (let i = 0; i < days.length; i += 7) {
-    weeks.push(days.slice(i, i + 7))
-  }
+  const { weeks } = getCalendarGrid(monthDate, 0)
 
   return (
     <div className="bg-[var(--color-bg-secondary)] rounded-xl p-2">

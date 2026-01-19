@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor, act } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { createElement } from 'react'
 import {
   useExpensesForMonth,
@@ -11,22 +11,7 @@ import {
   useDeleteExpense,
 } from './useExpenses'
 import { db } from '../db'
-
-function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
-}
-
-function createWrapper() {
-  const queryClient = createTestQueryClient()
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return createElement(QueryClientProvider, { client: queryClient }, children)
-  }
-}
+import { createTestQueryClient, createWrapper } from '../test/setup'
 
 describe('useExpenses hooks', () => {
   beforeEach(async () => {

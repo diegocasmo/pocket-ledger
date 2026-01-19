@@ -21,8 +21,6 @@ export interface Settings {
   theme: 'light' | 'dark' | 'system';
 }
 
-export type ThemeOption = 'light' | 'dark' | 'system';
-
 export interface RangeAggregate {
   totalCents: number;
   byCategory: Record<string, number>;  // categoryId -> totalCents

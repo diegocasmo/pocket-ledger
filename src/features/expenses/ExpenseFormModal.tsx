@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { BottomSheet } from '../../components/ui/BottomSheet'
+import { Dialog } from '../../components/ui/Dialog'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { ExpenseForm } from './ExpenseForm'
 import {
@@ -7,6 +6,7 @@ import {
   useUpdateExpense,
   useDeleteExpense,
 } from '../../hooks/useExpenses'
+import { useDeleteConfirmation } from '../../hooks/useDeleteConfirmation'
 import type { Expense } from '../../types'
 
 interface ExpenseFormModalProps {
@@ -22,17 +22,22 @@ export function ExpenseFormModal({
   date,
   expense,
 }: ExpenseFormModalProps) {
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-
   const createExpense = useCreateExpense()
   const updateExpense = useUpdateExpense()
   const deleteExpense = useDeleteExpense()
+
+  const deletion = useDeleteConfirmation<Expense>({
+    onDelete: async (item) => {
+      await deleteExpense.mutateAsync(item.id)
+    },
+    onSuccess: onClose,
+  })
 
   const isEditing = !!expense
   const isSubmitting =
     createExpense.isPending ||
     updateExpense.isPending ||
-    deleteExpense.isPending
+    deletion.isDeleting
 
   const handleSubmit = async (data: {
     amountCents: number
@@ -54,20 +59,14 @@ export function ExpenseFormModal({
   }
 
   const handleDelete = () => {
-    setShowDeleteConfirm(true)
-  }
-
-  const confirmDelete = async () => {
     if (expense) {
-      await deleteExpense.mutateAsync(expense.id)
-      setShowDeleteConfirm(false)
-      onClose()
+      deletion.requestDelete(expense)
     }
   }
 
   return (
     <>
-      <BottomSheet
+      <Dialog
         isOpen={isOpen}
         onClose={onClose}
         title={isEditing ? 'Edit Expense' : 'Add Expense'}
@@ -79,15 +78,15 @@ export function ExpenseFormModal({
           onDelete={isEditing ? handleDelete : undefined}
           isSubmitting={isSubmitting}
         />
-      </BottomSheet>
+      </Dialog>
       <ConfirmDialog
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={confirmDelete}
+        isOpen={deletion.isOpen}
+        onClose={deletion.cancelDelete}
+        onConfirm={deletion.confirmDelete}
         title="Delete Expense"
         message="Are you sure you want to delete this expense? This action cannot be undone."
         confirmLabel="Delete"
-        isLoading={deleteExpense.isPending}
+        isLoading={deletion.isDeleting}
       />
     </>
   )

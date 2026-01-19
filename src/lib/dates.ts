@@ -7,6 +7,7 @@ import {
   endOfWeek,
   startOfYear,
   endOfYear,
+  addDays,
   isToday as dateFnsIsToday,
   isFuture,
 } from 'date-fns'
@@ -82,4 +83,34 @@ export function isFutureDate(dateStr: string): boolean {
  */
 export function getTodayISO(): string {
   return formatDateToISO(new Date())
+}
+
+export interface CalendarGrid {
+  weeks: Date[][]
+}
+
+/**
+ * Generate a calendar grid for a given month
+ * @param monthDate - A date within the target month
+ * @param weekStartsOn - 0 for Sunday, 1 for Monday
+ */
+export function getCalendarGrid(monthDate: Date, weekStartsOn: 0 | 1 = 0): CalendarGrid {
+  const monthStart = startOfMonth(monthDate)
+  const monthEnd = endOfMonth(monthDate)
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn })
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn })
+
+  const days: Date[] = []
+  let day = calendarStart
+  while (day <= calendarEnd) {
+    days.push(day)
+    day = addDays(day, 1)
+  }
+
+  const weeks: Date[][] = []
+  for (let i = 0; i < days.length; i += 7) {
+    weeks.push(days.slice(i, i + 7))
+  }
+
+  return { weeks }
 }

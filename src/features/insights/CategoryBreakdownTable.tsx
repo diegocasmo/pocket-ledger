@@ -1,3 +1,4 @@
+import { ChevronRight } from 'lucide-react'
 import { useCategories } from '../../hooks/useCategories'
 import { formatCentsToUsd } from '../../services/money'
 
@@ -67,19 +68,7 @@ export function CategoryBreakdownTable({
                   </span>
                 </div>
               </div>
-              <svg
-                className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              <ChevronRight className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
             </button>
           )
         })}
