@@ -30,8 +30,10 @@ describe('CalendarPage', () => {
       renderCalendarPage()
 
       await waitFor(() => {
+        // Previous month button should always be visible
         expect(screen.getByLabelText('Previous month')).toBeInTheDocument()
-        expect(screen.getByLabelText('Next month')).toBeInTheDocument()
+        // Next month button is hidden when viewing the current month (blocks future navigation)
+        expect(screen.queryByLabelText('Next month')).not.toBeInTheDocument()
       })
     })
   })
