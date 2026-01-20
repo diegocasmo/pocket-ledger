@@ -53,14 +53,14 @@ export function CalendarPage() {
       if (Math.abs(diff) > 50) {
         if (diff > 0) {
           goToPreviousMonth()
-        } else {
+        } else if (!isCurrentMonth) {
           goToNextMonth()
         }
       }
 
       touchStartX.current = null
     },
-    [goToPreviousMonth, goToNextMonth]
+    [goToPreviousMonth, goToNextMonth, isCurrentMonth]
   )
 
   // Reset to current month on mount

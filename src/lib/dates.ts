@@ -79,6 +79,19 @@ export function isFutureDate(dateStr: string): boolean {
 }
 
 /**
+ * Check if a given year and month represent the current month or a future month
+ */
+export function isCurrentOrFutureMonth(year: number, month: number): boolean {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth() + 1 // Convert to 1-indexed
+
+  if (year > currentYear) return true
+  if (year === currentYear && month >= currentMonth) return true
+  return false
+}
+
+/**
  * Get current date as ISO string
  */
 export function getTodayISO(): string {

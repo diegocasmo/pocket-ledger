@@ -36,14 +36,18 @@ export function MonthNavigator({ monthLabel, onPrevious, onNext, onToday, isCurr
           </Button>
         )}
       </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onNext}
-        aria-label="Next month"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </Button>
+      {isCurrentMonth ? (
+        <div className="w-8 h-8" aria-hidden="true" />
+      ) : (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onNext}
+          aria-label="Next month"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </Button>
+      )}
     </div>
   )
 }
