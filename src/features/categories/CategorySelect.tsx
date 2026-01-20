@@ -51,6 +51,12 @@ export function CategorySelect({ value, onChange, error }: CategorySelectProps) 
           <select
             id="category"
             value={value}
+            onFocus={(e) => {
+              // Blur any other focused element to dismiss keyboard before picker opens
+              if (document.activeElement && document.activeElement !== e.target) {
+                ;(document.activeElement as HTMLElement).blur?.()
+              }
+            }}
             onChange={(e) => {
               if (e.target.value === '__manage__') {
                 setShowList(true)
