@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import {
   listCategories,
   createCategory,
@@ -32,6 +33,10 @@ export function useCreateCategory() {
     mutationFn: (input: Pick<Category, 'name' | 'color'>) => createCategory(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
+      toast.success('Category created')
+    },
+    onError: () => {
+      toast.error('Failed to create category')
     },
   })
 }
@@ -47,6 +52,10 @@ export function useUpdateCategory() {
       updateCategory(id, patch),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
+      toast.success('Category updated')
+    },
+    onError: () => {
+      toast.error('Failed to update category')
     },
   })
 }
@@ -58,6 +67,10 @@ export function useDeleteCategory() {
     mutationFn: (id: string) => deleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
+      toast.success('Category deleted')
+    },
+    onError: () => {
+      toast.error('Failed to delete category')
     },
   })
 }
