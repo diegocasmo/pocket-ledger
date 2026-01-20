@@ -107,7 +107,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
             </button>
           </div>
         )}
-        <div className="p-4 pb-8">{children}</div>
+        <div className="p-4 pb-8 touch-action-manipulation">{children}</div>
       </div>
       {/* Desktop modal */}
       <div
