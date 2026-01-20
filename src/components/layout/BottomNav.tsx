@@ -52,7 +52,7 @@ export function BottomNav({ onAddExpense }: BottomNavProps) {
         {/* FAB Add Button */}
         <button
           onClick={onAddExpense}
-          className="flex items-center justify-center w-14 h-14 -mt-8 rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-600 active:bg-primary-700 transition-colors"
+          className="flex items-center justify-center w-14 h-14 -mt-20 rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-600 active:bg-primary-700 transition-colors"
           aria-label="Add expense"
         >
           <Plus className="w-7 h-7" strokeWidth={2.5} />
