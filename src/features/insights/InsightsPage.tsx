@@ -101,3 +101,5 @@ export function InsightsPage() {
     </div>
   )
 }
+
+export default InsightsPage

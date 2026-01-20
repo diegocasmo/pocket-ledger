@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { useCategories } from '@/hooks/useCategories'
 import { formatCentsToUsd } from '@/services/money'
@@ -15,10 +16,12 @@ export function CategoryBreakdownTable({
 }: CategoryBreakdownTableProps) {
   const { data: categories = [] } = useCategories()
 
-  // Sort categories by total spent descending, filter out zero totals
-  const sortedCategories = categories
-    .filter((cat) => (byCategory[cat.id] ?? 0) > 0)
-    .sort((a, b) => (byCategory[b.id] ?? 0) - (byCategory[a.id] ?? 0))
+  // Memoize sorted categories to avoid recalculation on every render
+  const sortedCategories = useMemo(() => {
+    return categories
+      .filter((cat) => (byCategory[cat.id] ?? 0) > 0)
+      .sort((a, b) => (byCategory[b.id] ?? 0) - (byCategory[a.id] ?? 0))
+  }, [categories, byCategory])
 
   if (sortedCategories.length === 0) {
     return null

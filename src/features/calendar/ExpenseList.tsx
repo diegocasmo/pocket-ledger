@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { useCategories } from '@/hooks/useCategories'
 import { formatCentsToUsd } from '@/services/money'
@@ -11,14 +12,17 @@ interface ExpenseListProps {
 export function ExpenseList({ expenses, onEdit }: ExpenseListProps) {
   const { data: categories = [] } = useCategories()
 
+  // O(n) lookup map instead of O(n*m) find calls
+  const categoryMap = useMemo(() => {
+    return new Map(categories.map((c) => [c.id, c]))
+  }, [categories])
+
   const getCategoryName = (categoryId: string) => {
-    const category = categories.find((c) => c.id === categoryId)
-    return category?.name ?? 'Unknown'
+    return categoryMap.get(categoryId)?.name ?? 'Unknown'
   }
 
   const getCategoryColor = (categoryId: string) => {
-    const category = categories.find((c) => c.id === categoryId)
-    return category?.color ?? '#6b7280'
+    return categoryMap.get(categoryId)?.color ?? '#6b7280'
   }
 
   return (

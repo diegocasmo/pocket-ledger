@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import {
   createExpense,
   updateExpense,
@@ -67,6 +68,10 @@ export function useCreateExpense() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
       queryClient.invalidateQueries({ queryKey: ['categories'] })
+      toast.success('Expense added')
+    },
+    onError: () => {
+      toast.error('Failed to add expense')
     },
   })
 }
@@ -80,6 +85,10 @@ export function useUpdateExpense() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
       queryClient.invalidateQueries({ queryKey: ['categories'] })
+      toast.success('Expense updated')
+    },
+    onError: () => {
+      toast.error('Failed to update expense')
     },
   })
 }
@@ -91,6 +100,10 @@ export function useDeleteExpense() {
     mutationFn: (id: string) => deleteExpense(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
+      toast.success('Expense deleted')
+    },
+    onError: () => {
+      toast.error('Failed to delete expense')
     },
   })
 }
