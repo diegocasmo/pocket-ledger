@@ -10,7 +10,7 @@ import {
 } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { formatDateToISO, parseDateFromISO, getCalendarGrid } from '@/lib/dates'
+import { formatDateToISO, parseDateFromISO, getCalendarGrid, isCurrentOrFutureMonth } from '@/lib/dates'
 
 interface DateRangePickerProps {
   startDate: string
@@ -31,6 +31,10 @@ export function DateRangePicker({
   const start = parseDateFromISO(startDate)
   const end = parseDateFromISO(endDate)
   const max = maxDate ? parseDateFromISO(maxDate) : null
+
+  const viewYear = viewDate.getFullYear()
+  const viewMonth = viewDate.getMonth() + 1
+  const isViewingCurrentOrFutureMonth = isCurrentOrFutureMonth(viewYear, viewMonth)
 
   const handleDateClick = useCallback(
     (date: Date) => {
@@ -78,14 +82,18 @@ export function DateRangePicker({
         <span className="font-semibold text-[var(--color-text-primary)]">
           {format(viewDate, 'MMMM yyyy')}
         </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setViewDate(addMonths(viewDate, 1))}
-          aria-label="Next month"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </Button>
+        {isViewingCurrentOrFutureMonth ? (
+          <div className="w-8 h-8" aria-hidden="true" />
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setViewDate(addMonths(viewDate, 1))}
+            aria-label="Next month"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </Button>
+        )}
       </div>
 
       <div className="mb-2 text-xs text-[var(--color-text-secondary)] text-center">
