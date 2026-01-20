@@ -37,7 +37,7 @@ export function BottomNav({ onAddExpense }: BottomNavProps) {
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex flex-col items-center py-2 px-4 text-xs transition-colors ${
+              `flex flex-col items-center py-3 px-4 text-xs transition-colors ${
                 isActive
                   ? 'text-primary-500'
                   : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
@@ -63,7 +63,7 @@ export function BottomNav({ onAddExpense }: BottomNavProps) {
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex flex-col items-center py-2 px-4 text-xs transition-colors ${
+              `flex flex-col items-center py-3 px-4 text-xs transition-colors ${
                 isActive
                   ? 'text-primary-500'
                   : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'

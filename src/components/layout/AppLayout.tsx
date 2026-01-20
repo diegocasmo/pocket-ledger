@@ -73,7 +73,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <CalendarContext.Provider value={{ selectedDate, setSelectedDate, openExpenseForm }}>
-      <div className="min-h-screen bg-[var(--color-bg-primary)] pb-16">
+      <div className="min-h-screen bg-[var(--color-bg-primary)] pb-20">
         <main className="max-w-lg mx-auto">
           {children}
         </main>
