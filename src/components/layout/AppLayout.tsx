@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState, useCallback } from 'react'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { ExpenseFormModal } from '@/features/expenses/ExpenseFormModal'
+import { UpdatePrompt } from '@/components/pwa/UpdatePrompt'
 import { useSettings } from '@/hooks/useSettings'
 import { getTodayISO, isFutureDate } from '@/lib/dates'
 import { CalendarContext } from '@/components/layout/CalendarContext'
@@ -77,6 +78,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <main className="max-w-lg mx-auto">
           {children}
         </main>
+        <UpdatePrompt />
         <BottomNav onAddExpense={handleAddExpense} />
         <ExpenseFormModal
           isOpen={showExpenseForm}
