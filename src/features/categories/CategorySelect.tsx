@@ -57,6 +57,7 @@ export function CategorySelect({ value, onChange, error }: CategorySelectProps) 
                 return
               }
               onChange(e.target.value)
+              e.target.blur()
             }}
             className={`
               w-full py-2 pr-3 rounded-lg border appearance-none
