@@ -120,7 +120,7 @@ export function CategoryPickerModal({
 
           {/* Add category button */}
           <Button onClick={() => setIsCreating(true)} className="w-full">
-            Add Category
+            New Category
           </Button>
         </div>
       </Dialog>

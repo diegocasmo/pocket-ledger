@@ -44,7 +44,7 @@ export function CategoriesPage() {
             ))}
           </div>
           <Button onClick={() => setIsCreating(true)} className="w-full">
-            Add Category
+            New Category
           </Button>
         </div>
       </div>
