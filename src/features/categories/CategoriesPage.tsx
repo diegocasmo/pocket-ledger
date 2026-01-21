@@ -27,9 +27,11 @@ export function CategoriesPage() {
         <div className="space-y-4">
           <div className="space-y-2">
             {categories.map((category) => (
-              <div
+              <button
                 key={category.id}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--color-bg-secondary)]"
+                type="button"
+                className="flex w-full items-center gap-3 p-2 rounded-lg hover:bg-[var(--color-bg-secondary)] cursor-pointer text-left bg-transparent border-none"
+                onClick={() => setEditingCategory(category)}
               >
                 <div
                   className="w-4 h-4 rounded-full flex-shrink-0"
@@ -38,14 +40,7 @@ export function CategoriesPage() {
                 <span className="flex-1 text-[var(--color-text-primary)]">
                   {category.name}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditingCategory(category)}
-                >
-                  Edit
-                </Button>
-              </div>
+              </button>
             ))}
           </div>
           <Button onClick={() => setIsCreating(true)} className="w-full">
