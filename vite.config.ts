@@ -8,10 +8,6 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      workbox: {
-        skipWaiting: true,
-        clientsClaim: true,
-      },
       includeAssets: ['favicon.svg', 'apple-touch-icon.svg'],
       manifest: {
         name: 'Pocket Ledger',
