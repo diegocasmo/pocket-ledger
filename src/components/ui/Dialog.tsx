@@ -2,6 +2,7 @@ import { ReactNode, useCallback, useRef, useState } from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { X } from 'lucide-react'
+import { useKeyboardState } from '@/hooks/useKeyboardState'
 
 interface DialogProps {
   isOpen: boolean
@@ -14,6 +15,8 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
   const startY = useRef(0)
+
+  const { isSettling } = useKeyboardState()
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY
@@ -63,10 +66,11 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
           </VisuallyHidden>
           {/* Mobile bottom sheet */}
           <div
-            className="fixed bottom-0 left-0 right-0 bg-[var(--color-bg-primary)] rounded-t-2xl shadow-xl max-h-[85vh] overflow-auto md:hidden safe-bottom"
+            className={`fixed bottom-0 left-0 right-0 bg-[var(--color-bg-primary)] rounded-t-2xl shadow-xl max-h-[85dvh] overflow-auto md:hidden safe-bottom ${isSettling ? 'pointer-events-none' : ''}`}
             style={{
               transform: `translateY(${dragOffset}px)`,
               transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+              contain: 'layout',
             }}
           >
             {/* Drag handle */}

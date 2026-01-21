@@ -30,4 +30,8 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
+
+  .max-h-\[85dvh\] {
+    max-height: 85dvh;
+  }
 }

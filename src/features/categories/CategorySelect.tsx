@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCategories } from '@/hooks/useCategories'
+import { useKeyboardState } from '@/hooks/useKeyboardState'
 import { CategoryListModal } from '@/features/categories/CategoryListModal'
 import { CategoryFormModal } from '@/features/categories/CategoryFormModal'
 import type { Category } from '@/types'
@@ -16,6 +17,7 @@ export function CategorySelect({ value, onChange, error, onBlur }: CategorySelec
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const { data: categories = [] } = useCategories()
+  const { isKeyboardVisible, isSettling } = useKeyboardState()
 
   const selectedCategory = categories.find((c) => c.id === value)
 
@@ -53,9 +55,13 @@ export function CategorySelect({ value, onChange, error, onBlur }: CategorySelec
             id="category"
             value={value}
             onFocus={(e) => {
-              // Blur any other focused element to dismiss keyboard before picker opens
-              if (document.activeElement && document.activeElement !== e.target) {
-                ;(document.activeElement as HTMLElement).blur?.()
+              // If keyboard is visible or settling, dismiss it first and re-focus after settling
+              if (isKeyboardVisible || isSettling) {
+                e.preventDefault()
+                ;(document.activeElement as HTMLElement)?.blur?.()
+                const target = e.target
+                setTimeout(() => target.focus(), 350)
+                return
               }
             }}
             onChange={(e) => {
@@ -65,7 +71,6 @@ export function CategorySelect({ value, onChange, error, onBlur }: CategorySelec
               }
               onChange(e.target.value)
               onBlur?.()
-              e.target.blur()
             }}
             className={`
               w-full py-2 pr-3 rounded-lg border appearance-none
