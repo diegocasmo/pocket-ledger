@@ -45,7 +45,6 @@ describe('InsightsPage', () => {
         expect(screen.getByRole('button', { name: /week/i })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /month/i })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /year/i })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: /custom/i })).toBeInTheDocument()
       })
     })
   })
@@ -79,13 +78,4 @@ describe('InsightsPage', () => {
     })
   })
 
-  describe('custom date range', () => {
-    it('has custom button available', async () => {
-      renderInsightsPage()
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /custom/i })).toBeInTheDocument()
-      })
-    })
-  })
 })

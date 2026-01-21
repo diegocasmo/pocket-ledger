@@ -6,22 +6,16 @@ import { CategoryExpenseList } from '@/features/insights/CategoryExpenseList'
 import { useExpensesForRange } from '@/hooks/useExpenses'
 import { useSettings } from '@/hooks/useSettings'
 import { aggregateExpenses } from '@/services/aggregation'
-import { getWeekRange, getMonthRange, getYearRange, getTodayISO } from '@/lib/dates'
+import { getWeekRange, getMonthRange, getYearRange } from '@/lib/dates'
 
-type RangeType = 'week' | 'month' | 'year' | 'custom'
+type RangeType = 'week' | 'month' | 'year'
 
 export function InsightsPage() {
   const { data: settings } = useSettings()
   const [rangeType, setRangeType] = useState<RangeType>('month')
-  const [customRange, setCustomRange] = useState<[string, string]>(() => {
-    const today = new Date()
-    const [start, end] = getMonthRange(today.getFullYear(), today.getMonth() + 1)
-    return [start, end]
-  })
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
 
   const today = new Date()
-  const todayISO = getTodayISO()
 
   const getRange = (): [string, string] => {
     switch (rangeType) {
@@ -31,8 +25,6 @@ export function InsightsPage() {
         return getMonthRange(today.getFullYear(), today.getMonth() + 1)
       case 'year':
         return getYearRange(today.getFullYear())
-      case 'custom':
-        return customRange
     }
   }
 
@@ -42,12 +34,6 @@ export function InsightsPage() {
 
   const handleRangeChange = (type: RangeType) => {
     setRangeType(type)
-    setSelectedCategoryId(null)
-  }
-
-  const handleCustomRangeChange = (newStart: string, newEnd: string) => {
-    setCustomRange([newStart, newEnd])
-    setRangeType('custom')
     setSelectedCategoryId(null)
   }
 
@@ -76,14 +62,7 @@ export function InsightsPage() {
         Insights
       </h1>
 
-      <RangePicker
-        rangeType={rangeType}
-        customStart={customRange[0]}
-        customEnd={customRange[1]}
-        maxDate={todayISO}
-        onRangeTypeChange={handleRangeChange}
-        onCustomRangeChange={handleCustomRangeChange}
-      />
+      <RangePicker rangeType={rangeType} onRangeTypeChange={handleRangeChange} />
 
       <SummaryTile totalCents={aggregate.totalCents} />
 
