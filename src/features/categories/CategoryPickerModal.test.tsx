@@ -171,7 +171,7 @@ describe('CategoryPickerModal', () => {
     })
   })
 
-  it('opens category form modal when Add Category is clicked', async () => {
+  it('opens category form modal when New Category is clicked', async () => {
     const user = userEvent.setup()
     const onSelect = vi.fn()
     const onClose = vi.fn()
@@ -189,8 +189,8 @@ describe('CategoryPickerModal', () => {
       expect(screen.getAllByTestId('category-option-cat-1').length).toBeGreaterThan(0)
     })
 
-    // Get first Add Category button (there are two - mobile and desktop)
-    const addButtons = screen.getAllByRole('button', { name: /add category/i })
+    // Get first New Category button (there are two - mobile and desktop)
+    const addButtons = screen.getAllByRole('button', { name: /new category/i })
     await user.click(addButtons[0])
 
     // The category form modal should now be visible (renders twice for mobile/desktop)

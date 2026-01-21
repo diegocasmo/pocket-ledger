@@ -19,11 +19,11 @@ describe('CategoriesPage', () => {
       })
     })
 
-    it('shows add category button', async () => {
+    it('shows new category button', async () => {
       renderCategoriesPage()
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /add category/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /new category/i })).toBeInTheDocument()
       })
     })
   })
@@ -41,43 +41,43 @@ describe('CategoriesPage', () => {
       })
     })
 
-    it('shows edit button for each category', async () => {
+    it('shows clickable category rows', async () => {
       await createCategory({ name: 'Food', color: '#22c55e' })
 
       renderCategoriesPage()
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /food/i })).toBeInTheDocument()
       })
     })
   })
 
   describe('creating category', () => {
-    it('opens add category modal when clicking add button', async () => {
+    it('opens add category modal when clicking new category button', async () => {
       const user = userEvent.setup()
       renderCategoriesPage()
 
-      const addButton = await screen.findByRole('button', { name: /add category/i })
+      const addButton = await screen.findByRole('button', { name: /new category/i })
       await user.click(addButton)
 
       await waitFor(() => {
         expect(screen.getByRole('dialog')).toBeInTheDocument()
         // Dialog title appears in both mobile and desktop views
         const titles = screen.getAllByText('Add Category')
-        expect(titles.length).toBeGreaterThan(1) // Button + dialog titles
+        expect(titles.length).toBeGreaterThan(0)
       })
     })
   })
 
   describe('editing category', () => {
-    it('opens edit modal when clicking edit', async () => {
+    it('opens edit modal when clicking category row', async () => {
       await createCategory({ name: 'Food', color: '#22c55e' })
 
       const user = userEvent.setup()
       renderCategoriesPage()
 
-      const editButton = await screen.findByRole('button', { name: /edit/i })
-      await user.click(editButton)
+      const categoryRow = await screen.findByRole('button', { name: /food/i })
+      await user.click(categoryRow)
 
       await waitFor(() => {
         expect(screen.getByRole('dialog')).toBeInTheDocument()
