@@ -8,9 +8,10 @@ interface CategorySelectProps {
   value: string
   onChange: (value: string) => void
   error?: string
+  onBlur?: () => void
 }
 
-export function CategorySelect({ value, onChange, error }: CategorySelectProps) {
+export function CategorySelect({ value, onChange, error, onBlur }: CategorySelectProps) {
   const [showList, setShowList] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [isCreating, setIsCreating] = useState(false)
@@ -63,6 +64,7 @@ export function CategorySelect({ value, onChange, error }: CategorySelectProps) 
                 return
               }
               onChange(e.target.value)
+              onBlur?.()
               e.target.blur()
             }}
             className={`
