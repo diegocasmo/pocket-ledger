@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { Dialog } from '@/components/ui/Dialog'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { CategoryForm } from '@/features/categories/CategoryForm'
+import { CategoryForm, type CategoryFormData } from '@/features/categories/CategoryForm'
 import {
   useCreateCategory,
   useUpdateCategory,
@@ -9,7 +8,6 @@ import {
   useCategoryHasExpenses,
 } from '@/hooks/useCategories'
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation'
-import { PRESET_COLORS } from '@/constants/colors'
 import type { Category } from '@/types'
 
 interface CategoryFormModalProps {
@@ -23,9 +21,6 @@ export function CategoryFormModal({
   onClose,
   category,
 }: CategoryFormModalProps) {
-  const [name, setName] = useState(category?.name ?? '')
-  const [color, setColor] = useState<string>(category?.color ?? PRESET_COLORS[0])
-
   const createCategory = useCreateCategory()
   const updateCategory = useUpdateCategory()
   const deleteCategory = useDeleteCategory()
@@ -40,20 +35,14 @@ export function CategoryFormModal({
 
   const isEditing = !!category
 
-  const handleSave = async () => {
-    if (!name.trim()) return
-
+  const handleSave = async (data: CategoryFormData) => {
     if (isEditing && category) {
       await updateCategory.mutateAsync({
         id: category.id,
-        name: name.trim(),
-        color,
+        ...data,
       })
     } else {
-      await createCategory.mutateAsync({
-        name: name.trim(),
-        color,
-      })
+      await createCategory.mutateAsync(data)
     }
     onClose()
   }
@@ -77,14 +66,11 @@ export function CategoryFormModal({
         title={isEditing ? 'Edit Category' : 'Add Category'}
       >
         <CategoryForm
-          name={name}
-          color={color}
-          onNameChange={setName}
-          onColorChange={setColor}
+          key={category?.id ?? 'new'}
+          category={category}
           onSubmit={handleSave}
           onCancel={handleClose}
           onDelete={isEditing ? handleDelete : undefined}
-          isEditing={isEditing}
           isSubmitting={createCategory.isPending || updateCategory.isPending}
           isDeleting={deletion.isDeleting}
         />

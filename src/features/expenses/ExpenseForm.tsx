@@ -1,4 +1,6 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { format } from 'date-fns'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { Input } from '@/components/ui/Input'
@@ -8,19 +10,36 @@ import { parseDateFromISO, isFutureDate } from '@/lib/dates'
 import { parseUsdToCents } from '@/services/money'
 import type { Expense } from '@/types'
 
+export const expenseFormSchema = z.object({
+  amount: z
+    .string()
+    .min(1, 'Please enter a valid amount')
+    .refine(
+      (val) => {
+        const cents = parseUsdToCents(val)
+        return cents !== null && cents > 0
+      },
+      { message: 'Please enter a valid amount' }
+    )
+    .transform((val) => parseUsdToCents(val) as number),
+
+  categoryId: z.string().min(1, 'Please select a category'),
+
+  note: z
+    .string()
+    .max(500, 'Note must be 500 characters or less')
+    .transform((val) => val.trim() || undefined)
+    .optional(),
+})
+
+export type ExpenseFormData = z.output<typeof expenseFormSchema>
+
 interface ExpenseFormProps {
   date: string
   expense?: Expense | null
   onSubmit: (data: { amountCents: number; categoryId: string; note?: string }) => void
   onDelete?: () => void
   isSubmitting?: boolean
-}
-
-interface FormErrors {
-  amount?: string
-  category?: string
-  note?: string
-  date?: string
 }
 
 export function ExpenseForm({
@@ -30,94 +49,81 @@ export function ExpenseForm({
   onDelete,
   isSubmitting = false,
 }: ExpenseFormProps) {
-  const [amount, setAmount] = useState('')
-  const [categoryId, setCategoryId] = useState('')
-  const [note, setNote] = useState('')
-  const [errors, setErrors] = useState<FormErrors>({})
-
   const isEditing = !!expense
 
-  useEffect(() => {
-    if (expense) {
-      setAmount((expense.amountCents / 100).toFixed(2))
-      setCategoryId(expense.categoryId)
-      setNote(expense.note ?? '')
-    } else {
-      setAmount('')
-      setCategoryId('')
-      setNote('')
-    }
-    setErrors({})
-  }, [expense])
+  const {
+    control,
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<z.input<typeof expenseFormSchema>, unknown, ExpenseFormData>({
+    resolver: zodResolver(expenseFormSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      amount: expense ? (expense.amountCents / 100).toFixed(2) : '',
+      categoryId: expense?.categoryId ?? '',
+      note: expense?.note ?? '',
+    },
+  })
 
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {}
-
-    const cents = parseUsdToCents(amount)
-    if (cents === null || cents <= 0) {
-      newErrors.amount = 'Please enter a valid amount'
-    }
-
-    if (!categoryId) {
-      newErrors.category = 'Please select a category'
-    }
-
-    if (note && note.length > 500) {
-      newErrors.note = 'Note must be 500 characters or less'
-    }
-
+  const onFormSubmit = (data: ExpenseFormData) => {
     if (isFutureDate(date)) {
-      newErrors.date = "Can't add expenses for future dates"
+      setError('root.date', { message: "Can't add expenses for future dates" })
+      return
     }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
-
-    if (!validate()) return
-
-    const cents = parseUsdToCents(amount)
-    if (cents === null) return
 
     onSubmit({
-      amountCents: cents,
-      categoryId,
-      note: note.trim() || undefined,
+      amountCents: data.amount,
+      categoryId: data.categoryId,
+      note: data.note,
     })
   }
 
   const dateObj = parseDateFromISO(date)
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
       <div className="text-sm text-[var(--color-text-secondary)]">
         Date: {format(dateObj, 'MMMM d, yyyy')}
-        {errors.date && <p className="text-red-500 mt-1">{errors.date}</p>}
+        {errors.root?.date && (
+          <p className="text-red-500 mt-1">{errors.root.date.message}</p>
+        )}
       </div>
 
-      <AmountInput
-        value={amount}
-        onChange={setAmount}
-        error={errors.amount}
-        autoFocus={!isEditing}
+      <Controller
+        name="amount"
+        control={control}
+        render={({ field }) => (
+          <AmountInput
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            error={errors.amount?.message}
+            autoFocus={!isEditing}
+          />
+        )}
       />
 
-      <CategorySelect
-        value={categoryId}
-        onChange={setCategoryId}
-        error={errors.category}
+      <Controller
+        name="categoryId"
+        control={control}
+        render={({ field }) => (
+          <CategorySelect
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            error={errors.categoryId?.message}
+          />
+        )}
       />
 
       <Input
         label="Note (optional)"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
         placeholder="What was this expense for?"
         maxLength={500}
-        error={errors.note}
+        error={errors.note?.message}
+        {...register('note')}
       />
 
       <div className="pt-2">

@@ -1,67 +1,102 @@
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { PRESET_COLORS } from '@/constants/colors'
+import type { Category } from '@/types'
+
+export const categoryFormSchema = z.object({
+  name: z
+    .string()
+    .transform((val) => val.trim())
+    .pipe(z.string().min(1, 'Please enter a category name')),
+
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Please select a valid color'),
+})
+
+export type CategoryFormData = z.infer<typeof categoryFormSchema>
 
 interface CategoryFormProps {
-  name: string
-  color: string
-  onNameChange: (name: string) => void
-  onColorChange: (color: string) => void
-  onSubmit: () => void
+  category?: Category | null
+  onSubmit: (data: CategoryFormData) => void
   onCancel: () => void
   onDelete?: () => void
-  isEditing: boolean
   isSubmitting: boolean
   isDeleting?: boolean
 }
 
 export function CategoryForm({
-  name,
-  color,
-  onNameChange,
-  onColorChange,
+  category,
   onSubmit,
   onCancel,
   onDelete,
-  isEditing,
   isSubmitting,
   isDeleting = false,
 }: CategoryFormProps) {
+  const isEditing = !!category
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.input<typeof categoryFormSchema>, unknown, CategoryFormData>({
+    resolver: zodResolver(categoryFormSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      name: category?.name ?? '',
+      color: category?.color ?? PRESET_COLORS[0],
+    },
+  })
+
   return (
-    <div className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input
         label="Name"
-        value={name}
-        onChange={(e) => onNameChange(e.target.value)}
         placeholder="Category name"
         autoFocus
+        error={errors.name?.message}
+        {...register('name')}
       />
-      <div>
-        <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Color
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {PRESET_COLORS.map((presetColor) => (
-            <button
-              key={presetColor}
-              type="button"
-              onClick={() => onColorChange(presetColor)}
-              className={`w-8 h-8 rounded-full transition-transform ${
-                color === presetColor
-                  ? 'ring-2 ring-primary-500 ring-offset-2 scale-110'
-                  : ''
-              }`}
-              style={{ backgroundColor: presetColor }}
-              aria-label={`Select color ${presetColor}`}
-            />
-          ))}
-        </div>
-      </div>
+
+      <Controller
+        name="color"
+        control={control}
+        render={({ field }) => (
+          <div>
+            <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
+              Color
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {PRESET_COLORS.map((presetColor) => (
+                <button
+                  key={presetColor}
+                  type="button"
+                  onClick={() => field.onChange(presetColor)}
+                  className={`w-8 h-8 rounded-full transition-transform ${
+                    field.value === presetColor
+                      ? 'ring-2 ring-primary-500 ring-offset-2 scale-110'
+                      : ''
+                  }`}
+                  style={{ backgroundColor: presetColor }}
+                  aria-label={`Select color ${presetColor}`}
+                />
+              ))}
+            </div>
+            {errors.color && (
+              <p className="mt-1 text-sm text-red-500">{errors.color.message}</p>
+            )}
+          </div>
+        )}
+      />
+
       <div className="flex gap-2">
         {isEditing ? (
           <>
             {onDelete && (
               <Button
+                type="button"
                 variant="danger"
                 onClick={onDelete}
                 className="flex-1"
@@ -71,9 +106,9 @@ export function CategoryForm({
               </Button>
             )}
             <Button
-              onClick={onSubmit}
+              type="submit"
               className="flex-1"
-              disabled={!name.trim() || isSubmitting}
+              disabled={isSubmitting}
             >
               Save
             </Button>
@@ -81,6 +116,7 @@ export function CategoryForm({
         ) : (
           <>
             <Button
+              type="button"
               variant="secondary"
               onClick={onCancel}
               className="flex-1"
@@ -88,15 +124,15 @@ export function CategoryForm({
               Cancel
             </Button>
             <Button
-              onClick={onSubmit}
+              type="submit"
               className="flex-1"
-              disabled={!name.trim() || isSubmitting}
+              disabled={isSubmitting}
             >
               Create
             </Button>
           </>
         )}
       </div>
-    </div>
+    </form>
   )
 }

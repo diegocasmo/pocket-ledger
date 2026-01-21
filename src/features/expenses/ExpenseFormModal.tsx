@@ -72,6 +72,7 @@ export function ExpenseFormModal({
         title={isEditing ? 'Edit Expense' : 'Add Expense'}
       >
         <ExpenseForm
+          key={expense?.id ?? 'new'}
           date={date}
           expense={expense}
           onSubmit={handleSubmit}

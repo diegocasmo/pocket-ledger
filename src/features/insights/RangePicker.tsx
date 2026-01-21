@@ -1,7 +1,27 @@
-import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { isAfter } from 'date-fns'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { DateRangePicker } from '@/components/ui/DateRangePicker'
+import { parseDateFromISO } from '@/lib/dates'
+
+export const dateRangeFormSchema = z
+  .object({
+    startDate: z.string().min(1, 'Select start date'),
+    endDate: z.string().min(1, 'Select end date'),
+  })
+  .refine(
+    (data) => {
+      const start = parseDateFromISO(data.startDate)
+      const end = parseDateFromISO(data.endDate)
+      return !isAfter(start, end)
+    },
+    { message: 'Start date must be before end date', path: ['endDate'] }
+  )
+
+export type DateRangeFormData = z.infer<typeof dateRangeFormSchema>
 
 type RangeType = 'week' | 'month' | 'year' | 'custom'
 
@@ -22,9 +42,20 @@ export function RangePicker({
   onRangeTypeChange,
   onCustomRangeChange,
 }: RangePickerProps) {
-  const [showCustomPicker, setShowCustomPicker] = useState(false)
-  const [tempStart, setTempStart] = useState(customStart)
-  const [tempEnd, setTempEnd] = useState(customEnd)
+  const {
+    setValue,
+    watch,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<z.input<typeof dateRangeFormSchema>, unknown, DateRangeFormData>({
+    resolver: zodResolver(dateRangeFormSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      startDate: customStart,
+      endDate: customEnd,
+    },
+  })
 
   const presets: { type: RangeType; label: string }[] = [
     { type: 'week', label: 'Week' },
@@ -33,15 +64,22 @@ export function RangePicker({
   ]
 
   const handleCustomClick = () => {
-    setTempStart(customStart)
-    setTempEnd(customEnd)
-    setShowCustomPicker(true)
+    reset({
+      startDate: customStart,
+      endDate: customEnd,
+    })
+    onRangeTypeChange('custom')
   }
 
-  const handleApply = () => {
-    onCustomRangeChange(tempStart, tempEnd)
-    setShowCustomPicker(false)
+  const handleApply = (data: DateRangeFormData) => {
+    onCustomRangeChange(data.startDate, data.endDate)
   }
+
+  const handleCloseCustomPicker = () => {
+    onRangeTypeChange('month')
+  }
+
+  const isCustomPickerOpen = rangeType === 'custom'
 
   return (
     <>
@@ -66,33 +104,37 @@ export function RangePicker({
       </div>
 
       <Dialog
-        isOpen={showCustomPicker}
-        onClose={() => setShowCustomPicker(false)}
+        isOpen={isCustomPickerOpen}
+        onClose={handleCloseCustomPicker}
         title="Select Date Range"
       >
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit(handleApply)} className="space-y-4">
           <DateRangePicker
-            startDate={tempStart}
-            endDate={tempEnd}
+            startDate={watch('startDate')}
+            endDate={watch('endDate')}
             onRangeChange={(start, end) => {
-              setTempStart(start)
-              setTempEnd(end)
+              setValue('startDate', start)
+              setValue('endDate', end)
             }}
             maxDate={maxDate}
           />
+          {errors.endDate && (
+            <p className="text-sm text-red-500">{errors.endDate.message}</p>
+          )}
           <div className="flex gap-2">
             <Button
+              type="button"
               variant="secondary"
-              onClick={() => setShowCustomPicker(false)}
+              onClick={handleCloseCustomPicker}
               className="flex-1"
             >
               Cancel
             </Button>
-            <Button onClick={handleApply} className="flex-1">
+            <Button type="submit" className="flex-1">
               Apply
             </Button>
           </div>
-        </div>
+        </form>
       </Dialog>
     </>
   )

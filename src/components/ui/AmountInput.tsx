@@ -4,6 +4,7 @@ import CurrencyInput from 'react-currency-input-field'
 interface AmountInputProps {
   value: string
   onChange: (value: string) => void
+  onBlur?: () => void
   error?: string
   label?: string
   placeholder?: string
@@ -16,6 +17,7 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
     {
       value,
       onChange,
+      onBlur,
       error,
       label = 'Amount',
       placeholder = '0.00',
@@ -45,6 +47,7 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
             onValueChange={(newValue) => {
               onChange(newValue ?? '')
             }}
+            onBlur={onBlur}
             placeholder={placeholder}
             disabled={disabled}
             autoFocus={autoFocus}
