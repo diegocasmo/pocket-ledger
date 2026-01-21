@@ -106,6 +106,7 @@ export function CategorySelect({ value, onChange, error }: CategorySelectProps) 
         onCreate={handleCreate}
       />
       <CategoryFormModal
+        key={editingCategory?.id ?? (isCreating ? 'create' : 'closed')}
         isOpen={isCreating || editingCategory !== null}
         onClose={handleCloseForm}
         category={editingCategory}

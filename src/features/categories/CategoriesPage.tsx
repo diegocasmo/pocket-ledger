@@ -55,6 +55,7 @@ export function CategoriesPage() {
       </div>
 
       <CategoryFormModal
+        key={editingCategory?.id ?? (isCreating ? 'create' : 'closed')}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         category={editingCategory}

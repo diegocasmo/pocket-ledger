@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Dialog } from '@/components/ui/Dialog'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CategoryForm } from '@/features/categories/CategoryForm'
@@ -23,8 +23,8 @@ export function CategoryFormModal({
   onClose,
   category,
 }: CategoryFormModalProps) {
-  const [name, setName] = useState('')
-  const [color, setColor] = useState<string>(PRESET_COLORS[0])
+  const [name, setName] = useState(category?.name ?? '')
+  const [color, setColor] = useState<string>(category?.color ?? PRESET_COLORS[0])
 
   const createCategory = useCreateCategory()
   const updateCategory = useUpdateCategory()
@@ -39,18 +39,6 @@ export function CategoryFormModal({
   })
 
   const isEditing = !!category
-
-  useEffect(() => {
-    if (isOpen) {
-      if (category) {
-        setName(category.name)
-        setColor(category.color)
-      } else {
-        setName('')
-        setColor(PRESET_COLORS[0])
-      }
-    }
-  }, [isOpen, category])
 
   const handleSave = async () => {
     if (!name.trim()) return
