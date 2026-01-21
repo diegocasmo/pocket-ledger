@@ -97,7 +97,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
           </div>
 
           {/* Desktop modal */}
-          <div className="relative hidden md:block w-full max-w-lg bg-[var(--color-bg-primary)] rounded-xl shadow-xl max-h-[85vh] overflow-auto">
+          <div className="relative hidden md:block w-full min-w-80 max-w-lg bg-[var(--color-bg-primary)] rounded-xl shadow-xl max-h-[85vh] overflow-auto">
             {title && (
               <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
                 <DialogPrimitive.Title className="text-lg font-semibold text-[var(--color-text-primary)]">
