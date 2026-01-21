@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { useCategories } from '@/hooks/useCategories'
-import { useKeyboardState } from '@/hooks/useKeyboardState'
-import { CategoryListModal } from '@/features/categories/CategoryListModal'
-import { CategoryFormModal } from '@/features/categories/CategoryFormModal'
-import type { Category } from '@/types'
+import { CategoryPickerModal } from '@/features/categories/CategoryPickerModal'
+import { ChevronDown } from 'lucide-react'
 
 interface CategorySelectProps {
   value: string
@@ -13,110 +11,56 @@ interface CategorySelectProps {
 }
 
 export function CategorySelect({ value, onChange, error, onBlur }: CategorySelectProps) {
-  const [showList, setShowList] = useState(false)
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
-  const [isCreating, setIsCreating] = useState(false)
+  const [showPicker, setShowPicker] = useState(false)
   const { data: categories = [] } = useCategories()
-  const { isKeyboardVisible, isSettling } = useKeyboardState()
 
   const selectedCategory = categories.find((c) => c.id === value)
 
-  const handleEdit = (category: Category) => {
-    setShowList(false)
-    setEditingCategory(category)
-  }
-
-  const handleCreate = () => {
-    setShowList(false)
-    setIsCreating(true)
-  }
-
-  const handleCloseForm = () => {
-    setEditingCategory(null)
-    setIsCreating(false)
-    setShowList(true)
-  }
-
-  const handleCloseList = () => {
-    setShowList(false)
+  const handleClosePicker = () => {
+    setShowPicker(false)
+    onBlur?.()
   }
 
   return (
     <>
       <div className="w-full">
-        <label
-          htmlFor="category"
-          className="block text-sm font-medium text-[var(--color-text-primary)] mb-1"
-        >
+        {/* Visual label only - not associated with button since htmlFor doesn't work with buttons */}
+        <span className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
           Category
-        </label>
-        <div className="relative">
-          <select
-            id="category"
-            value={value}
-            onFocus={(e) => {
-              // If keyboard is visible or settling, dismiss it first and re-focus after settling
-              if (isKeyboardVisible || isSettling) {
-                e.preventDefault()
-                ;(document.activeElement as HTMLElement)?.blur?.()
-                const target = e.target
-                setTimeout(() => target.focus(), 350)
-                return
-              }
-            }}
-            onChange={(e) => {
-              if (e.target.value === '__manage__') {
-                setShowList(true)
-                return
-              }
-              onChange(e.target.value)
-              onBlur?.()
-            }}
-            className={`
-              w-full py-2 pr-3 rounded-lg border appearance-none
-              bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
-              focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-              ${error ? 'border-red-500' : 'border-[var(--color-border)]'}
-              ${selectedCategory ? 'pl-8' : 'pl-3'}
-            `}
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-              backgroundPosition: 'right 0.5rem center',
-              backgroundRepeat: 'no-repeat',
-              backgroundSize: '1.5em 1.5em',
-              paddingRight: '2.5rem',
-            }}
-          >
-            <option value="" disabled>
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowPicker(true)}
+          data-testid="category-trigger"
+          className={`
+            w-full py-2 px-3 rounded-lg border text-left flex items-center gap-2
+            bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
+            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+            ${error ? 'border-red-500' : 'border-[var(--color-border)]'}
+          `}
+        >
+          {selectedCategory ? (
+            <>
+              <div
+                className="w-3 h-3 rounded-full flex-shrink-0"
+                style={{ backgroundColor: selectedCategory.color }}
+              />
+              <span className="flex-1 truncate">{selectedCategory.name}</span>
+            </>
+          ) : (
+            <span className="flex-1 text-[var(--color-text-secondary)]">
               Select a category
-            </option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-            <option value="__manage__">Manage categories...</option>
-          </select>
-          {selectedCategory && (
-            <div
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full pointer-events-none"
-              style={{ backgroundColor: selectedCategory.color }}
-            />
+            </span>
           )}
-        </div>
+          <ChevronDown className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
+        </button>
         {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
       </div>
-      <CategoryListModal
-        isOpen={showList}
-        onClose={handleCloseList}
-        onEdit={handleEdit}
-        onCreate={handleCreate}
-      />
-      <CategoryFormModal
-        key={editingCategory?.id ?? (isCreating ? 'create' : 'closed')}
-        isOpen={isCreating || editingCategory !== null}
-        onClose={handleCloseForm}
-        category={editingCategory}
+      <CategoryPickerModal
+        isOpen={showPicker}
+        onClose={handleClosePicker}
+        onSelect={onChange}
+        selectedCategoryId={value}
       />
     </>
   )

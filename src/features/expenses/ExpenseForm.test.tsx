@@ -13,26 +13,32 @@ describe('ExpenseForm', () => {
     ])
   })
 
+  async function selectCategory(user: ReturnType<typeof userEvent.setup>, categoryId: string) {
+    await user.click(screen.getByTestId('category-trigger'))
+    // Dialog renders content twice (mobile + desktop), so get the first visible one
+    const options = screen.getAllByTestId(`category-option-${categoryId}`)
+    await user.click(options[0])
+  }
+
   describe('validation', () => {
     it('rejects amount <= 0', async () => {
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       renderWithClient(<ExpenseForm date="2024-01-15" onSubmit={onSubmit} />)
 
-      await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
-      })
+      // Wait for component to be ready
+      expect(screen.getByTestId('category-trigger')).toBeInTheDocument()
 
       // Enter 0 as amount
       const amountInput = screen.getByLabelText('Amount')
-      await userEvent.type(amountInput, '0')
+      await user.type(amountInput, '0')
 
       // Select a category
-      const categorySelect = screen.getByLabelText('Category')
-      await userEvent.selectOptions(categorySelect, 'cat-1')
+      await selectCategory(user, 'cat-1')
 
       // Submit form
       const submitButton = screen.getByRole('button', { name: /add expense/i })
-      await userEvent.click(submitButton)
+      await user.click(submitButton)
 
       await waitFor(() => {
         expect(screen.getByText('Please enter a valid amount')).toBeInTheDocument()
@@ -41,19 +47,18 @@ describe('ExpenseForm', () => {
     })
 
     it('rejects empty amount', async () => {
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       renderWithClient(<ExpenseForm date="2024-01-15" onSubmit={onSubmit} />)
 
-      await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
-      })
+      // Wait for component to be ready
+      expect(screen.getByTestId('category-trigger')).toBeInTheDocument()
 
       // Select a category without entering amount
-      const categorySelect = screen.getByLabelText('Category')
-      await userEvent.selectOptions(categorySelect, 'cat-1')
+      await selectCategory(user, 'cat-1')
 
       const submitButton = screen.getByRole('button', { name: /add expense/i })
-      await userEvent.click(submitButton)
+      await user.click(submitButton)
 
       await waitFor(() => {
         expect(screen.getByText('Please enter a valid amount')).toBeInTheDocument()
@@ -62,19 +67,19 @@ describe('ExpenseForm', () => {
     })
 
     it('requires category selection', async () => {
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       renderWithClient(<ExpenseForm date="2024-01-15" onSubmit={onSubmit} />)
 
-      await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
-      })
+      // Wait for component to be ready
+      expect(screen.getByTestId('category-trigger')).toBeInTheDocument()
 
       // Enter valid amount but no category
       const amountInput = screen.getByLabelText('Amount')
-      await userEvent.type(amountInput, '10.00')
+      await user.type(amountInput, '10.00')
 
       const submitButton = screen.getByRole('button', { name: /add expense/i })
-      await userEvent.click(submitButton)
+      await user.click(submitButton)
 
       await waitFor(() => {
         expect(screen.getByText('Please select a category')).toBeInTheDocument()
@@ -85,18 +90,17 @@ describe('ExpenseForm', () => {
     it('validates note max length through schema', async () => {
       // Note: HTML maxLength attribute prevents > 500 chars in UI
       // This tests schema validation which catches programmatic inputs
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       renderWithClient(<ExpenseForm date="2024-01-15" onSubmit={onSubmit} />)
 
-      await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
-      })
+      // Wait for component to be ready
+      expect(screen.getByTestId('category-trigger')).toBeInTheDocument()
 
       const amountInput = screen.getByLabelText('Amount')
-      await userEvent.type(amountInput, '10.00')
+      await user.type(amountInput, '10.00')
 
-      const categorySelect = screen.getByLabelText('Category')
-      await userEvent.selectOptions(categorySelect, 'cat-1')
+      await selectCategory(user, 'cat-1')
 
       // The HTML maxLength=500 prevents typing more, which is the intended behavior
       // Schema validation is a backup for any programmatic inputs
@@ -104,7 +108,7 @@ describe('ExpenseForm', () => {
       expect(noteInput).toHaveAttribute('maxLength', '500')
 
       const submitButton = screen.getByRole('button', { name: /add expense/i })
-      await userEvent.click(submitButton)
+      await user.click(submitButton)
 
       await waitFor(() => {
         expect(onSubmit).toHaveBeenCalled()
@@ -112,22 +116,21 @@ describe('ExpenseForm', () => {
     })
 
     it('rejects future dates', async () => {
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       const futureDate = '2099-12-31'
       renderWithClient(<ExpenseForm date={futureDate} onSubmit={onSubmit} />)
 
-      await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
-      })
+      // Wait for component to be ready
+      expect(screen.getByTestId('category-trigger')).toBeInTheDocument()
 
       const amountInput = screen.getByLabelText('Amount')
-      await userEvent.type(amountInput, '10.00')
+      await user.type(amountInput, '10.00')
 
-      const categorySelect = screen.getByLabelText('Category')
-      await userEvent.selectOptions(categorySelect, 'cat-1')
+      await selectCategory(user, 'cat-1')
 
       const submitButton = screen.getByRole('button', { name: /add expense/i })
-      await userEvent.click(submitButton)
+      await user.click(submitButton)
 
       await waitFor(() => {
         expect(screen.getByText("Can't add expenses for future dates")).toBeInTheDocument()
@@ -138,21 +141,20 @@ describe('ExpenseForm', () => {
 
   describe('submission', () => {
     it('calls onSubmit with cents (not dollars)', async () => {
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       renderWithClient(<ExpenseForm date="2024-01-15" onSubmit={onSubmit} />)
 
-      await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
-      })
+      // Wait for component to be ready
+      expect(screen.getByTestId('category-trigger')).toBeInTheDocument()
 
       const amountInput = screen.getByLabelText('Amount')
-      await userEvent.type(amountInput, '12.34')
+      await user.type(amountInput, '12.34')
 
-      const categorySelect = screen.getByLabelText('Category')
-      await userEvent.selectOptions(categorySelect, 'cat-1')
+      await selectCategory(user, 'cat-1')
 
       const submitButton = screen.getByRole('button', { name: /add expense/i })
-      await userEvent.click(submitButton)
+      await user.click(submitButton)
 
       await waitFor(() => {
         expect(onSubmit).toHaveBeenCalledWith({
@@ -164,25 +166,24 @@ describe('ExpenseForm', () => {
     })
 
     it('trims note and passes undefined if empty', async () => {
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       renderWithClient(<ExpenseForm date="2024-01-15" onSubmit={onSubmit} />)
 
-      await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
-      })
+      // Wait for component to be ready
+      expect(screen.getByTestId('category-trigger')).toBeInTheDocument()
 
       const amountInput = screen.getByLabelText('Amount')
-      await userEvent.type(amountInput, '5.00')
+      await user.type(amountInput, '5.00')
 
-      const categorySelect = screen.getByLabelText('Category')
-      await userEvent.selectOptions(categorySelect, 'cat-1')
+      await selectCategory(user, 'cat-1')
 
       // Enter whitespace-only note
       const noteInput = screen.getByLabelText('Note (optional)')
-      await userEvent.type(noteInput, '   ')
+      await user.type(noteInput, '   ')
 
       const submitButton = screen.getByRole('button', { name: /add expense/i })
-      await userEvent.click(submitButton)
+      await user.click(submitButton)
 
       await waitFor(() => {
         expect(onSubmit).toHaveBeenCalledWith({
@@ -194,24 +195,23 @@ describe('ExpenseForm', () => {
     })
 
     it('trims note and passes trimmed value', async () => {
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       renderWithClient(<ExpenseForm date="2024-01-15" onSubmit={onSubmit} />)
 
-      await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
-      })
+      // Wait for component to be ready
+      expect(screen.getByTestId('category-trigger')).toBeInTheDocument()
 
       const amountInput = screen.getByLabelText('Amount')
-      await userEvent.type(amountInput, '5.00')
+      await user.type(amountInput, '5.00')
 
-      const categorySelect = screen.getByLabelText('Category')
-      await userEvent.selectOptions(categorySelect, 'cat-1')
+      await selectCategory(user, 'cat-1')
 
       const noteInput = screen.getByLabelText('Note (optional)')
-      await userEvent.type(noteInput, '  Coffee at cafe  ')
+      await user.type(noteInput, '  Coffee at cafe  ')
 
       const submitButton = screen.getByRole('button', { name: /add expense/i })
-      await userEvent.click(submitButton)
+      await user.click(submitButton)
 
       await waitFor(() => {
         expect(onSubmit).toHaveBeenCalledWith({
@@ -238,15 +238,13 @@ describe('ExpenseForm', () => {
         <ExpenseForm date="2024-01-15" expense={expense} onSubmit={vi.fn()} />
       )
 
+      // Wait for categories to load and verify the selected category is shown in the trigger button
       await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
+        expect(screen.getByTestId('category-trigger')).toHaveTextContent('Food')
       })
 
       const amountInput = screen.getByLabelText('Amount') as HTMLInputElement
       expect(amountInput.value).toBe('25.50')
-
-      const categorySelect = screen.getByLabelText('Category') as HTMLSelectElement
-      expect(categorySelect.value).toBe('cat-1')
 
       const noteInput = screen.getByLabelText('Note (optional)') as HTMLInputElement
       expect(noteInput.value).toBe('Lunch')
@@ -265,8 +263,9 @@ describe('ExpenseForm', () => {
         <ExpenseForm date="2024-01-15" expense={expense} onSubmit={vi.fn()} />
       )
 
+      // Wait for categories to load
       await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
+        expect(screen.getByTestId('category-trigger')).toHaveTextContent('Food')
       })
 
       expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
@@ -274,6 +273,7 @@ describe('ExpenseForm', () => {
     })
 
     it('shows Delete button when onDelete is provided', async () => {
+      const user = userEvent.setup()
       const expense = {
         id: 'expense-1',
         date: '2024-01-15',
@@ -292,14 +292,15 @@ describe('ExpenseForm', () => {
         />
       )
 
+      // Wait for categories to load
       await waitFor(() => {
-        expect(screen.getByText('Food')).toBeInTheDocument()
+        expect(screen.getByTestId('category-trigger')).toHaveTextContent('Food')
       })
 
       const deleteButton = screen.getByRole('button', { name: /delete/i })
       expect(deleteButton).toBeInTheDocument()
 
-      await userEvent.click(deleteButton)
+      await user.click(deleteButton)
       expect(onDelete).toHaveBeenCalled()
     })
   })
