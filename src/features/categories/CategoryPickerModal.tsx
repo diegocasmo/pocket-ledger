@@ -135,6 +135,7 @@ export function CategoryPickerModal({
         isOpen={isCreating || editingCategory !== null}
         onClose={handleCloseForm}
         category={editingCategory}
+        initialName={isCreating ? searchQuery : undefined}
       />
     </>
   )

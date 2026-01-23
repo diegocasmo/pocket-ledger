@@ -14,12 +14,14 @@ interface CategoryFormModalProps {
   isOpen: boolean
   onClose: (result?: { categoryId?: string; saved?: boolean }) => void
   category?: Category | null
+  initialName?: string
 }
 
 export function CategoryFormModal({
   isOpen,
   onClose,
   category,
+  initialName,
 }: CategoryFormModalProps) {
   const createCategory = useCreateCategory()
   const updateCategory = useUpdateCategory()
@@ -69,6 +71,7 @@ export function CategoryFormModal({
         <CategoryForm
           key={category?.id ?? 'new'}
           category={category}
+          initialName={initialName}
           onSubmit={handleSave}
           onCancel={handleClose}
           onDelete={isEditing ? handleDelete : undefined}

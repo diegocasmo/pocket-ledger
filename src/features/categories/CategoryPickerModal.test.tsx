@@ -333,4 +333,62 @@ describe('CategoryPickerModal', () => {
     expect(searchInputsAfter[0]).toHaveValue('trans')
     expect(screen.queryByTestId('category-option-cat-1')).not.toBeInTheDocument()
   })
+
+  it('pre-fills category name with search query when creating new category', async () => {
+    const user = userEvent.setup()
+
+    renderWithClient(
+      <CategoryPickerModal isOpen={true} onClose={vi.fn()} onSelect={vi.fn()} />
+    )
+
+    // Wait for categories to load
+    await waitFor(() => {
+      expect(screen.getAllByTestId('category-option-cat-1').length).toBeGreaterThan(0)
+    })
+
+    // Type a search query
+    const searchInputs = screen.getAllByPlaceholderText('Search categories...')
+    await user.type(searchInputs[0], 'Groceries')
+
+    // Click New Category button
+    const addButtons = screen.getAllByRole('button', { name: /new category/i })
+    await user.click(addButtons[0])
+
+    // Wait for form and verify name is pre-filled
+    await waitFor(() => {
+      expect(screen.getAllByText('Add Category').length).toBeGreaterThan(0)
+    })
+
+    const nameInputs = screen.getAllByLabelText(/name/i)
+    expect(nameInputs[0]).toHaveValue('Groceries')
+  })
+
+  it('does not pre-fill search query when editing existing category', async () => {
+    const user = userEvent.setup()
+
+    renderWithClient(
+      <CategoryPickerModal isOpen={true} onClose={vi.fn()} onSelect={vi.fn()} />
+    )
+
+    // Wait for categories to load
+    await waitFor(() => {
+      expect(screen.getAllByTestId('category-option-cat-1').length).toBeGreaterThan(0)
+    })
+
+    // Type a search query
+    const searchInputs = screen.getAllByPlaceholderText('Search categories...')
+    await user.type(searchInputs[0], 'foo')
+
+    // Click Edit on first category (Food)
+    const editButtons = screen.getAllByRole('button', { name: /edit/i })
+    await user.click(editButtons[0])
+
+    // Wait for form and verify name is the actual category name, NOT search query
+    await waitFor(() => {
+      expect(screen.getAllByText('Edit Category').length).toBeGreaterThan(0)
+    })
+
+    const nameInputs = screen.getAllByLabelText(/name/i)
+    expect(nameInputs[0]).toHaveValue('Food') // Not 'foo'
+  })
 })

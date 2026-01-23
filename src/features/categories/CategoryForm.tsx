@@ -19,6 +19,7 @@ export type CategoryFormData = z.infer<typeof categoryFormSchema>
 
 interface CategoryFormProps {
   category?: Category | null
+  initialName?: string
   onSubmit: (data: CategoryFormData) => void
   onCancel: () => void
   onDelete?: () => void
@@ -28,6 +29,7 @@ interface CategoryFormProps {
 
 export function CategoryForm({
   category,
+  initialName,
   onSubmit,
   onCancel,
   onDelete,
@@ -45,7 +47,7 @@ export function CategoryForm({
     resolver: zodResolver(categoryFormSchema),
     mode: 'onBlur',
     defaultValues: {
-      name: category?.name ?? '',
+      name: category?.name ?? initialName ?? '',
       color: category?.color ?? PRESET_COLORS[0],
     },
   })
