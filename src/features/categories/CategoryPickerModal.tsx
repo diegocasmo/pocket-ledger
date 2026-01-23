@@ -33,18 +33,13 @@ export function CategoryPickerModal({
     onClose()
   }
 
-  const handleCloseForm = (result?: { categoryId?: string; saved?: boolean }) => {
+  const handleCloseForm = (newCategoryId?: string) => {
     setEditingCategory(null)
     setIsCreating(false)
 
-    // Clear search when a category was created or edited
-    if (result?.saved) {
-      setSearchQuery('')
-    }
-
     // Auto-select newly created category
-    if (result?.categoryId) {
-      onSelect(result.categoryId)
+    if (newCategoryId) {
+      onSelect(newCategoryId)
       onClose()
     }
   }
