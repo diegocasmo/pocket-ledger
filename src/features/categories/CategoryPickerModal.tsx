@@ -77,7 +77,7 @@ export function CategoryPickerModal({
           </div>
 
           {/* Category list */}
-          <div className="space-y-1 max-h-64 overflow-auto">
+          <div className="space-y-1 min-h-48 max-h-64 overflow-auto">
             {filteredCategories.length === 0 ? (
               <p className="text-center text-[var(--color-text-secondary)] py-4">
                 No categories found
