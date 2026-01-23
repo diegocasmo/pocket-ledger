@@ -12,7 +12,7 @@ import type { Category } from '@/types'
 
 interface CategoryFormModalProps {
   isOpen: boolean
-  onClose: (newCategoryId?: string) => void
+  onClose: (result?: { categoryId?: string; saved?: boolean }) => void
   category?: Category | null
 }
 
@@ -41,10 +41,10 @@ export function CategoryFormModal({
         id: category.id,
         ...data,
       })
-      onClose()
+      onClose({ saved: true })
     } else {
       const newCategory = await createCategory.mutateAsync(data)
-      onClose(newCategory.id)
+      onClose({ categoryId: newCategory.id, saved: true })
     }
   }
 

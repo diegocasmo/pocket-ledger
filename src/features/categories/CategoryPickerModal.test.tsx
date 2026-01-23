@@ -233,4 +233,104 @@ describe('CategoryPickerModal', () => {
       expect(screen.getAllByTestId('category-option-cat-2').length).toBeGreaterThan(0)
     })
   })
+
+  it('clears search query when a new category is created', async () => {
+    const user = userEvent.setup()
+    const onSelect = vi.fn()
+    const onClose = vi.fn()
+
+    renderWithClient(
+      <CategoryPickerModal
+        isOpen={true}
+        onClose={onClose}
+        onSelect={onSelect}
+      />
+    )
+
+    // Wait for categories to load
+    await waitFor(() => {
+      expect(screen.getAllByTestId('category-option-cat-1').length).toBeGreaterThan(0)
+    })
+
+    // Search for something that filters out results
+    const searchInputs = screen.getAllByPlaceholderText('Search categories...')
+    await user.type(searchInputs[0], 'xyz')
+
+    await waitFor(() => {
+      expect(screen.getAllByText('No categories found').length).toBeGreaterThan(0)
+    })
+
+    // Open create form
+    const addButtons = screen.getAllByRole('button', { name: /new category/i })
+    await user.click(addButtons[0])
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Add Category').length).toBeGreaterThan(0)
+    })
+
+    // Fill form and save
+    const nameInputs = screen.getAllByLabelText(/name/i)
+    await user.type(nameInputs[0], 'New Test Category')
+
+    const createButtons = screen.getAllByRole('button', { name: /^create$/i })
+    await user.click(createButtons[0])
+
+    // After save, search should be cleared and all categories visible
+    await waitFor(() => {
+      expect(screen.getAllByTestId('category-option-cat-1').length).toBeGreaterThan(0)
+    })
+
+    // Verify search input is cleared
+    const searchInputsAfter = screen.getAllByPlaceholderText('Search categories...')
+    expect(searchInputsAfter[0]).toHaveValue('')
+  })
+
+  it('preserves search query when category form is cancelled', async () => {
+    const user = userEvent.setup()
+    const onSelect = vi.fn()
+    const onClose = vi.fn()
+
+    renderWithClient(
+      <CategoryPickerModal
+        isOpen={true}
+        onClose={onClose}
+        onSelect={onSelect}
+      />
+    )
+
+    // Wait for categories to load
+    await waitFor(() => {
+      expect(screen.getAllByTestId('category-option-cat-1').length).toBeGreaterThan(0)
+    })
+
+    // Search for "trans"
+    const searchInputs = screen.getAllByPlaceholderText('Search categories...')
+    await user.type(searchInputs[0], 'trans')
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('category-option-cat-2').length).toBeGreaterThan(0)
+      expect(screen.queryByTestId('category-option-cat-1')).not.toBeInTheDocument()
+    })
+
+    // Open create form
+    const addButtons = screen.getAllByRole('button', { name: /new category/i })
+    await user.click(addButtons[0])
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Add Category').length).toBeGreaterThan(0)
+    })
+
+    // Cancel without saving
+    const cancelButtons = screen.getAllByRole('button', { name: /cancel/i })
+    await user.click(cancelButtons[0])
+
+    // Search should still be "trans" and only Transport visible
+    await waitFor(() => {
+      expect(screen.getAllByTestId('category-option-cat-2').length).toBeGreaterThan(0)
+    })
+
+    const searchInputsAfter = screen.getAllByPlaceholderText('Search categories...')
+    expect(searchInputsAfter[0]).toHaveValue('trans')
+    expect(screen.queryByTestId('category-option-cat-1')).not.toBeInTheDocument()
+  })
 })
