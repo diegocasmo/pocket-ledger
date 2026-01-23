@@ -70,6 +70,7 @@ export function ExpenseFormModal({
         isOpen={isOpen}
         onClose={onClose}
         title={isEditing ? 'Edit Expense' : 'Add Expense'}
+        disableAutoFocus={isEditing}
       >
         <ExpenseForm
           key={expense?.id ?? 'new'}

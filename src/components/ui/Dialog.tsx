@@ -8,10 +8,11 @@ interface DialogProps {
   isOpen: boolean
   onClose: () => void
   title?: string
+  disableAutoFocus?: boolean
   children: ReactNode
 }
 
-export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
+export function Dialog({ isOpen, onClose, title, disableAutoFocus, children }: DialogProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
   const startY = useRef(0)
@@ -50,6 +51,10 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
         <DialogPrimitive.Content
           className="fixed z-50 md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2"
           onOpenAutoFocus={(e) => {
+            if (disableAutoFocus) {
+              e.preventDefault()
+              return
+            }
             // Focus first focusable element inside the dialog
             const dialog = e.currentTarget as HTMLElement | null
             const firstInput = dialog?.querySelector<HTMLElement>(
