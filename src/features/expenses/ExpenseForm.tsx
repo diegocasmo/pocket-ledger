@@ -3,9 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { format } from 'date-fns'
 import { AmountInput } from '@/components/ui/AmountInput'
-import { Input } from '@/components/ui/Input'
+import { AutocompleteInput } from '@/components/ui/AutocompleteInput'
 import { Button } from '@/components/ui/Button'
 import { CategorySelect } from '@/features/categories/CategorySelect'
+import { useNoteSuggestions } from '@/hooks/useNoteSuggestions'
 import { parseDateFromISO, isFutureDate } from '@/lib/dates'
 import { parseUsdToCents } from '@/services/money'
 import type { Expense } from '@/types'
@@ -53,9 +54,9 @@ export function ExpenseForm({
 
   const {
     control,
-    register,
     handleSubmit,
     setError,
+    watch,
     formState: { errors },
   } = useForm<z.input<typeof expenseFormSchema>, unknown, ExpenseFormData>({
     resolver: zodResolver(expenseFormSchema),
@@ -65,6 +66,14 @@ export function ExpenseForm({
       categoryId: expense?.categoryId ?? '',
       note: expense?.note ?? '',
     },
+  })
+
+  const categoryId = watch('categoryId')
+  const noteValue = watch('note')
+
+  const { suggestions } = useNoteSuggestions({
+    categoryId: categoryId || null,
+    query: noteValue ?? '',
   })
 
   const onFormSubmit = (data: ExpenseFormData) => {
@@ -118,12 +127,21 @@ export function ExpenseForm({
         )}
       />
 
-      <Input
-        label="Note (optional)"
-        placeholder="What was this expense for?"
-        maxLength={500}
-        error={errors.note?.message}
-        {...register('note')}
+      <Controller
+        name="note"
+        control={control}
+        render={({ field }) => (
+          <AutocompleteInput
+            value={field.value ?? ''}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            suggestions={suggestions}
+            label="Note (optional)"
+            placeholder="What was this expense for?"
+            maxLength={500}
+            error={errors.note?.message}
+          />
+        )}
       />
 
       <div className="pt-2">
