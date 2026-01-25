@@ -27,6 +27,7 @@ export function CategoryPickerModal({
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
+  const hasFilteredCategories = filteredCategories.length > 0
 
   const handleCategoryClick = (categoryId: string) => {
     onSelect(categoryId)
@@ -77,11 +78,16 @@ export function CategoryPickerModal({
           </div>
 
           {/* Category list */}
-          <div className="space-y-1 min-h-48 max-h-64 overflow-auto">
-            {filteredCategories.length === 0 ? (
-              <p className="text-center text-[var(--color-text-secondary)] py-4">
-                No categories found
-              </p>
+          <div className={`space-y-1 max-h-64 overflow-auto ${hasFilteredCategories ? 'min-h-48' : ''}`}>
+            {!hasFilteredCategories ? (
+              <div className="flex flex-col items-center justify-center py-4 gap-3">
+                <p className="text-[var(--color-text-secondary)]">
+                  No categories found
+                </p>
+                <Button onClick={() => setIsCreating(true)}>
+                  New Category
+                </Button>
+              </div>
             ) : (
               filteredCategories.map((category) => (
                 <div
@@ -118,10 +124,12 @@ export function CategoryPickerModal({
             )}
           </div>
 
-          {/* Add category button */}
-          <Button onClick={() => setIsCreating(true)} className="w-full">
-            New Category
-          </Button>
+          {/* Add category button - only show when categories exist (empty state has its own button) */}
+          {hasFilteredCategories && (
+            <Button onClick={() => setIsCreating(true)} className="w-full">
+              New Category
+            </Button>
+          )}
         </div>
       </Dialog>
 
