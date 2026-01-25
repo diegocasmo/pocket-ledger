@@ -29,6 +29,13 @@ export function CategoryPickerModal({
   )
   const hasFilteredCategories = filteredCategories.length > 0
 
+  const getCreateButtonText = () => {
+    const trimmed = searchQuery.trim()
+    if (!trimmed) return 'New Category'
+    const truncated = trimmed.length > 12 ? `${trimmed.slice(0, 12)}...` : trimmed
+    return `Create "${truncated}" category`
+  }
+
   const handleCategoryClick = (categoryId: string) => {
     onSelect(categoryId)
     onClose()
@@ -85,7 +92,7 @@ export function CategoryPickerModal({
                   No categories found
                 </p>
                 <Button onClick={() => setIsCreating(true)}>
-                  New Category
+                  {getCreateButtonText()}
                 </Button>
               </div>
             ) : (
@@ -127,7 +134,7 @@ export function CategoryPickerModal({
           {/* Add category button - only show when categories exist (empty state has its own button) */}
           {hasFilteredCategories && (
             <Button onClick={() => setIsCreating(true)} className="w-full">
-              New Category
+              {getCreateButtonText()}
             </Button>
           )}
         </div>

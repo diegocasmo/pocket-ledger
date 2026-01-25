@@ -235,6 +235,43 @@ describe('CategoryPickerModal', () => {
   })
 
 
+  it('shows dynamic create button text based on search query', async () => {
+    const user = userEvent.setup()
+
+    renderWithClient(
+      <CategoryPickerModal isOpen={true} onClose={vi.fn()} onSelect={vi.fn()} />
+    )
+
+    // Wait for categories to load
+    await waitFor(() => {
+      expect(screen.getAllByTestId('category-option-cat-1').length).toBeGreaterThan(0)
+    })
+
+    // Initially shows "New Category" (multiple due to mobile/desktop views)
+    const initialButtons = screen.getAllByRole('button', { name: 'New Category' })
+    expect(initialButtons.length).toBeGreaterThan(0)
+
+    // Type a search query that shows empty state
+    const searchInput = screen.getAllByPlaceholderText('Search categories...')[0]
+    await user.type(searchInput, 'Test')
+
+    // Button should now show dynamic text
+    await waitFor(() => {
+      const dynamicButtons = screen.getAllByRole('button', { name: 'Create "Test" category' })
+      expect(dynamicButtons.length).toBeGreaterThan(0)
+    })
+
+    // Clear and type a long query (>12 chars)
+    await user.clear(searchInput)
+    await user.type(searchInput, 'This is a very long category name')
+
+    // Button should show truncated text (first 12 chars + ellipsis)
+    await waitFor(() => {
+      const truncatedButtons = screen.getAllByRole('button', { name: 'Create "This is a ve..." category' })
+      expect(truncatedButtons.length).toBeGreaterThan(0)
+    })
+  })
+
   it('pre-fills category name with search query when creating new category', async () => {
     const user = userEvent.setup()
 
@@ -251,8 +288,8 @@ describe('CategoryPickerModal', () => {
     const searchInputs = screen.getAllByPlaceholderText('Search categories...')
     await user.type(searchInputs[0], 'Groceries')
 
-    // Click New Category button
-    const addButtons = screen.getAllByRole('button', { name: /new category/i })
+    // Click Create Category button (shows dynamic text based on search query)
+    const addButtons = screen.getAllByRole('button', { name: /create "groceries" category/i })
     await user.click(addButtons[0])
 
     // Wait for form and verify name is pre-filled
