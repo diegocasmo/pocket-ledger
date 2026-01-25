@@ -85,7 +85,7 @@ export function CategoryPickerModal({
           </div>
 
           {/* Category list */}
-          <div className={`space-y-1 max-h-64 overflow-auto ${hasFilteredCategories ? 'min-h-48' : ''}`}>
+          <div className="space-y-1 max-h-64 overflow-auto min-h-48">
             {!hasFilteredCategories ? (
               <div className="flex flex-col items-center justify-center py-4 gap-3">
                 <p className="text-[var(--color-text-secondary)]">
