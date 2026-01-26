@@ -1,15 +1,29 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithRouter } from '@/test/setup'
 import { CategoriesPage } from '@/features/categories/CategoriesPage'
 import { createCategory } from '@/db/categoriesRepo'
 
+// Mock useNavigate
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
+
 function renderCategoriesPage() {
   return renderWithRouter(<CategoriesPage />, { route: '/categories' })
 }
 
 describe('CategoriesPage', () => {
+  beforeEach(() => {
+    mockNavigate.mockClear()
+  })
+
   describe('rendering', () => {
     it('renders the categories header', async () => {
       renderCategoriesPage()
@@ -53,25 +67,20 @@ describe('CategoriesPage', () => {
   })
 
   describe('creating category', () => {
-    it('opens add category modal when clicking new category button', async () => {
+    it('navigates to new category page when clicking new category button', async () => {
       const user = userEvent.setup()
       renderCategoriesPage()
 
       const addButton = await screen.findByRole('button', { name: /new category/i })
       await user.click(addButton)
 
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument()
-        // Dialog title appears in both mobile and desktop views
-        const titles = screen.getAllByText('Add Category')
-        expect(titles.length).toBeGreaterThan(0)
-      })
+      expect(mockNavigate).toHaveBeenCalledWith('/categories/new')
     })
   })
 
   describe('editing category', () => {
-    it('opens edit modal when clicking category row', async () => {
-      await createCategory({ name: 'Food', color: '#22c55e' })
+    it('navigates to edit category page when clicking category row', async () => {
+      const category = await createCategory({ name: 'Food', color: '#22c55e' })
 
       const user = userEvent.setup()
       renderCategoriesPage()
@@ -79,12 +88,7 @@ describe('CategoriesPage', () => {
       const categoryRow = await screen.findByRole('button', { name: /food/i })
       await user.click(categoryRow)
 
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument()
-        // Dialog title appears in both mobile and desktop views
-        const titles = screen.getAllByText('Edit Category')
-        expect(titles.length).toBeGreaterThan(0)
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(`/categories/${category.id}`)
     })
   })
 })

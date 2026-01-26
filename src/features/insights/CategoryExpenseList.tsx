@@ -1,8 +1,7 @@
-import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { ExpenseFormModal } from '@/features/expenses/ExpenseFormModal'
 import { useExpensesByCategory } from '@/hooks/useExpenses'
 import { useCategories } from '@/hooks/useCategories'
 import { formatCentsToUsd } from '@/services/money'
@@ -22,19 +21,14 @@ export function CategoryExpenseList({
   end,
   onBack,
 }: CategoryExpenseListProps) {
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
-
+  const navigate = useNavigate()
   const { data: expenses = [] } = useExpensesByCategory(categoryId, start, end)
   const { data: categories = [] } = useCategories()
 
   const category = categories.find((c) => c.id === categoryId)
 
   const handleEditExpense = (expense: Expense) => {
-    setEditingExpense(expense)
-  }
-
-  const handleCloseExpenseForm = () => {
-    setEditingExpense(null)
+    navigate(`/expenses/${expense.id}`)
   }
 
   return (
@@ -87,15 +81,6 @@ export function CategoryExpenseList({
         <p className="text-center text-[var(--color-text-secondary)] py-8">
           No expenses in this category
         </p>
-      )}
-
-      {editingExpense && (
-        <ExpenseFormModal
-          isOpen={true}
-          onClose={handleCloseExpenseForm}
-          date={editingExpense.date}
-          expense={editingExpense}
-        />
       )}
     </div>
   )
