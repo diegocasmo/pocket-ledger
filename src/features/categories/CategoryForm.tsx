@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -39,7 +39,6 @@ export function CategoryForm({
 }: CategoryFormProps) {
   const isEditing = !!category
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const selectedButtonRef = useRef<HTMLButtonElement>(null)
 
   const {
     register,
@@ -54,18 +53,6 @@ export function CategoryForm({
       color: category?.color ?? PRESET_COLORS[0],
     },
   })
-
-  useEffect(() => {
-    if (scrollContainerRef.current && selectedButtonRef.current) {
-      const container = scrollContainerRef.current
-      const button = selectedButtonRef.current
-      const containerWidth = container.offsetWidth
-      const buttonLeft = button.offsetLeft
-      const buttonWidth = button.offsetWidth
-      const scrollPosition = buttonLeft - containerWidth / 2 + buttonWidth / 2
-      container.scrollLeft = Math.max(0, scrollPosition)
-    }
-  }, [])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -127,7 +114,6 @@ export function CategoryForm({
                   return (
                     <button
                       key={presetColor}
-                      ref={isSelected ? selectedButtonRef : undefined}
                       type="button"
                       role="radio"
                       aria-checked={isSelected}
