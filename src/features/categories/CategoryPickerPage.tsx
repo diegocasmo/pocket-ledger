@@ -77,7 +77,7 @@ export function CategoryPickerPage() {
         </div>
 
         {/* Category list */}
-        <div className="space-y-1 max-h-[calc(100vh-220px)] overflow-auto">
+        <div className="space-y-1">
           {!hasFilteredCategories ? (
             <div className="flex flex-col items-center justify-center py-8 gap-3">
               <p className="text-[var(--color-text-secondary)]">No categories found</p>
