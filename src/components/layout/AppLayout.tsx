@@ -1,38 +1,36 @@
 import { ReactNode, useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/layout/BottomNav'
-import { ExpenseFormModal } from '@/features/expenses/ExpenseFormModal'
 import { UpdatePrompt } from '@/components/pwa/UpdatePrompt'
 import { useSettings } from '@/hooks/useSettings'
 import { getTodayISO, isFutureDate } from '@/lib/dates'
 import { CalendarContext } from '@/components/layout/CalendarContext'
-import type { Expense } from '@/types'
 
 interface AppLayoutProps {
   children: ReactNode
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const navigate = useNavigate()
   const { data: settings } = useSettings()
   const [selectedDate, setSelectedDate] = useState<string | null>(getTodayISO())
-  const [showExpenseForm, setShowExpenseForm] = useState(false)
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
-
-  const openExpenseForm = useCallback((expense?: Expense) => {
-    setEditingExpense(expense ?? null)
-    setShowExpenseForm(true)
-  }, [])
-
-  const handleCloseExpenseForm = useCallback(() => {
-    setShowExpenseForm(false)
-    setEditingExpense(null)
-  }, [])
 
   const handleAddExpense = useCallback(() => {
     // Use selected date if available and not in the future, otherwise use today
     const dateToUse = selectedDate && !isFutureDate(selectedDate) ? selectedDate : getTodayISO()
-    setSelectedDate(dateToUse)
-    openExpenseForm()
-  }, [selectedDate, openExpenseForm])
+    navigate(`/expenses/new?date=${dateToUse}`)
+  }, [selectedDate, navigate])
+
+  const openExpenseForm = useCallback(
+    (expense?: { id: string }) => {
+      if (expense) {
+        navigate(`/expenses/${expense.id}`)
+      } else {
+        handleAddExpense()
+      }
+    },
+    [navigate, handleAddExpense]
+  )
 
   useEffect(() => {
     const root = document.documentElement
@@ -69,23 +67,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [settings?.theme])
 
-  // Determine which date to use for the expense form
-  const expenseFormDate = selectedDate && !isFutureDate(selectedDate) ? selectedDate : getTodayISO()
-
   return (
     <CalendarContext.Provider value={{ selectedDate, setSelectedDate, openExpenseForm }}>
       <div className="min-h-screen bg-[var(--color-bg-primary)] pb-20">
-        <main className="max-w-lg mx-auto">
-          {children}
-        </main>
+        <main className="max-w-lg mx-auto">{children}</main>
         <UpdatePrompt />
         <BottomNav onAddExpense={handleAddExpense} />
-        <ExpenseFormModal
-          isOpen={showExpenseForm}
-          onClose={handleCloseExpenseForm}
-          date={expenseFormDate}
-          expense={editingExpense}
-        />
       </div>
     </CalendarContext.Provider>
   )

@@ -1,10 +1,9 @@
 import { createContext, useContext } from 'react'
-import type { Expense } from '@/types'
 
 export interface CalendarContextValue {
   selectedDate: string | null
   setSelectedDate: (date: string | null) => void
-  openExpenseForm: (expense?: Expense) => void
+  openExpenseForm: (expense?: { id: string }) => void
 }
 
 export const CalendarContext = createContext<CalendarContextValue | null>(null)
