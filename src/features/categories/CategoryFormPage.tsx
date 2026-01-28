@@ -21,6 +21,7 @@ export function CategoryFormPage() {
   const { updateDraft } = useExpenseFormContext()
 
   const returnPath = searchParams.get('returnPath')
+  const expenseFormPath = searchParams.get('expenseFormPath')
   const initialName = searchParams.get('initialName') ?? undefined
 
   const { data: categories = [] } = useCategories()
@@ -39,10 +40,17 @@ export function CategoryFormPage() {
     onSuccess: () => handleReturn(),
   })
 
-  const handleReturn = (newCategoryId?: string) => {
-    // If a new category was created and we're returning to a picker, auto-select it
-    if (newCategoryId && returnPath?.includes('/category')) {
-      updateDraft({ categoryId: newCategoryId })
+  const handleReturn = (categoryId?: string) => {
+    // If coming from expense flow and have a category, go directly to expense form
+    if (expenseFormPath && categoryId) {
+      updateDraft({ categoryId })
+      navigate(expenseFormPath, { replace: true })
+      return
+    }
+
+    // Existing behavior for picker return or no category
+    if (categoryId && returnPath?.includes('/category')) {
+      updateDraft({ categoryId })
     }
 
     if (returnPath) {
@@ -58,7 +66,7 @@ export function CategoryFormPage() {
         id: category.id,
         ...data,
       })
-      handleReturn()
+      handleReturn(category.id)
     } else {
       const newCategory = await createCategory.mutateAsync(data)
       handleReturn(newCategory.id)

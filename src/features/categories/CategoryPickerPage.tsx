@@ -36,7 +36,10 @@ export function CategoryPickerPage() {
   }
 
   const handleCreateCategory = () => {
-    const params = new URLSearchParams({ returnPath: pickerPath })
+    const params = new URLSearchParams({
+      returnPath: pickerPath,
+      expenseFormPath: returnPath,
+    })
     if (searchQuery.trim()) {
       params.set('initialName', searchQuery.trim())
     }
@@ -44,7 +47,11 @@ export function CategoryPickerPage() {
   }
 
   const handleEditCategory = (categoryId: string) => {
-    navigate(`/categories/${categoryId}?returnPath=${encodeURIComponent(pickerPath)}`)
+    const params = new URLSearchParams({
+      returnPath: pickerPath,
+      expenseFormPath: returnPath,
+    })
+    navigate(`/categories/${categoryId}?${params.toString()}`)
   }
 
   const handleBack = () => {
