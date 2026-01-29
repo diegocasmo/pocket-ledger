@@ -107,7 +107,7 @@ export function CategoryForm({
                 ref={scrollContainerRef}
                 role="radiogroup"
                 aria-label="Category color"
-                className="flex gap-2 overflow-x-auto pb-2 -mb-2"
+                className="flex gap-2 overflow-x-auto py-2 -my-2"
               >
                 {PRESET_COLORS.map((presetColor, index) => {
                   const isSelected = field.value === presetColor
