@@ -200,4 +200,24 @@ describe('AmountInput', () => {
       expect(input.value).toBe('20.00')
     })
   })
+
+  describe('autofocus', () => {
+    it('autofocuses input when autoFocus prop is true', () => {
+      render(<AmountInput value="" onChange={vi.fn()} autoFocus={true} />)
+      const input = screen.getByLabelText('Amount')
+      expect(input).toHaveFocus()
+    })
+
+    it('does not autofocus input when autoFocus prop is false', () => {
+      render(<AmountInput value="" onChange={vi.fn()} autoFocus={false} />)
+      const input = screen.getByLabelText('Amount')
+      expect(input).not.toHaveFocus()
+    })
+
+    it('does not autofocus input when autoFocus prop is not provided', () => {
+      render(<AmountInput value="" onChange={vi.fn()} />)
+      const input = screen.getByLabelText('Amount')
+      expect(input).not.toHaveFocus()
+    })
+  })
 })
