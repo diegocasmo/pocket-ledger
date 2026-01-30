@@ -30,6 +30,18 @@ describe('CategoryPickerPage', () => {
     sessionStorage.clear()
   })
 
+  describe('autofocus behavior', () => {
+    it('autofocuses the search input when page loads', async () => {
+      renderCategoryPickerPage()
+
+      const searchInput = await screen.findByPlaceholderText(/search categories/i)
+
+      await waitFor(() => {
+        expect(searchInput).toHaveFocus()
+      })
+    })
+  })
+
   describe('navigation to category form', () => {
     it('passes expenseFormPath when creating a new category', async () => {
       const user = userEvent.setup()
