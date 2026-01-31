@@ -1,5 +1,4 @@
-import { forwardRef } from 'react'
-import CurrencyInput from 'react-currency-input-field'
+import { forwardRef, useState, useMemo } from 'react'
 
 interface AmountInputProps {
   value: string
@@ -20,13 +19,59 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
       onBlur,
       error,
       label = 'Amount',
-      placeholder = '0.00',
+      placeholder = '$0.00',
       disabled = false,
       autoFocus = false,
     },
     ref
   ) => {
     const inputId = label.toLowerCase().replace(/\s+/g, '-')
+    const errorId = `${inputId}-error`
+    const descriptionId = `${inputId}-description`
+
+    const [isFocused, setIsFocused] = useState(false)
+
+    // Convert value prop (USD string like "12.34") to cents for internal use
+    const centsValue = useMemo(() => {
+      if (!value) return 0
+      const parsed = parseFloat(value)
+      if (isNaN(parsed)) return 0
+      return Math.round(parsed * 100)
+    }, [value])
+
+    // Format cents for display (with $ and commas)
+    const displayValue = useMemo(() => {
+      if (!isFocused && centsValue === 0) return ''
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(centsValue / 100)
+    }, [centsValue, isFocused])
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Extract only digits from input
+      const digits = e.target.value.replace(/\D/g, '')
+
+      // Parse as cents (max 99999999 = $999,999.99)
+      let cents = digits === '' ? 0 : parseInt(digits, 10)
+      cents = Math.min(cents, 99999999)
+
+      // Pass USD string to parent (e.g., "12.34" or "0.00")
+      onChange((cents / 100).toFixed(2))
+    }
+
+    const handleFocus = () => {
+      setIsFocused(true)
+      // If empty or zero, initialize to $0.00
+      if (!value || value === '0' || value === '0.00') {
+        onChange('0.00')
+      }
+    }
+
+    const handleBlur = () => {
+      setIsFocused(false)
+      onBlur?.()
+    }
 
     return (
       <div className="w-full">
@@ -37,33 +82,22 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
           {label}
         </label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]">
-            $
-          </span>
-          <CurrencyInput
+          <input
             ref={ref}
             id={inputId}
-            value={value}
-            onValueChange={(newValue) => {
-              onChange(newValue ?? '')
-            }}
-            onBlur={onBlur}
+            type="text"
+            inputMode="numeric"
+            value={displayValue}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             placeholder={placeholder}
             disabled={disabled}
             autoFocus={autoFocus}
-            decimalsLimit={2}
-            allowNegativeValue={false}
-            decimalSeparator="."
-            groupSeparator=""
-            transformRawValue={(rawValue) => {
-              // Normalize locale-specific decimal separators to period
-              // Covers: comma (U+002C), Arabic comma (U+060C), Arabic decimal separator (U+066B), Fullwidth comma (U+FF0C)
-              const normalized = rawValue.replace(/[\u002C\u060C\u066B\uFF0C]/g, '.')
-              // Filter out non-numeric characters (keep only digits and decimal point)
-              return normalized.replace(/[^0-9.]/g, '')
-            }}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${errorId} ${descriptionId}` : descriptionId}
             className={`
-              w-full pl-7 pr-3 py-2 rounded-lg border
+              w-full px-3 py-3 min-h-[44px] rounded-lg border
               bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
               placeholder:text-[var(--color-text-secondary)]
               focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
@@ -71,8 +105,15 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
               ${error ? 'border-red-500' : 'border-[var(--color-border)]'}
             `}
           />
+          <span id={descriptionId} className="sr-only">
+            Enter amount in US dollars
+          </span>
         </div>
-        {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+        {error && (
+          <p id={errorId} role="alert" className="mt-1 text-sm text-red-500">
+            {error}
+          </p>
+        )}
       </div>
     )
   }
