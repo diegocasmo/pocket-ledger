@@ -47,7 +47,10 @@ describe('CategoryPickerPage', () => {
       const user = userEvent.setup()
       renderCategoryPickerPage()
 
-      const newCategoryButton = await screen.findByRole('button', { name: /new category/i })
+      // Wait for "No categories found" to appear (indicates query has settled)
+      await screen.findByText(/no categories found/i)
+
+      const newCategoryButton = screen.getByRole('button', { name: /new category/i })
       await user.click(newCategoryButton)
 
       expect(mockNavigate).toHaveBeenCalledWith(
