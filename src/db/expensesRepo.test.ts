@@ -78,6 +78,26 @@ describe('expensesRepo', () => {
       expect(retrieved).toBeDefined()
       expect(retrieved?.amountCents).toBe(2000)
     })
+
+    it('trims note when creating expense', async () => {
+      const expense = await createExpense({
+        date: '2024-01-15',
+        amountCents: 1500,
+        categoryId: 'cat-1',
+        note: '  Test note with spaces  ',
+      })
+      expect(expense.note).toBe('Test note with spaces')
+    })
+
+    it('handles empty note after trimming', async () => {
+      const expense = await createExpense({
+        date: '2024-01-15',
+        amountCents: 1500,
+        categoryId: 'cat-1',
+        note: '   ',
+      })
+      expect(expense.note).toBe('')
+    })
   })
 
   describe('updateExpense', () => {
@@ -134,6 +154,18 @@ describe('expensesRepo', () => {
       expect(incrementSpy).toHaveBeenCalledTimes(1)
 
       incrementSpy.mockRestore()
+    })
+
+    it('trims note when updating expense', async () => {
+      const updated = await updateExpense('expense-1', {
+        note: '  Updated note with spaces  ',
+      })
+      expect(updated.note).toBe('Updated note with spaces')
+    })
+
+    it('handles empty note after trimming on update', async () => {
+      const updated = await updateExpense('expense-1', { note: '   ' })
+      expect(updated.note).toBe('')
     })
   })
 

@@ -24,7 +24,7 @@ export async function createExpense(input: CreateExpenseInput): Promise<Expense>
     date: input.date,
     amountCents: input.amountCents,
     categoryId: input.categoryId,
-    note: input.note,
+    note: input.note?.trim(),
     createdAt: now,
     updatedAt: now,
   }
@@ -45,6 +45,7 @@ export async function updateExpense(
   const updated: Expense = {
     ...existing,
     ...patch,
+    note: patch.note !== undefined ? patch.note?.trim() : existing.note,
     updatedAt: Date.now(),
   }
   await db.expenses.put(updated)

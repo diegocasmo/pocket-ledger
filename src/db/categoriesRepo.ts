@@ -44,7 +44,7 @@ export async function createCategory(
   const id = crypto.randomUUID()
   const category: Category = {
     id,
-    name: input.name,
+    name: input.name.trim(),
     color: input.color,
     usageCount: 0,
   }
@@ -56,7 +56,11 @@ export async function updateCategory(
   id: string,
   patch: Partial<Pick<Category, 'name' | 'color'>>
 ): Promise<Category> {
-  await db.categories.update(id, patch)
+  const trimmedPatch = {
+    ...patch,
+    ...(patch.name !== undefined && { name: patch.name.trim() }),
+  }
+  await db.categories.update(id, trimmedPatch)
   const updated = await db.categories.get(id)
   if (!updated) {
     throw new Error(`Category not found: ${id}`)
