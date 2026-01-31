@@ -102,6 +102,22 @@ describe('categoriesRepo', () => {
       expect(retrieved).toBeDefined()
       expect(retrieved?.name).toBe('Persisted Category')
     })
+
+    it('trims name when creating category', async () => {
+      const category = await createCategory({
+        name: '  Category with spaces  ',
+        color: '#abcdef',
+      })
+      expect(category.name).toBe('Category with spaces')
+    })
+
+    it('handles empty name after trimming', async () => {
+      const category = await createCategory({
+        name: '   ',
+        color: '#abcdef',
+      })
+      expect(category.name).toBe('')
+    })
   })
 
   describe('updateCategory', () => {
@@ -133,6 +149,30 @@ describe('categoriesRepo', () => {
       await expect(
         updateCategory('non-existent', { name: 'New Name' })
       ).rejects.toThrow('Category not found: non-existent')
+    })
+
+    it('trims name when updating category', async () => {
+      await db.categories.add({
+        id: 'trim-test',
+        name: 'Original',
+        color: '#ffffff',
+        usageCount: 0,
+      })
+      const updated = await updateCategory('trim-test', {
+        name: '  Trimmed Name  ',
+      })
+      expect(updated.name).toBe('Trimmed Name')
+    })
+
+    it('handles empty name after trimming on update', async () => {
+      await db.categories.add({
+        id: 'empty-test',
+        name: 'Original',
+        color: '#ffffff',
+        usageCount: 0,
+      })
+      const updated = await updateCategory('empty-test', { name: '   ' })
+      expect(updated.name).toBe('')
     })
   })
 
