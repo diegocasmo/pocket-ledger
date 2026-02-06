@@ -10,7 +10,17 @@ import {
   addDays,
   isToday as dateFnsIsToday,
   isFuture,
+  isSameWeek,
+  isSameMonth,
+  isSameYear,
+  addWeeks,
+  subWeeks,
+  addMonths,
+  subMonths,
+  addYears,
+  subYears,
 } from 'date-fns'
+import type { RangeType } from '@/types'
 
 const ISO_DATE_FORMAT = 'yyyy-MM-dd'
 
@@ -126,4 +136,60 @@ export function getCalendarGrid(monthDate: Date, weekStartsOn: 0 | 1 = 0): Calen
   }
 
   return { weeks }
+}
+
+/**
+ * Check if a viewDate falls within the current period (week, month, or year)
+ */
+export function isCurrentPeriod(viewDate: Date, rangeType: RangeType, weekStartsOn: 0 | 1): boolean {
+  const now = new Date()
+  switch (rangeType) {
+    case 'week':
+      return isSameWeek(viewDate, now, { weekStartsOn })
+    case 'month':
+      return isSameMonth(viewDate, now)
+    case 'year':
+      return isSameYear(viewDate, now)
+  }
+}
+
+/**
+ * Format a period label based on the range type
+ * Week: "Jan 27 – Feb 2, 2025" (cross-month) or "Jan 27 – 31, 2025" (same month)
+ * Month: "January 2025"
+ * Year: "2025"
+ */
+export function formatPeriodLabel(viewDate: Date, rangeType: RangeType, weekStartsOn: 0 | 1): string {
+  switch (rangeType) {
+    case 'week': {
+      const start = startOfWeek(viewDate, { weekStartsOn })
+      const end = endOfWeek(viewDate, { weekStartsOn })
+      if (start.getMonth() === end.getMonth()) {
+        return `${format(start, 'MMM d')} – ${format(end, 'd, yyyy')}`
+      }
+      if (start.getFullYear() === end.getFullYear()) {
+        return `${format(start, 'MMM d')} – ${format(end, 'MMM d, yyyy')}`
+      }
+      return `${format(start, 'MMM d, yyyy')} – ${format(end, 'MMM d, yyyy')}`
+    }
+    case 'month':
+      return format(viewDate, 'MMMM yyyy')
+    case 'year':
+      return format(viewDate, 'yyyy')
+  }
+}
+
+/**
+ * Shift a viewDate by one period in the given direction
+ */
+export function shiftPeriod(viewDate: Date, rangeType: RangeType, direction: 'previous' | 'next'): Date {
+  const isPrevious = direction === 'previous'
+  switch (rangeType) {
+    case 'week':
+      return isPrevious ? subWeeks(viewDate, 1) : addWeeks(viewDate, 1)
+    case 'month':
+      return isPrevious ? subMonths(viewDate, 1) : addMonths(viewDate, 1)
+    case 'year':
+      return isPrevious ? subYears(viewDate, 1) : addYears(viewDate, 1)
+  }
 }

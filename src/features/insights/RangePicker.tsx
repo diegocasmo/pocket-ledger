@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/Button'
-
-type RangeType = 'week' | 'month' | 'year'
+import type { RangeType } from '@/types'
 
 interface RangePickerProps {
   rangeType: RangeType

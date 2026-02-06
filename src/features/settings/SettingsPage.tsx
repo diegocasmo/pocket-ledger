@@ -27,10 +27,6 @@ export function SettingsPage() {
 
   return (
     <div className="p-4 space-y-6">
-      <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">
-        Settings
-      </h1>
-
       <div className="space-y-4">
         <div>
           <h2 className="text-sm font-medium text-[var(--color-text-secondary)] mb-2">

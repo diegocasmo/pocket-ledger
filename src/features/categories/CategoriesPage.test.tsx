@@ -25,14 +25,6 @@ describe('CategoriesPage', () => {
   })
 
   describe('rendering', () => {
-    it('renders the categories header', async () => {
-      renderCategoriesPage()
-
-      await waitFor(() => {
-        expect(screen.getByRole('heading', { name: /categories/i })).toBeInTheDocument()
-      })
-    })
-
     it('shows new category button', async () => {
       renderCategoriesPage()
 

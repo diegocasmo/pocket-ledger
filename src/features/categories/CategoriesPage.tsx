@@ -8,10 +8,6 @@ export function CategoriesPage() {
 
   return (
     <div className="p-4 space-y-6">
-      <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">
-        Categories
-      </h1>
-
       <div className="space-y-4">
         <div className="space-y-2">
           {categories.map((category) => (

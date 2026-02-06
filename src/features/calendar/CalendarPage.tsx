@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { format, addMonths, subMonths, isSameMonth } from 'date-fns'
-import { MonthNavigator } from '@/features/calendar/MonthNavigator'
+import { PeriodNavigator } from '@/components/ui/PeriodNavigator'
 import { MonthGrid } from '@/features/calendar/MonthGrid'
 import { DayExpensePanel } from '@/features/calendar/DayExpensePanel'
 import { useExpensesForMonth } from '@/hooks/useExpenses'
@@ -70,16 +70,17 @@ export function CalendarPage() {
 
   return (
     <div
-      className="p-4"
+      className="p-4 space-y-6"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <MonthNavigator
-        monthLabel={format(viewDate, 'MMMM yyyy')}
+      <PeriodNavigator
+        label={format(viewDate, 'MMMM yyyy')}
         onPrevious={goToPreviousMonth}
         onNext={goToNextMonth}
         onToday={goToToday}
-        isCurrentMonth={isCurrentMonth}
+        isCurrentPeriod={isCurrentMonth}
+        periodName="month"
       />
       <MonthGrid
         year={year}
