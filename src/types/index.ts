@@ -21,6 +21,8 @@ export interface Settings {
   theme: 'light' | 'dark' | 'system';
 }
 
+export type RangeType = 'week' | 'month' | 'year'
+
 export interface RangeAggregate {
   totalCents: number;
   byCategory: Record<string, number>;  // categoryId -> totalCents

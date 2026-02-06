@@ -9,6 +9,9 @@ import {
   isFutureDate,
   isCurrentOrFutureMonth,
   getTodayISO,
+  isCurrentPeriod,
+  formatPeriodLabel,
+  shiftPeriod,
 } from '@/lib/dates'
 
 describe('formatDateToISO', () => {
@@ -175,5 +178,113 @@ describe('isCurrentOrFutureMonth', () => {
   it('returns false for past years', () => {
     expect(isCurrentOrFutureMonth(2023, 1)).toBe(false)
     expect(isCurrentOrFutureMonth(2023, 12)).toBe(false)
+  })
+})
+
+describe('isCurrentPeriod', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2024, 0, 17)) // Wednesday, January 17, 2024
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('returns true for current week (Sunday start)', () => {
+    expect(isCurrentPeriod(new Date(2024, 0, 17), 'week', 0)).toBe(true)
+  })
+
+  it('returns true for current week (Monday start)', () => {
+    expect(isCurrentPeriod(new Date(2024, 0, 17), 'week', 1)).toBe(true)
+  })
+
+  it('returns false for past week', () => {
+    expect(isCurrentPeriod(new Date(2024, 0, 8), 'week', 0)).toBe(false)
+  })
+
+  it('returns true for current month', () => {
+    expect(isCurrentPeriod(new Date(2024, 0, 1), 'month', 0)).toBe(true)
+  })
+
+  it('returns false for past month', () => {
+    expect(isCurrentPeriod(new Date(2023, 11, 15), 'month', 0)).toBe(false)
+  })
+
+  it('returns true for current year', () => {
+    expect(isCurrentPeriod(new Date(2024, 5, 1), 'year', 0)).toBe(true)
+  })
+
+  it('returns false for past year', () => {
+    expect(isCurrentPeriod(new Date(2023, 5, 1), 'year', 0)).toBe(false)
+  })
+})
+
+describe('formatPeriodLabel', () => {
+  it('formats same-month week', () => {
+    const midWeek = new Date(2025, 0, 22) // Jan 22, 2025 (Wed)
+    // Sun start: Jan 19 – Jan 25
+    expect(formatPeriodLabel(midWeek, 'week', 0)).toBe('Jan 19 – 25, 2025')
+  })
+
+  it('formats cross-month week', () => {
+    const date = new Date(2025, 0, 28) // Jan 28, 2025 (Tue)
+    // Sun start: Jan 26 – Feb 1
+    expect(formatPeriodLabel(date, 'week', 0)).toBe('Jan 26 – Feb 1, 2025')
+  })
+
+  it('formats cross-year week', () => {
+    const date = new Date(2024, 11, 30) // Dec 30, 2024 (Mon)
+    // Sun start: Dec 29 – Jan 4
+    expect(formatPeriodLabel(date, 'week', 0)).toBe('Dec 29, 2024 – Jan 4, 2025')
+  })
+
+  it('formats month', () => {
+    expect(formatPeriodLabel(new Date(2025, 0, 15), 'month', 0)).toBe('January 2025')
+  })
+
+  it('formats year', () => {
+    expect(formatPeriodLabel(new Date(2025, 0, 15), 'year', 0)).toBe('2025')
+  })
+})
+
+describe('shiftPeriod', () => {
+  it('shifts week forward', () => {
+    const date = new Date(2024, 0, 17)
+    const result = shiftPeriod(date, 'week', 'next')
+    expect(result.getDate()).toBe(24)
+    expect(result.getMonth()).toBe(0)
+  })
+
+  it('shifts week backward', () => {
+    const date = new Date(2024, 0, 17)
+    const result = shiftPeriod(date, 'week', 'previous')
+    expect(result.getDate()).toBe(10)
+    expect(result.getMonth()).toBe(0)
+  })
+
+  it('shifts month forward', () => {
+    const date = new Date(2024, 0, 15)
+    const result = shiftPeriod(date, 'month', 'next')
+    expect(result.getMonth()).toBe(1)
+  })
+
+  it('shifts month backward', () => {
+    const date = new Date(2024, 0, 15)
+    const result = shiftPeriod(date, 'month', 'previous')
+    expect(result.getMonth()).toBe(11)
+    expect(result.getFullYear()).toBe(2023)
+  })
+
+  it('shifts year forward', () => {
+    const date = new Date(2024, 0, 15)
+    const result = shiftPeriod(date, 'year', 'next')
+    expect(result.getFullYear()).toBe(2025)
+  })
+
+  it('shifts year backward', () => {
+    const date = new Date(2024, 0, 15)
+    const result = shiftPeriod(date, 'year', 'previous')
+    expect(result.getFullYear()).toBe(2023)
   })
 })

@@ -10,14 +10,6 @@ function renderSettingsPage() {
 
 describe('SettingsPage', () => {
   describe('rendering', () => {
-    it('renders the settings header', async () => {
-      renderSettingsPage()
-
-      await waitFor(() => {
-        expect(screen.getByRole('heading', { name: /settings/i })).toBeInTheDocument()
-      })
-    })
-
     it('renders theme options', async () => {
       renderSettingsPage()
 

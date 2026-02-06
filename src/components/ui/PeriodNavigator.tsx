@@ -1,30 +1,31 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
-interface MonthNavigatorProps {
-  monthLabel: string
+interface PeriodNavigatorProps {
+  label: string
   onPrevious: () => void
   onNext: () => void
   onToday: () => void
-  isCurrentMonth: boolean
+  isCurrentPeriod: boolean
+  periodName?: string
 }
 
-export function MonthNavigator({ monthLabel, onPrevious, onNext, onToday, isCurrentMonth }: MonthNavigatorProps) {
+export function PeriodNavigator({ label, onPrevious, onNext, onToday, isCurrentPeriod, periodName = 'period' }: PeriodNavigatorProps) {
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center justify-between">
       <Button
         variant="ghost"
         size="sm"
         onClick={onPrevious}
-        aria-label="Previous month"
+        aria-label={`Previous ${periodName}`}
       >
         <ChevronLeft className="w-5 h-5" />
       </Button>
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">
-          {monthLabel}
-        </h1>
-        {!isCurrentMonth && (
+        <span className="text-lg font-semibold text-[var(--color-text-primary)]">
+          {label}
+        </span>
+        {!isCurrentPeriod && (
           <Button
             variant="ghost"
             size="sm"
@@ -36,14 +37,14 @@ export function MonthNavigator({ monthLabel, onPrevious, onNext, onToday, isCurr
           </Button>
         )}
       </div>
-      {isCurrentMonth ? (
+      {isCurrentPeriod ? (
         <div className="w-8 h-8" aria-hidden="true" />
       ) : (
         <Button
           variant="ghost"
           size="sm"
           onClick={onNext}
-          aria-label="Next month"
+          aria-label={`Next ${periodName}`}
         >
           <ChevronRight className="w-5 h-5" />
         </Button>
