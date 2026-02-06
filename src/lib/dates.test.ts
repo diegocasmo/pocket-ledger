@@ -222,9 +222,6 @@ describe('isCurrentPeriod', () => {
 
 describe('formatPeriodLabel', () => {
   it('formats same-month week', () => {
-    const date = new Date(2025, 0, 28) // Jan 28, 2025 (Tue)
-    // Week Sun–Sat: Jan 26 – Feb 1 => cross-month
-    // Use a date in the middle of a same-month week
     const midWeek = new Date(2025, 0, 22) // Jan 22, 2025 (Wed)
     // Sun start: Jan 19 – Jan 25
     expect(formatPeriodLabel(midWeek, 'week', 0)).toBe('Jan 19 – 25, 2025')
