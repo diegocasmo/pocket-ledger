@@ -5,19 +5,10 @@ interface SearchInputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value' | 'type'> {
   value: string
   onChange: (value: string) => void
-  onClear?: () => void
 }
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ value, onChange, onClear, className = '', ...props }, ref) => {
-    const handleClear = () => {
-      if (onClear) {
-        onClear()
-      } else {
-        onChange('')
-      }
-    }
-
+  ({ value, onChange, className = '', ...props }, ref) => {
     return (
       <div className="relative">
         <input
@@ -31,7 +22,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         {value && (
           <button
             type="button"
-            onClick={handleClear}
+            onClick={() => onChange('')}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
             aria-label="Clear search"
           >

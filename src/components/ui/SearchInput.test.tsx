@@ -43,17 +43,4 @@ describe('SearchInput', () => {
 
     expect(handleChange).toHaveBeenCalledWith('')
   })
-
-  it('calls onClear instead of onChange when provided', async () => {
-    const handleChange = vi.fn()
-    const handleClear = vi.fn()
-    const user = userEvent.setup()
-
-    render(<SearchInput value="test" onChange={handleChange} onClear={handleClear} />)
-
-    await user.click(screen.getByRole('button', { name: /clear search/i }))
-
-    expect(handleClear).toHaveBeenCalled()
-    expect(handleChange).not.toHaveBeenCalled()
-  })
 })

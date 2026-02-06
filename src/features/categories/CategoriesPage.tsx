@@ -20,6 +20,7 @@ export function CategoriesPage() {
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder="Search categories..."
+          autoFocus
         />
         <div className="space-y-2">
           {filteredCategories.length > 0 ? (
