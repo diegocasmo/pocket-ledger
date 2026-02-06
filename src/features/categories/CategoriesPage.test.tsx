@@ -32,6 +32,14 @@ describe('CategoriesPage', () => {
         expect(screen.getByRole('button', { name: /new category/i })).toBeInTheDocument()
       })
     })
+
+    it('shows search input', async () => {
+      renderCategoriesPage()
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/search categories/i)).toBeInTheDocument()
+      })
+    })
   })
 
   describe('category list', () => {
@@ -54,6 +62,89 @@ describe('CategoriesPage', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /food/i })).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('search', () => {
+    it('filters categories by search query', async () => {
+      await createCategory({ name: 'Food', color: '#22c55e' })
+      await createCategory({ name: 'Transport', color: '#3b82f6' })
+
+      const user = userEvent.setup()
+      renderCategoriesPage()
+
+      await waitFor(() => {
+        expect(screen.getByText('Food')).toBeInTheDocument()
+      })
+
+      await user.type(screen.getByPlaceholderText(/search categories/i), 'foo')
+
+      await waitFor(() => {
+        expect(screen.getByText('Food')).toBeInTheDocument()
+        expect(screen.queryByText('Transport')).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows "No categories found" when search yields no results', async () => {
+      await createCategory({ name: 'Food', color: '#22c55e' })
+
+      const user = userEvent.setup()
+      renderCategoriesPage()
+
+      await waitFor(() => {
+        expect(screen.getByText('Food')).toBeInTheDocument()
+      })
+
+      await user.type(screen.getByPlaceholderText(/search categories/i), 'xyz')
+
+      await waitFor(() => {
+        expect(screen.getByText('No categories found')).toBeInTheDocument()
+        expect(screen.queryByText('Food')).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows all categories again after clearing search', async () => {
+      await createCategory({ name: 'Food', color: '#22c55e' })
+      await createCategory({ name: 'Transport', color: '#3b82f6' })
+
+      const user = userEvent.setup()
+      renderCategoriesPage()
+
+      await waitFor(() => {
+        expect(screen.getByText('Food')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText(/search categories/i)
+      await user.type(searchInput, 'foo')
+
+      await waitFor(() => {
+        expect(screen.queryByText('Transport')).not.toBeInTheDocument()
+      })
+
+      await user.click(screen.getByRole('button', { name: /clear search/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Food')).toBeInTheDocument()
+        expect(screen.getByText('Transport')).toBeInTheDocument()
+      })
+    })
+
+    it('keeps new category button visible when search yields no results', async () => {
+      await createCategory({ name: 'Food', color: '#22c55e' })
+
+      const user = userEvent.setup()
+      renderCategoriesPage()
+
+      await waitFor(() => {
+        expect(screen.getByText('Food')).toBeInTheDocument()
+      })
+
+      await user.type(screen.getByPlaceholderText(/search categories/i), 'xyz')
+
+      await waitFor(() => {
+        expect(screen.getByText('No categories found')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /new category/i })).toBeInTheDocument()
       })
     })
   })
