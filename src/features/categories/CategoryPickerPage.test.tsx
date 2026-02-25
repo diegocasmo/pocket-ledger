@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithRouter } from '@/test/setup'
 import { CategoryPickerPage } from '@/features/categories/CategoryPickerPage'
@@ -44,14 +44,12 @@ describe('CategoryPickerPage', () => {
 
   describe('navigation to category form', () => {
     it('passes expenseFormPath when creating a new category', async () => {
-      const user = userEvent.setup()
       renderCategoryPickerPage()
 
-      // Wait for "No categories found" to appear (indicates query has settled)
       await screen.findByText(/no categories found/i)
 
       const newCategoryButton = screen.getByRole('button', { name: /new category/i })
-      await user.click(newCategoryButton)
+      fireEvent.click(newCategoryButton)
 
       expect(mockNavigate).toHaveBeenCalledWith(
         expect.stringContaining('returnPath=%2Fexpenses%2Fnew%2Fcategory')
