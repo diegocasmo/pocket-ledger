@@ -53,7 +53,7 @@ describe('useNoteSuggestions', () => {
     expect(result.current.suggestions).toEqual([])
   })
 
-  it('returns matching suggestions with case-insensitive prefix match', async () => {
+  it('returns matching suggestions with case-insensitive substring match', async () => {
     await db.expenses.bulkAdd([
       {
         id: 'exp-1',
@@ -77,6 +77,43 @@ describe('useNoteSuggestions', () => {
 
     const { result } = renderHook(
       () => useNoteSuggestions({ categoryId: 'cat-1', query: 'cof' }),
+      { wrapper: createWrapper() }
+    )
+
+    await act(async () => {
+      vi.advanceTimersByTime(200)
+    })
+
+    await waitFor(() => {
+      expect(result.current.suggestions).toContain('Coffee at Starbucks')
+    })
+    expect(result.current.suggestions).not.toContain('Lunch at restaurant')
+  })
+
+  it('returns suggestions matching a mid-string query', async () => {
+    await db.expenses.bulkAdd([
+      {
+        id: 'exp-1',
+        date: recentDate,
+        amountCents: 1000,
+        categoryId: 'cat-1',
+        note: 'Coffee at Starbucks',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+      {
+        id: 'exp-2',
+        date: recentDate,
+        amountCents: 2000,
+        categoryId: 'cat-1',
+        note: 'Lunch at restaurant',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+    ])
+
+    const { result } = renderHook(
+      () => useNoteSuggestions({ categoryId: 'cat-1', query: 'starbucks' }),
       { wrapper: createWrapper() }
     )
 

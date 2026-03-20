@@ -49,7 +49,7 @@ export function useNoteSuggestions({
     const uniqueNotes = new Set<string>()
 
     for (const expense of expenses) {
-      if (expense.note && expense.note.toLowerCase().startsWith(normalizedQuery)) {
+      if (expense.note && expense.note.toLowerCase().includes(normalizedQuery)) {
         uniqueNotes.add(expense.note)
         if (uniqueNotes.size >= maxSuggestions) {
           break
