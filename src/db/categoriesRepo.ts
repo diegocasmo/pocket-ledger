@@ -2,13 +2,13 @@ import { db } from '@/db'
 import type { Category } from '@/types'
 
 const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = [
-  { name: 'Food & Dining', color: '#ef4444', usageCount: 0 },
-  { name: 'Transportation', color: '#f97316', usageCount: 0 },
-  { name: 'Shopping', color: '#eab308', usageCount: 0 },
-  { name: 'Bills & Utilities', color: '#22c55e', usageCount: 0 },
-  { name: 'Entertainment', color: '#3b82f6', usageCount: 0 },
-  { name: 'Health', color: '#8b5cf6', usageCount: 0 },
-  { name: 'Other', color: '#6b7280', usageCount: 0 },
+  { name: 'Food & Dining', color: '#ef4444', lastUsedAt: null },
+  { name: 'Transportation', color: '#f97316', lastUsedAt: null },
+  { name: 'Shopping', color: '#eab308', lastUsedAt: null },
+  { name: 'Bills & Utilities', color: '#22c55e', lastUsedAt: null },
+  { name: 'Entertainment', color: '#3b82f6', lastUsedAt: null },
+  { name: 'Health', color: '#8b5cf6', lastUsedAt: null },
+  { name: 'Other', color: '#6b7280', lastUsedAt: null },
 ]
 
 export async function initDefaultCategories(): Promise<void> {
@@ -25,10 +25,12 @@ export async function initDefaultCategories(): Promise<void> {
 export async function listCategories(): Promise<Category[]> {
   await initDefaultCategories()
   const categories = await db.categories.toArray()
-  // Sort by usage count descending, then by name
+  // Sort by most recently used first, then by name for stable ties.
   return categories.sort((a, b) => {
-    if (b.usageCount !== a.usageCount) {
-      return b.usageCount - a.usageCount
+    const aLastUsedAt = a.lastUsedAt ?? -Infinity
+    const bLastUsedAt = b.lastUsedAt ?? -Infinity
+    if (bLastUsedAt !== aLastUsedAt) {
+      return bLastUsedAt - aLastUsedAt
     }
     return a.name.localeCompare(b.name)
   })
@@ -46,7 +48,7 @@ export async function createCategory(
     id,
     name: input.name.trim(),
     color: input.color,
-    usageCount: 0,
+    lastUsedAt: null,
   }
   await db.categories.add(category)
   return category
@@ -76,11 +78,13 @@ export async function deleteCategory(id: string): Promise<void> {
   await db.categories.delete(id)
 }
 
-export async function incrementUsage(id: string): Promise<void> {
+export async function markCategoryUsed(id: string, usedAt: number): Promise<void> {
   const category = await db.categories.get(id)
   if (category) {
+    const nextLastUsedAt =
+      category.lastUsedAt === null ? usedAt : Math.max(category.lastUsedAt, usedAt)
     await db.categories.update(id, {
-      usageCount: category.usageCount + 1,
+      lastUsedAt: nextLastUsedAt,
     })
   }
 }

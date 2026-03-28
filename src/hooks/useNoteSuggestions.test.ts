@@ -19,7 +19,7 @@ describe('useNoteSuggestions', () => {
       id: 'cat-1',
       name: 'Food',
       color: '#ff0000',
-      usageCount: 0,
+      lastUsedAt: null,
     })
   })
 

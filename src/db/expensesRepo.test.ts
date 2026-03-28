@@ -17,13 +17,13 @@ describe('expensesRepo', () => {
       id: 'cat-1',
       name: 'Food',
       color: '#ff0000',
-      usageCount: 0,
+      lastUsedAt: null,
     })
     await db.categories.add({
       id: 'cat-2',
       name: 'Transport',
       color: '#00ff00',
-      usageCount: 0,
+      lastUsedAt: null,
     })
   })
 
@@ -48,15 +48,15 @@ describe('expensesRepo', () => {
       expect(expense.updatedAt).toBe(expense.createdAt)
     })
 
-    it('calls incrementUsage for the category', async () => {
-      const incrementSpy = vi.spyOn(categoriesRepo, 'incrementUsage')
-      await createExpense({
+    it('marks the category as recently used', async () => {
+      const markUsedSpy = vi.spyOn(categoriesRepo, 'markCategoryUsed')
+      const expense = await createExpense({
         date: '2024-01-15',
         amountCents: 1000,
         categoryId: 'cat-1',
       })
-      expect(incrementSpy).toHaveBeenCalledWith('cat-1')
-      incrementSpy.mockRestore()
+      expect(markUsedSpy).toHaveBeenCalledWith('cat-1', expense.createdAt)
+      markUsedSpy.mockRestore()
     })
 
     it('creates expense without note', async () => {
@@ -137,23 +137,20 @@ describe('expensesRepo', () => {
       expect(updated.note).toBe('New note')
     })
 
-    it('increments usage ONLY when categoryId changes', async () => {
-      const incrementSpy = vi.spyOn(categoriesRepo, 'incrementUsage')
+    it('marks recency ONLY when categoryId changes', async () => {
+      const markUsedSpy = vi.spyOn(categoriesRepo, 'markCategoryUsed')
 
-      // Update without changing category - should NOT increment
       await updateExpense('expense-1', { amountCents: 500 })
-      expect(incrementSpy).not.toHaveBeenCalled()
+      expect(markUsedSpy).not.toHaveBeenCalled()
 
-      // Update with same category - should NOT increment
       await updateExpense('expense-1', { categoryId: 'cat-1' })
-      expect(incrementSpy).not.toHaveBeenCalled()
+      expect(markUsedSpy).not.toHaveBeenCalled()
 
-      // Update with different category - SHOULD increment
-      await updateExpense('expense-1', { categoryId: 'cat-2' })
-      expect(incrementSpy).toHaveBeenCalledWith('cat-2')
-      expect(incrementSpy).toHaveBeenCalledTimes(1)
+      const updated = await updateExpense('expense-1', { categoryId: 'cat-2' })
+      expect(markUsedSpy).toHaveBeenCalledWith('cat-2', updated.updatedAt)
+      expect(markUsedSpy).toHaveBeenCalledTimes(1)
 
-      incrementSpy.mockRestore()
+      markUsedSpy.mockRestore()
     })
 
     it('trims note when updating expense', async () => {

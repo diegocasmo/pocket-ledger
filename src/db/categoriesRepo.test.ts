@@ -7,7 +7,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-  incrementUsage,
+  markCategoryUsed,
   categoryHasExpenses,
 } from '@/db/categoriesRepo'
 
@@ -32,7 +32,7 @@ describe('categoriesRepo', () => {
         id: 'custom-1',
         name: 'Custom Category',
         color: '#000000',
-        usageCount: 0,
+        lastUsedAt: null,
       })
       await initDefaultCategories()
       const categories = await db.categories.toArray()
@@ -44,15 +44,16 @@ describe('categoriesRepo', () => {
   describe('listCategories', () => {
     beforeEach(async () => {
       await db.categories.bulkAdd([
-        { id: 'cat-1', name: 'Alpha', color: '#ff0000', usageCount: 5 },
-        { id: 'cat-2', name: 'Zeta', color: '#00ff00', usageCount: 10 },
-        { id: 'cat-3', name: 'Beta', color: '#0000ff', usageCount: 5 },
+        { id: 'cat-1', name: 'Alpha', color: '#ff0000', lastUsedAt: 1000 },
+        { id: 'cat-2', name: 'Zeta', color: '#00ff00', lastUsedAt: 3000 },
+        { id: 'cat-3', name: 'Beta', color: '#0000ff', lastUsedAt: 1000 },
+        { id: 'cat-4', name: 'Gamma', color: '#111111', lastUsedAt: null },
       ])
     })
 
-    it('returns categories sorted by usageCount DESC, then name ASC', async () => {
+    it('returns categories sorted by lastUsedAt DESC, then name ASC', async () => {
       const categories = await listCategories()
-      expect(categories.map((c) => c.name)).toEqual(['Zeta', 'Alpha', 'Beta'])
+      expect(categories.map((c) => c.name)).toEqual(['Zeta', 'Alpha', 'Beta', 'Gamma'])
     })
 
     it('initializes default categories if database is empty', async () => {
@@ -68,7 +69,7 @@ describe('categoriesRepo', () => {
         id: 'test-id',
         name: 'Test Category',
         color: '#123456',
-        usageCount: 0,
+        lastUsedAt: null,
       })
       const category = await getCategory('test-id')
       expect(category).toBeDefined()
@@ -89,7 +90,7 @@ describe('categoriesRepo', () => {
       })
       expect(category.name).toBe('New Category')
       expect(category.color).toBe('#abcdef')
-      expect(category.usageCount).toBe(0)
+      expect(category.lastUsedAt).toBeNull()
       expect(category.id).toBeDefined()
     })
 
@@ -126,7 +127,7 @@ describe('categoriesRepo', () => {
         id: 'update-test',
         name: 'Original',
         color: '#ffffff',
-        usageCount: 0,
+        lastUsedAt: null,
       })
       const updated = await updateCategory('update-test', { name: 'Updated' })
       expect(updated.name).toBe('Updated')
@@ -138,7 +139,7 @@ describe('categoriesRepo', () => {
         id: 'color-test',
         name: 'Color Test',
         color: '#000000',
-        usageCount: 0,
+        lastUsedAt: null,
       })
       const updated = await updateCategory('color-test', { color: '#ff0000' })
       expect(updated.color).toBe('#ff0000')
@@ -156,7 +157,7 @@ describe('categoriesRepo', () => {
         id: 'trim-test',
         name: 'Original',
         color: '#ffffff',
-        usageCount: 0,
+        lastUsedAt: null,
       })
       const updated = await updateCategory('trim-test', {
         name: '  Trimmed Name  ',
@@ -169,7 +170,7 @@ describe('categoriesRepo', () => {
         id: 'empty-test',
         name: 'Original',
         color: '#ffffff',
-        usageCount: 0,
+        lastUsedAt: null,
       })
       const updated = await updateCategory('empty-test', { name: '   ' })
       expect(updated.name).toBe('')
@@ -182,7 +183,7 @@ describe('categoriesRepo', () => {
         id: 'delete-test',
         name: 'To Delete',
         color: '#000000',
-        usageCount: 0,
+        lastUsedAt: null,
       })
       await deleteCategory('delete-test')
       const category = await db.categories.get('delete-test')
@@ -194,7 +195,7 @@ describe('categoriesRepo', () => {
         id: 'has-expenses',
         name: 'Has Expenses',
         color: '#000000',
-        usageCount: 1,
+        lastUsedAt: 1000,
       })
       await db.expenses.add({
         id: 'expense-1',
@@ -210,34 +211,37 @@ describe('categoriesRepo', () => {
     })
   })
 
-  describe('incrementUsage', () => {
-    it('increments usage count by 1', async () => {
+  describe('markCategoryUsed', () => {
+    it('sets lastUsedAt when category has not been used yet', async () => {
       await db.categories.add({
-        id: 'increment-test',
-        name: 'Increment Test',
+        id: 'unused-test',
+        name: 'Unused Test',
         color: '#000000',
-        usageCount: 5,
+        lastUsedAt: null,
       })
-      await incrementUsage('increment-test')
-      const category = await db.categories.get('increment-test')
-      expect(category?.usageCount).toBe(6)
+
+      await markCategoryUsed('unused-test', 5000)
+
+      const category = await db.categories.get('unused-test')
+      expect(category?.lastUsedAt).toBe(5000)
     })
 
-    it('increments from 0 correctly', async () => {
+    it('keeps the newer lastUsedAt when called with an older timestamp', async () => {
       await db.categories.add({
-        id: 'zero-test',
-        name: 'Zero Test',
+        id: 'existing-test',
+        name: 'Existing Test',
         color: '#000000',
-        usageCount: 0,
+        lastUsedAt: 9000,
       })
-      await incrementUsage('zero-test')
-      const category = await db.categories.get('zero-test')
-      expect(category?.usageCount).toBe(1)
+
+      await markCategoryUsed('existing-test', 4000)
+
+      const category = await db.categories.get('existing-test')
+      expect(category?.lastUsedAt).toBe(9000)
     })
 
     it('does nothing for non-existent category', async () => {
-      // Should not throw
-      await incrementUsage('non-existent')
+      await markCategoryUsed('non-existent', 1000)
     })
   })
 
@@ -247,7 +251,7 @@ describe('categoriesRepo', () => {
         id: 'with-expense',
         name: 'With Expense',
         color: '#000000',
-        usageCount: 1,
+        lastUsedAt: 1000,
       })
       await db.expenses.add({
         id: 'expense-1',
@@ -266,7 +270,7 @@ describe('categoriesRepo', () => {
         id: 'without-expense',
         name: 'Without Expense',
         color: '#000000',
-        usageCount: 0,
+        lastUsedAt: null,
       })
       const hasExpenses = await categoryHasExpenses('without-expense')
       expect(hasExpenses).toBe(false)

@@ -16,8 +16,8 @@ describe('useCategories hooks', () => {
   describe('useCategories', () => {
     it('returns categories from database', async () => {
       await db.categories.bulkAdd([
-        { id: 'cat-1', name: 'Food', color: '#ff0000', usageCount: 5 },
-        { id: 'cat-2', name: 'Transport', color: '#00ff00', usageCount: 3 },
+        { id: 'cat-1', name: 'Food', color: '#ff0000', lastUsedAt: 1000 },
+        { id: 'cat-2', name: 'Transport', color: '#00ff00', lastUsedAt: 2000 },
       ])
 
       const { result } = renderHook(() => useCategories(), {
@@ -26,6 +26,10 @@ describe('useCategories hooks', () => {
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
       expect(result.current.data).toHaveLength(2)
+      expect(result.current.data?.map((category) => category.id)).toEqual([
+        'cat-2',
+        'cat-1',
+      ])
     })
 
     it('initializes default categories when database is empty', async () => {
@@ -44,7 +48,7 @@ describe('useCategories hooks', () => {
         id: 'cat-1',
         name: 'Food',
         color: '#ff0000',
-        usageCount: 1,
+        lastUsedAt: 1000,
       })
     })
 
@@ -113,7 +117,7 @@ describe('useCategories hooks', () => {
         id: 'cat-1',
         name: 'Food',
         color: '#ff0000',
-        usageCount: 0,
+        lastUsedAt: null,
       })
     })
 
@@ -145,7 +149,7 @@ describe('useCategories hooks', () => {
         id: 'cat-to-delete',
         name: 'To Delete',
         color: '#000000',
-        usageCount: 0,
+        lastUsedAt: null,
       })
     })
 

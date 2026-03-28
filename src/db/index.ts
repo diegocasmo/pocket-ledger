@@ -13,4 +13,31 @@ db.version(1).stores({
   settings: 'id'
 })
 
+db.version(2)
+  .stores({
+    expenses: 'id, date, categoryId, createdAt',
+    categories: 'id, name, lastUsedAt',
+    settings: 'id',
+  })
+  .upgrade(async (tx) => {
+    const expenses = (await tx.table('expenses').toArray()) as Expense[]
+    const latestByCategory = new Map<string, number>()
+
+    for (const expense of expenses) {
+      const previous = latestByCategory.get(expense.categoryId) ?? 0
+      if (expense.createdAt > previous) {
+        latestByCategory.set(expense.categoryId, expense.createdAt)
+      }
+    }
+
+    await tx.table('categories').toCollection().modify((category: {
+      id: string
+      usageCount?: number
+      lastUsedAt?: number | null
+    }) => {
+      category.lastUsedAt = latestByCategory.get(category.id) ?? null
+      delete category.usageCount
+    })
+  })
+
 export { db }

@@ -12,7 +12,7 @@ export interface Category {
   id: string;
   name: string;
   color: string;             // Hex color
-  usageCount: number;        // For sorting by frequency
+  lastUsedAt: number | null; // ms epoch of most recent saved usage
 }
 
 export interface Settings {

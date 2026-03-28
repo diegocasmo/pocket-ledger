@@ -1,6 +1,6 @@
 import { db } from '@/db'
 import type { Expense } from '@/types'
-import { incrementUsage } from '@/db/categoriesRepo'
+import { markCategoryUsed } from '@/db/categoriesRepo'
 
 export interface CreateExpenseInput {
   date: string
@@ -29,7 +29,7 @@ export async function createExpense(input: CreateExpenseInput): Promise<Expense>
     updatedAt: now,
   }
   await db.expenses.add(expense)
-  await incrementUsage(input.categoryId)
+  await markCategoryUsed(input.categoryId, now)
   return expense
 }
 
@@ -50,9 +50,8 @@ export async function updateExpense(
   }
   await db.expenses.put(updated)
 
-  // Increment usage if category changed
   if (patch.categoryId && patch.categoryId !== existing.categoryId) {
-    await incrementUsage(patch.categoryId)
+    await markCategoryUsed(patch.categoryId, updated.updatedAt)
   }
 
   return updated
