@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { format, addMonths, subMonths, isSameMonth } from 'date-fns'
 import { PeriodNavigator } from '@/components/ui/PeriodNavigator'
 import { MonthGrid } from '@/features/calendar/MonthGrid'
@@ -62,11 +62,6 @@ export function CalendarPage() {
     },
     [goToPreviousMonth, goToNextMonth, isCurrentMonth]
   )
-
-  // Reset to current month on mount
-  useEffect(() => {
-    setViewDate(new Date())
-  }, [])
 
   return (
     <div
