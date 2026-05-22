@@ -9,3 +9,5 @@ updates:
       - dependency-type: 'direct'
     commit-message:
       prefix: 'chore(package.json):'
+    cooldown:
+      default-days: 2
