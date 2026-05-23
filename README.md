@@ -18,8 +18,17 @@ npm install
 # Start development server
 npm run dev
 
-# Run tests
+# Run tests in watch mode
 npm test
+
+# Run tests once
+npm run test:run
+
+# Type check
+npm run typecheck
+
+# Lint code
+npm run lint
 
 # Build for production
 npm run build
@@ -33,3 +42,7 @@ npm run build
 - Tailwind CSS
 - Dexie (IndexedDB)
 - TanStack Query
+
+## Architecture
+
+See [AGENTS.md](./AGENTS.md) for a detailed guide to the codebase architecture, patterns, and conventions.

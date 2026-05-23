@@ -388,19 +388,21 @@ export function useCreateExpense() {
 
 Used for form draft persistence across navigation:
 
-**ExpenseFormContext** (`src/contexts/ExpenseFormContext.tsx:27-92`):
+**ExpenseFormContext** (`src/contexts/ExpenseFormContext.tsx:12-25`):
 
 ```typescript
 export interface ExpenseFormDraft {
   amount: string
   categoryId: string
   note: string
+  date: string
+  expenseId?: string // Present when editing
 }
 
-export interface ExpenseFormContextValue {
+interface ExpenseFormContextValue {
   draft: ExpenseFormDraft | null
   setDraft: (draft: ExpenseFormDraft | null) => void
-  updateDraft: (partial: Partial<ExpenseFormDraft>) => void
+  updateDraft: (updates: Partial<ExpenseFormDraft>) => void
   clearDraft: () => void
 }
 ```
@@ -477,10 +479,10 @@ interface Category {
   id: string                // UUID
   name: string              // Category name
   color: string             // Hex color (#xxxxxx)
-  usageCount: number        // For sorting by frequency
+  lastUsedAt: number | null // Timestamp of last use, null if never used
 }
 
-// Index: 'id, name, usageCount'
+// Index: 'id, name, lastUsedAt'
 ```
 
 #### Settings Table
@@ -511,7 +513,36 @@ db.version(1).stores({
   categories: 'id, name, usageCount',
   settings: 'id'
 })
+
+db.version(2)
+  .stores({
+    expenses: 'id, date, categoryId, createdAt',
+    categories: 'id, name, lastUsedAt',
+    settings: 'id',
+  })
+  .upgrade(async (tx) => {
+    const expenses = (await tx.table('expenses').toArray()) as Expense[]
+    const latestByCategory = new Map<string, number>()
+
+    for (const expense of expenses) {
+      const previous = latestByCategory.get(expense.categoryId) ?? 0
+      if (expense.createdAt > previous) {
+        latestByCategory.set(expense.categoryId, expense.createdAt)
+      }
+    }
+
+    await tx.table('categories').toCollection().modify((category: {
+      id: string
+      usageCount?: number
+      lastUsedAt?: number | null
+    }) => {
+      category.lastUsedAt = latestByCategory.get(category.id) ?? null
+      delete category.usageCount
+    })
+  })
 ```
+
+The current effective schema is version 2 — the categories store migrated from `usageCount` to `lastUsedAt`.
 
 ### Repository Pattern
 
@@ -540,7 +571,7 @@ export async function listExpensesByCategory(categoryId: string, start: string, 
 
 **Side Effects:**
 
-- Creating/updating expenses automatically increments category usage count
+- Creating/updating expenses automatically marks the category as recently used
 - Deletes are soft (immediate deletion, no undo)
 - All operations update timestamps
 
@@ -570,7 +601,7 @@ export async function updateCategory(id: string, patch: UpdateCategoryInput): Pr
 export async function deleteCategory(id: string): Promise<void>
 
 // Utility operations
-export async function incrementUsage(id: string): Promise<void>
+export async function markCategoryUsed(id: string, usedAt: number): Promise<void>
 export async function categoryHasExpenses(categoryId: string): Promise<boolean>
 ```
 
@@ -578,28 +609,30 @@ export async function categoryHasExpenses(categoryId: string): Promise<boolean>
 
 On first load, the app creates these default categories:
 - Food & Dining
-- Shopping
 - Transportation
-- Entertainment
+- Shopping
 - Bills & Utilities
-- Health & Fitness
-- Travel
+- Entertainment
+- Health
 - Other
 
-**Sorting** (`src/db/categoriesRepo.ts:28-34`):
+**Sorting** (`src/db/categoriesRepo.ts:25-37`):
 
-Categories are sorted by usage frequency, then alphabetically:
+Categories are sorted by most recently used first, then alphabetically for stable ties:
 
 ```typescript
 export async function listCategories(): Promise<Category[]> {
-  return db.categories.toArray().then((categories) =>
-    categories.sort((a, b) => {
-      if (b.usageCount !== a.usageCount) {
-        return b.usageCount - a.usageCount
-      }
-      return a.name.localeCompare(b.name)
-    })
-  )
+  await initDefaultCategories()
+  const categories = await db.categories.toArray()
+  // Sort by most recently used first, then by name for stable ties.
+  return categories.sort((a, b) => {
+    const aLastUsedAt = a.lastUsedAt ?? -Infinity
+    const bLastUsedAt = b.lastUsedAt ?? -Infinity
+    if (bLastUsedAt !== aLastUsedAt) {
+      return bLastUsedAt - aLastUsedAt
+    }
+    return a.name.localeCompare(b.name)
+  })
 }
 ```
 
@@ -609,7 +642,7 @@ export async function listCategories(): Promise<Category[]> {
 export async function deleteCategory(id: string): Promise<void> {
   const hasExpenses = await categoryHasExpenses(id)
   if (hasExpenses) {
-    throw new Error('Cannot delete category with expenses')
+    throw new Error('Cannot delete category with existing expenses')
   }
   await db.categories.delete(id)
 }
@@ -645,7 +678,7 @@ export interface Category {
   id: string
   name: string
   color: string
-  usageCount: number
+  lastUsedAt: number | null // ms epoch of most recent saved usage
 }
 
 export interface Settings {
@@ -1123,6 +1156,8 @@ export interface ExpenseFormDraft {
   amount: string
   categoryId: string
   note: string
+  date: string
+  expenseId?: string // Present when editing
 }
 
 // Usage in form
@@ -1301,16 +1336,37 @@ All interactive components follow accessibility best practices:
 4. **Focus Management**: Visible focus indicators, focus trapping in modals
 5. **Color Contrast**: WCAG AA compliant
 
-Example from `AutocompleteInput.tsx:119,125`:
+Example from `AutocompleteInput.tsx:119-143`:
 
 ```typescript
-<div role="listbox">
+<div
+  className="
+    absolute z-50 w-full mt-1
+    bg-[var(--color-bg-primary)]
+    border border-[var(--color-border)]
+    rounded-lg shadow-lg
+    overflow-hidden
+  "
+  role="listbox"
+>
   {suggestions.map((suggestion, index) => (
     <button
-      key={suggestion}
+      key={`${suggestion}-${index}`}
+      type="button"
       role="option"
-      aria-selected={index === selectedIndex}
-      aria-label={`Select ${suggestion}`}
+      className="
+        w-full px-3 py-3 min-h-[44px]
+        text-left text-[var(--color-text-primary)]
+        hover:bg-[var(--color-bg-secondary)]
+        active:bg-[var(--color-bg-tertiary)]
+        focus:outline-none focus:bg-[var(--color-bg-secondary)]
+        border-b border-[var(--color-border)] last:border-b-0
+      "
+      onMouseDown={(e) => {
+        // Prevent blur before selection
+        e.preventDefault()
+      }}
+      onClick={() => handleSuggestionSelect(suggestion)}
     >
       {suggestion}
     </button>
@@ -1456,37 +1512,48 @@ export function renderWithRouter(
 
 Test pure functions in isolation:
 
-**Example: Money Service** (`src/services/money.test.ts:5-31`):
+**Example: Money Service** (`src/services/money.test.ts:4-75`):
 
 ```typescript
-describe('formatCentsToUsd', () => {
-  it('formats cents to USD with two decimal places', () => {
-    expect(formatCentsToUsd(1234)).toBe('12.34')
-    expect(formatCentsToUsd(100)).toBe('1.00')
-    expect(formatCentsToUsd(0)).toBe('0.00')
+describe('parseUsdToCents', () => {
+  it('parses basic decimal amounts', () => {
+    expect(parseUsdToCents('12.34')).toBe(1234)
+    expect(parseUsdToCents('0.99')).toBe(99)
+    expect(parseUsdToCents('100.00')).toBe(10000)
   })
 
-  it('handles large amounts', () => {
-    expect(formatCentsToUsd(123456789)).toBe('1234567.89')
+  it('parses amounts with dollar sign', () => {
+    expect(parseUsdToCents('$12.34')).toBe(1234)
+    expect(parseUsdToCents('$0.50')).toBe(50)
+  })
+
+  it('returns null for invalid inputs', () => {
+    expect(parseUsdToCents('')).toBe(null)
+    expect(parseUsdToCents('abc')).toBe(null)
+    expect(parseUsdToCents('12.345')).toBe(null) // More than 2 decimal places
+    expect(parseUsdToCents('.')).toBe(null)
+    expect(parseUsdToCents('-5')).toBe(null) // Negative
+    expect(parseUsdToCents('1.2.3')).toBe(null) // Multiple decimals
   })
 })
 
-describe('parseUsdToCents', () => {
-  it('parses USD string to cents', () => {
-    expect(parseUsdToCents('12.34')).toBe(1234)
-    expect(parseUsdToCents('1.00')).toBe(100)
-    expect(parseUsdToCents('0.50')).toBe(50)
+describe('formatCentsToUsd', () => {
+  it('formats cents to USD string', () => {
+    expect(formatCentsToUsd(1234)).toBe('$12.34')
+    expect(formatCentsToUsd(99)).toBe('$0.99')
+    expect(formatCentsToUsd(10000)).toBe('$100.00')
   })
 
-  it('handles various formats', () => {
-    expect(parseUsdToCents('.50')).toBe(50)
-    expect(parseUsdToCents('12')).toBe(1200)
-    expect(parseUsdToCents('1,234.56')).toBe(123456)
+  it('formats zero', () => {
+    expect(formatCentsToUsd(0)).toBe('$0.00')
   })
 
-  it('returns null for invalid input', () => {
-    expect(parseUsdToCents('invalid')).toBe(null)
-    expect(parseUsdToCents('')).toBe(null)
+  it('formats large amounts with commas', () => {
+    expect(formatCentsToUsd(123456789)).toBe('$1,234,567.89')
+  })
+
+  it('formats single cent', () => {
+    expect(formatCentsToUsd(1)).toBe('$0.01')
   })
 })
 ```
@@ -1537,38 +1604,55 @@ describe('useExpensesForMonth', () => {
 
 Test component rendering and interactions:
 
-**Example: AmountInput Component** (`src/components/ui/AmountInput.test.tsx:27-35`):
+**Example: AmountInput Component** (`src/components/ui/AmountInput.test.tsx:5-56`):
 
 ```typescript
 describe('AmountInput', () => {
-  it('allows only numbers and decimal point', () => {
-    const onChange = vi.fn()
-    render(<AmountInput value="" onChange={onChange} />)
+  describe('cents-based formatting', () => {
+    it('displays $0.01 when typing "1"', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
 
-    const input = screen.getByLabelText('Amount')
-    fireEvent.change(input, { target: { value: '12.34' } })
+      const input = screen.getByLabelText('Amount')
+      fireEvent.focus(input)
+      fireEvent.change(input, { target: { value: '1' } })
 
-    expect(onChange).toHaveBeenCalledWith('12.34')
+      expect(onChange).toHaveBeenCalledWith('0.01')
+    })
+
+    it('displays $0.12 when typing "12"', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      fireEvent.change(input, { target: { value: '12' } })
+
+      expect(onChange).toHaveBeenCalledWith('0.12')
+    })
+
+    it('displays $12.34 when typing "1234"', () => {
+      const onChange = vi.fn()
+      render(<AmountInput value="" onChange={onChange} />)
+
+      const input = screen.getByLabelText('Amount')
+      fireEvent.change(input, { target: { value: '1234' } })
+
+      expect(onChange).toHaveBeenCalledWith('12.34')
+    })
   })
 
-  it('displays error message when provided', () => {
-    render(<AmountInput value="" onChange={vi.fn()} error="Invalid amount" />)
-    expect(screen.getByText('Invalid amount')).toBeInTheDocument()
-  })
+  describe('display', () => {
+    it('displays error message', () => {
+      render(<AmountInput value="" onChange={vi.fn()} error="Invalid amount" />)
+      expect(screen.getByText('Invalid amount')).toBeInTheDocument()
+    })
 
-  it('supports multiple locales', () => {
-    const onChange = vi.fn()
-    render(<AmountInput value="" onChange={onChange} />)
+    it('shows empty when not focused and value is zero', () => {
+      render(<AmountInput value="0.00" onChange={vi.fn()} />)
 
-    const input = screen.getByLabelText('Amount')
-
-    // Comma as decimal separator
-    fireEvent.change(input, { target: { value: '12,34' } })
-    expect(onChange).toHaveBeenCalledWith('12.34')
-
-    // Arabic decimal separator
-    fireEvent.change(input, { target: { value: '12٫34' } })
-    expect(onChange).toHaveBeenCalledWith('12.34')
+      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      expect(input.value).toBe('')
+    })
   })
 })
 ```
@@ -1577,47 +1661,44 @@ describe('AmountInput', () => {
 
 Test database operations:
 
-**Example: Expenses Repository** (`src/db/expensesRepo.test.ts:120-137`):
+**Example: Expenses Repository** (`src/db/expensesRepo.test.ts:103-154`):
 
 ```typescript
 describe('updateExpense', () => {
   beforeEach(async () => {
-    await db.categories.bulkAdd([
-      { id: 'cat-1', name: 'Food', color: '#ff0000', usageCount: 0 },
-      { id: 'cat-2', name: 'Transport', color: '#00ff00', usageCount: 0 },
-    ])
     await db.expenses.add({
       id: 'expense-1',
-      date: '2024-01-01',
+      date: '2024-01-15',
       amountCents: 1000,
       categoryId: 'cat-1',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      note: 'Original note',
+      createdAt: 1000000,
+      updatedAt: 1000000,
     })
   })
 
-  it('increments usage ONLY when categoryId changes', async () => {
-    const incrementSpy = vi.spyOn(categoriesRepo, 'incrementUsage')
+  it('marks recency ONLY when categoryId changes', async () => {
+    const markUsedSpy = vi.spyOn(categoriesRepo, 'markCategoryUsed')
 
-    // Update without changing category - should NOT increment
     await updateExpense('expense-1', { amountCents: 500 })
-    expect(incrementSpy).not.toHaveBeenCalled()
+    expect(markUsedSpy).not.toHaveBeenCalled()
 
-    // Update with different category - SHOULD increment
-    await updateExpense('expense-1', { categoryId: 'cat-2' })
-    expect(incrementSpy).toHaveBeenCalledWith('cat-2')
+    await updateExpense('expense-1', { categoryId: 'cat-1' })
+    expect(markUsedSpy).not.toHaveBeenCalled()
 
-    incrementSpy.mockRestore()
+    const updated = await updateExpense('expense-1', { categoryId: 'cat-2' })
+    expect(markUsedSpy).toHaveBeenCalledWith('cat-2', updated.updatedAt)
+    expect(markUsedSpy).toHaveBeenCalledTimes(1)
+
+    markUsedSpy.mockRestore()
   })
 
-  it('updates timestamps', async () => {
+  it('updates amount and sets updatedAt', async () => {
     const before = Date.now()
-    await updateExpense('expense-1', { amountCents: 2000 })
-    const after = Date.now()
-
-    const expense = await db.expenses.get('expense-1')
-    expect(expense?.updatedAt).toBeGreaterThanOrEqual(before)
-    expect(expense?.updatedAt).toBeLessThanOrEqual(after)
+    const updated = await updateExpense('expense-1', { amountCents: 2000 })
+    expect(updated.amountCents).toBe(2000)
+    expect(updated.updatedAt).toBeGreaterThanOrEqual(before)
+    expect(updated.createdAt).toBe(1000000) // Original createdAt preserved
   })
 })
 ```
