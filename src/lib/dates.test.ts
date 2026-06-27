@@ -7,6 +7,8 @@ import {
   getYearRange,
   isToday,
   isFutureDate,
+  isValidISODate,
+  formatRelativeDate,
   isCurrentOrFutureMonth,
   getTodayISO,
   isCurrentPeriod,
@@ -127,6 +129,74 @@ describe('isFutureDate', () => {
   it('returns false for past dates', () => {
     expect(isFutureDate('2024-01-14')).toBe(false)
     expect(isFutureDate('2023-12-31')).toBe(false)
+  })
+})
+
+describe('isValidISODate', () => {
+  it('accepts valid canonical ISO dates', () => {
+    expect(isValidISODate('2025-06-25')).toBe(true)
+    expect(isValidISODate('2024-02-29')).toBe(true) // leap day
+  })
+
+  it('rejects unparseable strings', () => {
+    expect(isValidISODate('not-a-date')).toBe(false)
+    expect(isValidISODate('')).toBe(false)
+  })
+
+  it('rejects impossible dates', () => {
+    expect(isValidISODate('2025-02-30')).toBe(false)
+    expect(isValidISODate('2025-13-45')).toBe(false)
+    expect(isValidISODate('2023-02-29')).toBe(false) // non-leap year
+  })
+
+  it('rejects non-canonical formats', () => {
+    expect(isValidISODate('2025-2-3')).toBe(false)
+    expect(isValidISODate('2025/06/25')).toBe(false)
+  })
+})
+
+describe('formatRelativeDate', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2025, 5, 25)) // Wednesday, June 25, 2025
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('returns "Today" for today', () => {
+    expect(formatRelativeDate('2025-06-25')).toBe('Today')
+  })
+
+  it('returns the raw string for invalid input instead of throwing', () => {
+    expect(() => formatRelativeDate('not-a-date')).not.toThrow()
+    expect(formatRelativeDate('not-a-date')).toBe('not-a-date')
+    expect(formatRelativeDate('2025-13-45')).toBe('2025-13-45')
+  })
+
+  it('returns "Yesterday" for one day ago', () => {
+    expect(formatRelativeDate('2025-06-24')).toBe('Yesterday')
+  })
+
+  it('returns the weekday name for 2-6 days ago', () => {
+    expect(formatRelativeDate('2025-06-23')).toBe('Last Monday') // 2 days ago
+    expect(formatRelativeDate('2025-06-19')).toBe('Last Thursday') // 6 days ago
+  })
+
+  it('returns "MMM d" for 7+ days ago within the same year', () => {
+    expect(formatRelativeDate('2025-06-18')).toBe('Jun 18') // 7 days ago
+    expect(formatRelativeDate('2025-01-15')).toBe('Jan 15')
+  })
+
+  it('returns "MMM d, yyyy" for a date in an earlier year', () => {
+    expect(formatRelativeDate('2024-06-03')).toBe('Jun 3, 2024')
+  })
+
+  it('prefers the weekday tier over the year tier across a year boundary', () => {
+    vi.setSystemTime(new Date(2026, 0, 2)) // Friday, January 2, 2026
+    expect(formatRelativeDate('2025-12-30')).toBe('Last Tuesday') // 3 days ago, prior year
+    expect(formatRelativeDate('2025-12-01')).toBe('Dec 1, 2025') // >6 days ago, prior year
   })
 })
 

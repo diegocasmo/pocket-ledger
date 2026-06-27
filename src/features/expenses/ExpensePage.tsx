@@ -1,15 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { format } from 'date-fns'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Calendar } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { AutocompleteInput } from '@/components/ui/AutocompleteInput'
 import { Button } from '@/components/ui/Button'
+import { ExpenseDatePicker } from '@/features/expenses/ExpenseDatePicker'
 import {
   useExpense,
   useCreateExpense,
@@ -20,7 +20,12 @@ import { useCategories } from '@/hooks/useCategories'
 import { useNoteSuggestions } from '@/hooks/useNoteSuggestions'
 import { useDeleteConfirmation } from '@/hooks/useDeleteConfirmation'
 import { useExpenseFormContext } from '@/contexts/ExpenseFormContext'
-import { parseDateFromISO, isFutureDate, getTodayISO } from '@/lib/dates'
+import {
+  isFutureDate,
+  getTodayISO,
+  formatRelativeDate,
+  isValidISODate,
+} from '@/lib/dates'
 import { parseUsdToCents } from '@/services/money'
 import type { Expense } from '@/types'
 
@@ -52,6 +57,7 @@ export function ExpensePage() {
   const { id } = useParams<{ id: string }>()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
   const { draft, setDraft, updateDraft, clearDraft } = useExpenseFormContext()
   const { data: expense, isLoading: expenseLoading } = useExpense(id ?? null)
@@ -75,9 +81,14 @@ export function ExpensePage() {
   const isSubmitting =
     createExpense.isPending || updateExpense.isPending || deletion.isDeleting
 
-  // Determine date from URL params or use today
+  // Determine date from URL params or use today. The param is untrusted
+  // (it comes from a shareable URL), so reject anything that isn't a valid,
+  // non-future ISO date before it flows into formatRelativeDate/persistence.
   const dateParam = searchParams.get('date')
-  const date = dateParam && !isFutureDate(dateParam) ? dateParam : getTodayISO()
+  const date =
+    dateParam && isValidISODate(dateParam) && !isFutureDate(dateParam)
+      ? dateParam
+      : getTodayISO()
 
   // Initialize draft when entering the page
   useEffect(() => {
@@ -164,6 +175,10 @@ export function ExpensePage() {
     updateDraft({ note: value })
   }
 
+  const handleDateSelect = (newDate: string) => {
+    updateDraft({ date: newDate })
+  }
+
   const handleCategoryClick = () => {
     // Save current form state before navigating
     const pickerPath = id ? `/expenses/${id}/category` : '/expenses/new/category'
@@ -181,6 +196,7 @@ export function ExpensePage() {
     if (isEditing && expense) {
       await updateExpense.mutateAsync({
         id: expense.id,
+        date: formDate,
         amountCents: data.amount,
         categoryId: data.categoryId,
         note: data.note,
@@ -229,7 +245,6 @@ export function ExpensePage() {
   }
 
   const formDate = draft?.date ?? date
-  const dateObj = parseDateFromISO(formDate)
 
   return (
     <>
@@ -239,10 +254,27 @@ export function ExpensePage() {
       />
       <div className="p-4">
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-          <div className="text-sm text-[var(--color-text-secondary)]">
-            Date: {format(dateObj, 'MMMM d, yyyy')}
+          <div className="w-full">
+            <span className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+              Date
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsDatePickerOpen(true)}
+              data-testid="date-trigger"
+              className={`
+                w-full py-2 px-3 rounded-lg border text-left flex items-center gap-2
+                bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
+                focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                ${errors.root?.date ? 'border-red-500' : 'border-[var(--color-border)]'}
+              `}
+            >
+              <Calendar className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
+              <span className="flex-1 truncate">{formatRelativeDate(formDate)}</span>
+              <ChevronDown className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
+            </button>
             {errors.root?.date && (
-              <p className="text-red-500 mt-1">{errors.root.date.message}</p>
+              <p className="mt-1 text-sm text-red-500">{errors.root.date.message}</p>
             )}
           </div>
 
@@ -343,6 +375,13 @@ export function ExpensePage() {
           </div>
         </form>
       </div>
+
+      <ExpenseDatePicker
+        isOpen={isDatePickerOpen}
+        onClose={() => setIsDatePickerOpen(false)}
+        selectedDate={formDate}
+        onSelect={handleDateSelect}
+      />
 
       <ConfirmDialog
         isOpen={deletion.isOpen}
