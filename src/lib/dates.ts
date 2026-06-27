@@ -9,6 +9,9 @@ import {
   endOfYear,
   addDays,
   isToday as dateFnsIsToday,
+  isYesterday,
+  differenceInCalendarDays,
+  isValid,
   isFuture,
   isSameWeek,
   isSameMonth,
@@ -78,6 +81,17 @@ export function isToday(dateStr: string): boolean {
 }
 
 /**
+ * Check if a string is a valid, canonical ISO date 'yyyy-MM-dd'.
+ * Rejects unparseable strings (e.g. 'not-a-date'), impossible dates
+ * (e.g. '2025-02-30'), and non-canonical forms that would round-trip
+ * differently (e.g. '2025-2-3').
+ */
+export function isValidISODate(str: string): boolean {
+  const date = parseDateFromISO(str)
+  return isValid(date) && formatDateToISO(date) === str
+}
+
+/**
  * Check if a date string represents a future date
  */
 export function isFutureDate(dateStr: string): boolean {
@@ -86,6 +100,32 @@ export function isFutureDate(dateStr: string): boolean {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   return isFuture(date) && date > today
+}
+
+/**
+ * Format an ISO date string into a human-readable label whose precision
+ * depends on how far the date is from today:
+ *   today          -> "Today"
+ *   1 day ago      -> "Yesterday"
+ *   2-6 days ago   -> "Last Tuesday"
+ *   same year      -> "Jun 3"
+ *   earlier year   -> "Jun 3, 2024"
+ */
+export function formatRelativeDate(dateStr: string): string {
+  const date = parseDateFromISO(dateStr)
+  // Defensive: an unparseable string would make date-fns format() throw a
+  // RangeError during render. Fall back to the raw string instead of crashing.
+  if (!isValid(date)) return dateStr
+  const now = new Date()
+
+  if (dateFnsIsToday(date)) return 'Today'
+  if (isYesterday(date)) return 'Yesterday'
+
+  const daysAgo = differenceInCalendarDays(now, date)
+  if (daysAgo >= 2 && daysAgo <= 6) return `Last ${format(date, 'EEEE')}`
+
+  if (date.getFullYear() === now.getFullYear()) return format(date, 'MMM d')
+  return format(date, 'MMM d, yyyy')
 }
 
 /**
