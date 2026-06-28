@@ -105,16 +105,16 @@ This document provides a comprehensive overview of the Pocket Ledger codebase ar
 |-----------|---------|---------|
 | React | 19.2 | UI framework |
 | TypeScript | 5.9 | Type safety |
-| Vite | 7.3 | Build tool and dev server |
-| React Router | 7.13 | Client-side routing |
-| TanStack Query | 5.90 | Data fetching and caching |
-| Dexie | 4.0 | IndexedDB wrapper |
+| Vite | 8.0 | Build tool and dev server |
+| React Router | 7.18 | Client-side routing |
+| TanStack Query | 5.101 | Data fetching and caching |
+| Dexie | 4.4 | IndexedDB wrapper |
 
 ### UI and Styling
 
 | Technology | Purpose |
 |-----------|---------|
-| Tailwind CSS | 4.1 | Utility-first CSS framework |
+| Tailwind CSS | 4.3 | Utility-first CSS framework |
 | Radix UI | Accessible, unstyled primitives |
 | Lucide React | Icon library |
 | react-hot-toast | Toast notifications |
@@ -123,22 +123,22 @@ This document provides a comprehensive overview of the Pocket Ledger codebase ar
 
 | Technology | Purpose |
 |-----------|---------|
-| React Hook Form | 7.71 | Form state management |
-| Zod | 4.3 | Schema validation |
+| React Hook Form | 7.80 | Form state management |
+| Zod | 4.4 | Schema validation |
 | @hookform/resolvers | Integration layer |
 
 ### PWA Support
 
 | Technology | Purpose |
 |-----------|---------|
-| vite-plugin-pwa | 1.2 | Service worker generation |
+| vite-plugin-pwa | 1.3 | Service worker generation |
 | Workbox | (via plugin) | PWA runtime caching |
 
 ### Testing
 
 | Technology | Purpose |
 |-----------|---------|
-| Vitest | 4.0 | Test runner |
+| Vitest | 4.1 | Test runner |
 | React Testing Library | 16.3 | Component testing |
 | fake-indexeddb | 6.2 | IndexedDB mocking |
 
@@ -213,7 +213,7 @@ pocket-ledger/
 - **Utilities**: camelCase (`dates.ts`, `money.ts`)
 - **Types**: PascalCase (`Expense`, `Category`, `Settings`)
 - **Constants**: SCREAMING_SNAKE_CASE or camelCase depending on usage
-- **Test files**: Same name as implementation with `.test.ts` or `.test.tsx` suffix
+- **Test files**: Exactly one test file per implementation, named `<Implementation>.test.ts(x)` — same base name as the file under test (e.g. `ExpensePage.tsx` → `ExpensePage.test.tsx`). Do **not** encode the behavior under test in the filename (`ExpensePage.dateprefill.test.tsx` ✗); scope behaviors with `describe()` blocks inside the single co-located file.
 
 ### File Co-location
 
@@ -259,13 +259,12 @@ Imports are organized in this order:
 Example from `src/features/expenses/ExpensePage.tsx`:
 
 ```typescript
-import { useEffect } from 'react'
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import { useParams, useNavigate, useSearchParams, Navigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { format } from 'date-fns'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Calendar } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 ```
@@ -395,7 +394,6 @@ export interface ExpenseFormDraft {
   amount: string
   categoryId: string
   note: string
-  date: string
   expenseId?: string // Present when editing
 }
 
@@ -404,6 +402,9 @@ interface ExpenseFormContextValue {
   setDraft: (draft: ExpenseFormDraft | null) => void
   updateDraft: (updates: Partial<ExpenseFormDraft>) => void
   clearDraft: () => void
+  // Discards any leftover draft, then navigates to the form. The single entry
+  // point for opening the form so a stale draft can't prefill a fresh add/edit.
+  startExpenseForm: (target: { id: string } | { date: string }) => void
 }
 ```
 
@@ -563,7 +564,7 @@ export async function updateExpense(id: string, patch: UpdateExpenseInput): Prom
 export async function deleteExpense(id: string): Promise<void>
 
 // Query operations
-export async function getExpenseById(id: string): Promise<Expense | undefined>
+export async function getExpense(id: string): Promise<Expense | undefined>
 export async function listExpensesForDateRange(start: string, end: string): Promise<Expense[]>
 export async function listExpensesForDay(date: string): Promise<Expense[]>
 export async function listExpensesByCategory(categoryId: string, start: string, end: string): Promise<Expense[]>
@@ -580,9 +581,10 @@ export async function listExpensesByCategory(categoryId: string, start: string, 
 ```typescript
 export async function listExpensesForDateRange(start: string, end: string): Promise<Expense[]> {
   return db.expenses
-    .where('date').between(start, end, true, true)
+    .where('date')
+    .between(start, end, true, true)
+    .reverse()
     .sortBy('createdAt')
-    .then((expenses) => expenses.reverse())
 }
 ```
 
@@ -900,17 +902,15 @@ function App() {
   <Route path="/calendar" element={<CalendarPage />} />
   <Route path="/insights" element={<InsightsPage />} />
   <Route path="/categories" element={<CategoriesPage />} />
-  <Route path="/settings" element={<SettingsPage />} />
-
-  {/* Expense management */}
-  <Route path="/expenses/new" element={<ExpensePage />} />
-  <Route path="/expenses/:id" element={<ExpensePage />} />
-  <Route path="/expenses/new/category" element={<CategoryPickerPage />} />
-  <Route path="/expenses/:id/category" element={<CategoryPickerPage />} />
-
-  {/* Category management */}
   <Route path="/categories/new" element={<CategoryFormPage />} />
   <Route path="/categories/:id" element={<CategoryFormPage />} />
+  <Route path="/settings" element={<SettingsPage />} />
+
+  {/* Expense create/edit + inline category picker */}
+  <Route path="/expenses/new" element={<ExpensePage />} />
+  <Route path="/expenses/new/category" element={<CategoryPickerPage />} />
+  <Route path="/expenses/:id" element={<ExpensePage />} />
+  <Route path="/expenses/:id/category" element={<CategoryPickerPage />} />
 </Routes>
 ```
 
@@ -1087,16 +1087,16 @@ const {
   handleSubmit,
   setError,
   watch,
-  setValue,
+  getValues,
   formState: { errors },
 } = useForm<z.input<typeof expenseFormSchema>, unknown, ExpenseFormData>({
   resolver: zodResolver(expenseFormSchema),
   mode: 'onBlur',  // Validate on blur
-  defaultValues: {
-    amount: draft?.amount ?? '',
-    categoryId: draft?.categoryId ?? '',
-    note: draft?.note ?? '',
-  },
+  // `values` (not `defaultValues`) re-syncs the form when its source changes,
+  // e.g. when the edited expense finishes loading. It's derived from the draft
+  // (category round trip) ?? the loaded expense (edit) ?? empty (create).
+  values,
+  resetOptions: { keepDirtyValues: true },
 })
 ```
 
@@ -1111,10 +1111,7 @@ For custom inputs, use the `Controller` component:
   render={({ field }) => (
     <AmountInput
       value={field.value}
-      onChange={(val) => {
-        field.onChange(val)
-        updateDraft({ amount: val })
-      }}
+      onChange={field.onChange}
       onBlur={field.onBlur}
       error={errors.amount?.message}
       autoFocus={!isEditing}
@@ -1156,33 +1153,30 @@ export interface ExpenseFormDraft {
   amount: string
   categoryId: string
   note: string
-  date: string
   expenseId?: string // Present when editing
 }
 
-// Usage in form
-const { draft, updateDraft, clearDraft } = useExpenseFormContext()
+// The form's live state is react-hook-form. The draft is a passive snapshot
+// used only to survive the round trip to the category-picker route. The
+// selected date is not in the draft — it lives in the ?date= URL param.
+const { draft, setDraft, clearDraft } = useExpenseFormContext()
 
-// Update draft on change
-<Controller
-  name="amount"
-  control={control}
-  render={({ field }) => (
-    <AmountInput
-      value={field.value}
-      onChange={(val) => {
-        field.onChange(val)
-        updateDraft({ amount: val })  // Persist to session storage
-      }}
-    />
-  )}
-/>
+// Snapshot the in-progress fields right before navigating to the picker
+const handleCategoryClick = () => {
+  setDraft({
+    amount: getValues('amount'),
+    categoryId: getValues('categoryId'),
+    note: getValues('note') ?? '',
+    expenseId: id,
+  })
+  navigate(`${pickerPath}?date=${formDate}`)
+}
 
-// Clear draft on successful submission
+// Clear the draft on successful submission
 const handleFormSubmit = async (data: ExpenseFormData) => {
-  await createExpense.mutateAsync(data)
+  await createExpense.mutateAsync({ date: formDate, ...data })
   clearDraft()
-  navigate(-1)
+  navigate('/calendar')
 }
 ```
 
@@ -1456,9 +1450,21 @@ test: {
 **Global Setup** (`src/test/setup.ts:1-67`):
 
 ```typescript
-import { beforeEach } from 'vitest'
 import '@testing-library/jest-dom'
+import 'fake-indexeddb/auto'
+import { beforeEach, vi } from 'vitest'
 import { db } from '@/db'
+
+// jsdom doesn't implement matchMedia; mock it for the theme code
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  })),
+})
 
 // Clean database before each test
 beforeEach(async () => {
@@ -1484,11 +1490,9 @@ export function createTestQueryClient() {
 
 export function createWrapper() {
   const queryClient = createTestQueryClient()
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return createElement(QueryClientProvider, { client: queryClient }, children)
+  }
 }
 ```
 
@@ -1499,10 +1503,14 @@ export function renderWithRouter(
   ui: React.ReactElement,
   { route = '/' }: { route?: string } = {}
 ) {
-  window.history.pushState({}, '', route)
-  return {
-    ...render(ui, { wrapper: BrowserRouter }),
-  }
+  const queryClient = createTestQueryClient()
+  return render(
+    createElement(
+      MemoryRouter,
+      { initialEntries: [route] },
+      createElement(QueryClientProvider, { client: queryClient }, ui)
+    )
+  )
 }
 ```
 
