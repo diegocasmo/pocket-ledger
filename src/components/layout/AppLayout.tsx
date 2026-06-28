@@ -1,35 +1,37 @@
 import { ReactNode, useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { UpdatePrompt } from '@/components/pwa/UpdatePrompt'
 import { useSettings } from '@/hooks/useSettings'
 import { getTodayISO, isFutureDate } from '@/lib/dates'
 import { CalendarContext } from '@/components/layout/CalendarContext'
+import { useExpenseFormContext } from '@/contexts/ExpenseFormContext'
 
 interface AppLayoutProps {
   children: ReactNode
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const navigate = useNavigate()
   const { data: settings } = useSettings()
+  const { startExpenseForm } = useExpenseFormContext()
   const [selectedDate, setSelectedDate] = useState<string | null>(getTodayISO())
 
   const handleAddExpense = useCallback(() => {
-    // Use selected date if available and not in the future, otherwise use today
+    // Use selected date if available and not in the future, otherwise use today.
+    // startExpenseForm clears any leftover draft and navigates (the date travels
+    // in the URL), so an abandoned entry can't leak into a fresh add.
     const dateToUse = selectedDate && !isFutureDate(selectedDate) ? selectedDate : getTodayISO()
-    navigate(`/expenses/new?date=${dateToUse}`)
-  }, [selectedDate, navigate])
+    startExpenseForm({ date: dateToUse })
+  }, [selectedDate, startExpenseForm])
 
   const openExpenseForm = useCallback(
     (expense?: { id: string }) => {
       if (expense) {
-        navigate(`/expenses/${expense.id}`)
+        startExpenseForm({ id: expense.id })
       } else {
         handleAddExpense()
       }
     },
-    [navigate, handleAddExpense]
+    [handleAddExpense, startExpenseForm]
   )
 
   useEffect(() => {

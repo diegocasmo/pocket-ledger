@@ -6,6 +6,7 @@ import {
   useCallback,
   type ReactNode,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const STORAGE_KEY = 'expense-form-draft'
 
@@ -13,7 +14,6 @@ export interface ExpenseFormDraft {
   amount: string
   categoryId: string
   note: string
-  date: string
   expenseId?: string // Present when editing
 }
 
@@ -22,6 +22,14 @@ interface ExpenseFormContextValue {
   setDraft: (draft: ExpenseFormDraft | null) => void
   updateDraft: (updates: Partial<ExpenseFormDraft>) => void
   clearDraft: () => void
+  /**
+   * The single entry point for opening the expense form. It discards any
+   * leftover draft and navigates, so the "a fresh add/edit starts clean"
+   * invariant lives in one place instead of relying on every call site to
+   * remember to clear first. Use this instead of navigating to the form
+   * routes directly.
+   */
+  startExpenseForm: (target: { id: string } | { date: string }) => void
 }
 
 const ExpenseFormContext = createContext<ExpenseFormContextValue | null>(null)
@@ -55,6 +63,7 @@ interface ExpenseFormProviderProps {
 }
 
 export function ExpenseFormProvider({ children }: ExpenseFormProviderProps) {
+  const navigate = useNavigate()
   const [draft, setDraftState] = useState<ExpenseFormDraft | null>(loadDraft)
 
   useEffect(() => {
@@ -76,8 +85,25 @@ export function ExpenseFormProvider({ children }: ExpenseFormProviderProps) {
     setDraftState(null)
   }, [])
 
+  const startExpenseForm = useCallback(
+    (target: { id: string } | { date: string }) => {
+      // Fresh entry: discard any leftover draft so it can't prefill the form,
+      // then navigate. Keeping clear+navigate together here means a new entry
+      // point can't accidentally skip the clear.
+      setDraftState(null)
+      if ('id' in target) {
+        navigate(`/expenses/${target.id}`)
+      } else {
+        navigate(`/expenses/new?date=${target.date}`)
+      }
+    },
+    [navigate]
+  )
+
   return (
-    <ExpenseFormContext.Provider value={{ draft, setDraft, updateDraft, clearDraft }}>
+    <ExpenseFormContext.Provider
+      value={{ draft, setDraft, updateDraft, clearDraft, startExpenseForm }}
+    >
       {children}
     </ExpenseFormContext.Provider>
   )

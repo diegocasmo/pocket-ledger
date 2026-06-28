@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { Check } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
@@ -10,6 +10,7 @@ import { useExpenseFormContext } from '@/contexts/ExpenseFormContext'
 export function CategoryPickerPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { draft, updateDraft } = useExpenseFormContext()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -27,9 +28,15 @@ export function CategoryPickerPage() {
     return `Create "${truncated}" category`
   }
 
-  // Determine paths based on whether we're editing or creating an expense
-  const returnPath = id ? `/expenses/${id}` : '/expenses/new'
-  const pickerPath = id ? `/expenses/${id}/category` : '/expenses/new/category'
+  // Determine paths based on whether we're editing or creating an expense.
+  // Preserve the date param so the expense form keeps the selected date across
+  // this round trip (the date is URL-derived, not stored in the draft).
+  const dateParam = searchParams.get('date')
+  const dateQuery = dateParam ? `?date=${dateParam}` : ''
+  const returnPath = id ? `/expenses/${id}${dateQuery}` : `/expenses/new${dateQuery}`
+  const pickerPath = id
+    ? `/expenses/${id}/category${dateQuery}`
+    : `/expenses/new/category${dateQuery}`
 
   const handleCategoryClick = (categoryId: string) => {
     updateDraft({ categoryId })

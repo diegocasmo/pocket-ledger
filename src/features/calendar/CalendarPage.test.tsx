@@ -3,15 +3,18 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithRouter } from '@/test/setup'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { createCategory } from '@/db/categoriesRepo'
 import { format } from 'date-fns'
 
 function renderCalendarPage() {
   return renderWithRouter(
-    <AppLayout>
-      <CalendarPage />
-    </AppLayout>,
+    <ExpenseFormProvider>
+      <AppLayout>
+        <CalendarPage />
+      </AppLayout>
+    </ExpenseFormProvider>,
     { route: '/calendar' }
   )
 }

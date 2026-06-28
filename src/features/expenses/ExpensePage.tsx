@@ -1,5 +1,10 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import {
+  useParams,
+  useNavigate,
+  useSearchParams,
+  Navigate,
+} from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -51,15 +56,16 @@ const expenseFormSchema = z.object({
     .optional(),
 })
 
+type ExpenseFormInput = z.input<typeof expenseFormSchema>
 type ExpenseFormData = z.output<typeof expenseFormSchema>
 
 export function ExpensePage() {
   const { id } = useParams<{ id: string }>()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
-  const { draft, setDraft, updateDraft, clearDraft } = useExpenseFormContext()
+  const { draft, setDraft, clearDraft } = useExpenseFormContext()
   const { data: expense, isLoading: expenseLoading } = useExpense(id ?? null)
   const { data: categories = [] } = useCategories()
 
@@ -81,80 +87,50 @@ export function ExpensePage() {
   const isSubmitting =
     createExpense.isPending || updateExpense.isPending || deletion.isDeleting
 
-  // Determine date from URL params or use today. The param is untrusted
-  // (it comes from a shareable URL), so reject anything that isn't a valid,
-  // non-future ISO date before it flows into formatRelativeDate/persistence.
+  // The selected date lives in the URL (?date=) — a single, shareable source of
+  // truth, so there is no draft/effect to keep in sync. It's untrusted (it comes
+  // from a shareable URL), so it's validated; it falls back to the expense's own
+  // date (edit) or today (create) when the param is absent.
   const dateParam = searchParams.get('date')
-  const date =
+  const formDate =
     dateParam && isValidISODate(dateParam) && !isFutureDate(dateParam)
       ? dateParam
-      : getTodayISO()
+      : isEditing
+        ? (expense?.date ?? getTodayISO())
+        : getTodayISO()
 
-  // Initialize draft when entering the page
-  useEffect(() => {
-    // If editing, initialize from expense data
-    if (isEditing && expense && draft?.expenseId !== expense.id) {
-      setDraft({
-        amount: (expense.amountCents / 100).toFixed(2),
-        categoryId: expense.categoryId,
-        note: expense.note ?? '',
-        date: expense.date,
-        expenseId: expense.id,
-      })
-    }
-    // If creating new and no draft exists, initialize empty draft
-    else if (!isEditing && !draft) {
-      setDraft({
-        amount: '',
-        categoryId: '',
-        note: '',
-        date,
-      })
-    }
-    // If creating new but draft has an expenseId (was editing), clear it
-    else if (!isEditing && draft?.expenseId) {
-      setDraft({
-        amount: '',
-        categoryId: '',
-        note: '',
-        date,
-      })
-    }
-  }, [isEditing, expense, draft, date, setDraft])
+  // Initial form values, derived (no effect): an in-progress draft from a
+  // category-picker round trip wins; otherwise the loaded expense (edit) or
+  // empty (create). react-hook-form's `values` prop re-syncs the form when this
+  // changes — e.g. when the expense finishes loading — so no init/sync effect.
+  const draftMatchesForm = isEditing
+    ? draft?.expenseId === id
+    : !!draft && !draft.expenseId
+  const values: ExpenseFormInput = draftMatchesForm
+    ? { amount: draft!.amount, categoryId: draft!.categoryId, note: draft!.note }
+    : isEditing && expense
+      ? {
+          amount: (expense.amountCents / 100).toFixed(2),
+          categoryId: expense.categoryId,
+          note: expense.note ?? '',
+        }
+      : { amount: '', categoryId: '', note: '' }
 
   const {
     control,
     handleSubmit,
     setError,
     watch,
-    setValue,
+    getValues,
     formState: { errors },
-  } = useForm<z.input<typeof expenseFormSchema>, unknown, ExpenseFormData>({
+  } = useForm<ExpenseFormInput, unknown, ExpenseFormData>({
     resolver: zodResolver(expenseFormSchema),
     mode: 'onBlur',
-    defaultValues: {
-      amount: draft?.amount ?? '',
-      categoryId: draft?.categoryId ?? '',
-      note: draft?.note ?? '',
-    },
+    values,
+    // If `values` re-syncs while a field is dirty (e.g. the open expense's
+    // cached data changes in another tab), keep the user's unsaved edits.
+    resetOptions: { keepDirtyValues: true },
   })
-
-  // Sync form with draft when draft changes (e.g., after selecting category)
-  useEffect(() => {
-    if (draft) {
-      setValue('amount', draft.amount)
-      setValue('categoryId', draft.categoryId)
-      setValue('note', draft.note)
-    }
-  }, [draft, setValue])
-
-  // Redirect if expense not found
-  const expenseNotFound = isEditing && !expense && !expenseLoading
-  useEffect(() => {
-    if (expenseNotFound) {
-      navigate('/calendar')
-    }
-  }, [expenseNotFound, navigate])
 
   const categoryId = watch('categoryId')
   const noteValue = watch('note')
@@ -166,28 +142,32 @@ export function ExpensePage() {
 
   const selectedCategory = categories.find((c) => c.id === categoryId)
 
-  // Update draft when form values change
-  const handleAmountChange = (value: string) => {
-    updateDraft({ amount: value })
-  }
-
-  const handleNoteChange = (value: string) => {
-    updateDraft({ note: value })
-  }
-
   const handleDateSelect = (newDate: string) => {
-    updateDraft({ date: newDate })
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.set('date', newDate)
+        return next
+      },
+      { replace: true }
+    )
   }
 
   const handleCategoryClick = () => {
-    // Save current form state before navigating
+    // The category picker is a separate route, so snapshot the in-progress
+    // fields into the draft to survive the round trip, and carry the date along
+    // in the URL so it's preserved too.
+    setDraft({
+      amount: getValues('amount'),
+      categoryId: getValues('categoryId'),
+      note: getValues('note') ?? '',
+      expenseId: id,
+    })
     const pickerPath = id ? `/expenses/${id}/category` : '/expenses/new/category'
-    navigate(pickerPath)
+    navigate(`${pickerPath}?date=${formDate}`)
   }
 
   const onFormSubmit = async (data: ExpenseFormData) => {
-    const formDate = draft?.date ?? date
-
     if (isFutureDate(formDate)) {
       setError('root.date', { message: "Can't add expenses for future dates" })
       return
@@ -239,12 +219,10 @@ export function ExpensePage() {
     )
   }
 
-  // Expense not found - render nothing while redirecting
-  if (expenseNotFound) {
-    return null
+  // Expense not found - redirect without an effect
+  if (isEditing && !expense) {
+    return <Navigate to="/calendar" replace />
   }
-
-  const formDate = draft?.date ?? date
 
   return (
     <>
@@ -284,10 +262,7 @@ export function ExpensePage() {
             render={({ field }) => (
               <AmountInput
                 value={field.value}
-                onChange={(val) => {
-                  field.onChange(val)
-                  handleAmountChange(val)
-                }}
+                onChange={field.onChange}
                 onBlur={field.onBlur}
                 error={errors.amount?.message}
                 autoFocus={!isEditing}
@@ -337,10 +312,7 @@ export function ExpensePage() {
             render={({ field }) => (
               <AutocompleteInput
                 value={field.value ?? ''}
-                onChange={(val) => {
-                  field.onChange(val)
-                  handleNoteChange(val)
-                }}
+                onChange={field.onChange}
                 onBlur={field.onBlur}
                 suggestions={suggestions}
                 label="Note (optional)"
