@@ -9,7 +9,6 @@ import {
   isFutureDate,
   isValidISODate,
   formatRelativeDate,
-  isCurrentOrFutureMonth,
   getTodayISO,
   isCurrentPeriod,
   formatPeriodLabel,
@@ -212,42 +211,6 @@ describe('getTodayISO', () => {
 
   it('returns today in ISO format', () => {
     expect(getTodayISO()).toBe('2024-01-15')
-  })
-})
-
-describe('isCurrentOrFutureMonth', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date(2024, 0, 15)) // January 15, 2024
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('returns true for current month', () => {
-    expect(isCurrentOrFutureMonth(2024, 1)).toBe(true)
-  })
-
-  it('returns true for future months in same year', () => {
-    expect(isCurrentOrFutureMonth(2024, 2)).toBe(true)
-    expect(isCurrentOrFutureMonth(2024, 12)).toBe(true)
-  })
-
-  it('returns true for future years', () => {
-    expect(isCurrentOrFutureMonth(2025, 1)).toBe(true)
-    expect(isCurrentOrFutureMonth(2025, 6)).toBe(true)
-  })
-
-  it('returns false for past months in same year', () => {
-    vi.setSystemTime(new Date(2024, 5, 15)) // June 15, 2024
-    expect(isCurrentOrFutureMonth(2024, 1)).toBe(false)
-    expect(isCurrentOrFutureMonth(2024, 5)).toBe(false)
-  })
-
-  it('returns false for past years', () => {
-    expect(isCurrentOrFutureMonth(2023, 1)).toBe(false)
-    expect(isCurrentOrFutureMonth(2023, 12)).toBe(false)
   })
 })
 
