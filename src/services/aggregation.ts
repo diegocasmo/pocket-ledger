@@ -16,18 +16,12 @@ export function aggregateExpenses(expenses: Expense[]): RangeAggregate {
     result.totalCents += expense.amountCents
 
     // Add to category breakdown
-    if (result.byCategory[expense.categoryId]) {
-      result.byCategory[expense.categoryId] += expense.amountCents
-    } else {
-      result.byCategory[expense.categoryId] = expense.amountCents
-    }
+    result.byCategory[expense.categoryId] =
+      (result.byCategory[expense.categoryId] ?? 0) + expense.amountCents
 
     // Add to day breakdown
-    if (result.byDay[expense.date]) {
-      result.byDay[expense.date] += expense.amountCents
-    } else {
-      result.byDay[expense.date] = expense.amountCents
-    }
+    result.byDay[expense.date] =
+      (result.byDay[expense.date] ?? 0) + expense.amountCents
   }
 
   return result
