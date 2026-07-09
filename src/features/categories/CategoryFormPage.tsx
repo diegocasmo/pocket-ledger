@@ -44,7 +44,7 @@ export function CategoryFormPage() {
     // If coming from expense flow and have a category, go directly to expense form
     if (expenseFormPath && categoryId) {
       updateDraft({ categoryId })
-      navigate(expenseFormPath, { replace: true })
+      void navigate(expenseFormPath, { replace: true })
       return
     }
 
@@ -54,9 +54,9 @@ export function CategoryFormPage() {
     }
 
     if (returnPath) {
-      navigate(returnPath)
+      void navigate(returnPath)
     } else {
-      navigate('/categories')
+      void navigate('/categories')
     }
   }
 
@@ -87,7 +87,7 @@ export function CategoryFormPage() {
   const categoryNotFound = id && !category && categories.length > 0
   useEffect(() => {
     if (categoryNotFound) {
-      navigate('/categories')
+      void navigate('/categories')
     }
   }, [categoryNotFound, navigate])
 

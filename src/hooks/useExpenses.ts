@@ -66,8 +66,8 @@ export function useCreateExpense() {
   return useMutation({
     mutationFn: (input: CreateExpenseInput) => createExpense(input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      void queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
+      void queryClient.invalidateQueries({ queryKey: ['categories'] })
       toast.success('Expense added')
     },
     onError: () => {
@@ -83,8 +83,8 @@ export function useUpdateExpense() {
     mutationFn: ({ id, ...patch }: { id: string } & UpdateExpenseInput) =>
       updateExpense(id, patch),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      void queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
+      void queryClient.invalidateQueries({ queryKey: ['categories'] })
       toast.success('Expense updated')
     },
     onError: () => {
@@ -99,7 +99,7 @@ export function useDeleteExpense() {
   return useMutation({
     mutationFn: (id: string) => deleteExpense(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
+      void queryClient.invalidateQueries({ queryKey: EXPENSES_KEY })
       toast.success('Expense deleted')
     },
     onError: () => {

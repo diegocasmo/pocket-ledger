@@ -92,9 +92,9 @@ export function ExpenseFormProvider({ children }: ExpenseFormProviderProps) {
       // point can't accidentally skip the clear.
       setDraftState(null)
       if ('id' in target) {
-        navigate(`/expenses/${target.id}`)
+        void navigate(`/expenses/${target.id}`)
       } else {
-        navigate(`/expenses/new?date=${target.date}`)
+        void navigate(`/expenses/new?date=${target.date}`)
       }
     },
     [navigate]

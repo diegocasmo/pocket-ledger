@@ -11,14 +11,14 @@ export function usePWAUpdate() {
       if (registration) {
         // Check for updates periodically
         setInterval(() => {
-          registration.update()
+          void registration.update()
         }, UPDATE_CHECK_INTERVAL)
       }
     },
   })
 
   const applyUpdate = () => {
-    updateServiceWorker(true)
+    void updateServiceWorker(true)
   }
 
   return {

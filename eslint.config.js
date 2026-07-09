@@ -25,4 +25,26 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Type-aware linting for source files. Scoped to src so config files such
+    // as vite.config.ts (covered only by tsconfig.node.json) are not forced
+    // through the TypeScript project service.
+    files: ['src/**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+      '@typescript-eslint/no-floating-promises': 'error',
+      // Async functions passed to JSX event attributes (onClick/onSubmit) are
+      // idiomatic React; React ignores their return value.
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        { checksVoidReturn: { attributes: false } },
+      ],
+    },
+  },
 )

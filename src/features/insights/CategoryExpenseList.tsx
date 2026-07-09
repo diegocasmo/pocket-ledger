@@ -28,7 +28,7 @@ export function CategoryExpenseList({
   const category = categories.find((c) => c.id === categoryId)
 
   const handleEditExpense = (expense: Expense) => {
-    navigate(`/expenses/${expense.id}`)
+    void navigate(`/expenses/${expense.id}`)
   }
 
   return (
