@@ -79,7 +79,7 @@ export function ExpensePage() {
     },
     onSuccess: () => {
       clearDraft()
-      navigate('/calendar')
+      void navigate('/calendar')
     },
   })
 
@@ -164,7 +164,7 @@ export function ExpensePage() {
       expenseId: id,
     })
     const pickerPath = id ? `/expenses/${id}/category` : '/expenses/new/category'
-    navigate(`${pickerPath}?date=${formDate}`)
+    void navigate(`${pickerPath}?date=${formDate}`)
   }
 
   const onFormSubmit = async (data: ExpenseFormData) => {
@@ -191,7 +191,7 @@ export function ExpensePage() {
     }
 
     clearDraft()
-    navigate('/calendar')
+    void navigate('/calendar')
   }
 
   const handleDelete = () => {
@@ -202,7 +202,7 @@ export function ExpensePage() {
 
   const handleCancel = () => {
     clearDraft()
-    navigate('/calendar')
+    void navigate('/calendar')
   }
 
   // Show loading state when editing and expense not loaded yet

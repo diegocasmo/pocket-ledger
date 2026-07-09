@@ -59,7 +59,7 @@ describe('AmountInput', () => {
       const onChange = vi.fn()
       render(<AmountInput value="1234.56" onChange={onChange} />)
 
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
 
       expect(input.value).toBe('$1,234.56')
@@ -69,21 +69,21 @@ describe('AmountInput', () => {
   describe('thousand separators', () => {
     it('displays thousand separators for large amounts', () => {
       render(<AmountInput value="1234.56" onChange={vi.fn()} />)
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
       expect(input.value).toBe('$1,234.56')
     })
 
     it('displays thousand separators for amounts over 10000', () => {
       render(<AmountInput value="12345.67" onChange={vi.fn()} />)
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
       expect(input.value).toBe('$12,345.67')
     })
 
     it('displays thousand separators for amounts up to max value', () => {
       render(<AmountInput value="999999.99" onChange={vi.fn()} />)
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
       expect(input.value).toBe('$999,999.99')
     })
@@ -94,7 +94,7 @@ describe('AmountInput', () => {
       const onChange = vi.fn()
       render(<AmountInput value="" onChange={onChange} />)
 
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
 
       expect(onChange).toHaveBeenCalledWith('0.00')
@@ -114,7 +114,7 @@ describe('AmountInput', () => {
       const onChange = vi.fn()
       render(<AmountInput value="0.00" onChange={onChange} />)
 
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
 
       expect(input.value).toBe('$0.00')
@@ -123,14 +123,14 @@ describe('AmountInput', () => {
     it('shows empty when not focused and value is zero', () => {
       render(<AmountInput value="0.00" onChange={vi.fn()} />)
 
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       expect(input.value).toBe('')
     })
 
     it('shows formatted value when not focused and value is non-zero', () => {
       render(<AmountInput value="12.34" onChange={vi.fn()} />)
 
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       expect(input.value).toBe('$12.34')
     })
   })
@@ -217,7 +217,7 @@ describe('AmountInput', () => {
   describe('display', () => {
     it('includes dollar sign in formatted display', () => {
       render(<AmountInput value="10.00" onChange={vi.fn()} />)
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
       expect(input.value).toBe('$10.00')
     })
@@ -288,21 +288,21 @@ describe('AmountInput', () => {
   describe('controlled value', () => {
     it('displays formatted value from props when focused', () => {
       render(<AmountInput value="25.00" onChange={vi.fn()} />)
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
       expect(input.value).toBe('$25.00')
     })
 
     it('displays value with thousand separators from props when focused', () => {
       render(<AmountInput value="1025.00" onChange={vi.fn()} />)
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
       expect(input.value).toBe('$1,025.00')
     })
 
     it('updates display when value prop changes', () => {
       const { rerender } = render(<AmountInput value="10.00" onChange={vi.fn()} />)
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
       expect(input.value).toBe('$10.00')
 
@@ -326,7 +326,7 @@ describe('AmountInput', () => {
     it('hides value when blurred with zero amount', () => {
       render(<AmountInput value="0.00" onChange={vi.fn()} />)
 
-      const input = screen.getByLabelText('Amount') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Amount')
       fireEvent.focus(input)
       expect(input.value).toBe('$0.00')
 

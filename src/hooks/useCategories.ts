@@ -32,7 +32,7 @@ export function useCreateCategory() {
   return useMutation({
     mutationFn: (input: Pick<Category, 'name' | 'color'>) => createCategory(input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
+      void queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
       toast.success('Category created')
     },
     onError: () => {
@@ -51,7 +51,7 @@ export function useUpdateCategory() {
     }: { id: string } & Partial<Pick<Category, 'name' | 'color'>>) =>
       updateCategory(id, patch),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
+      void queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
       toast.success('Category updated')
     },
     onError: () => {
@@ -66,7 +66,7 @@ export function useDeleteCategory() {
   return useMutation({
     mutationFn: (id: string) => deleteCategory(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
+      void queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY })
       toast.success('Category deleted')
     },
     onError: () => {

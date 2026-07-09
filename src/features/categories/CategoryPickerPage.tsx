@@ -40,7 +40,7 @@ export function CategoryPickerPage() {
 
   const handleCategoryClick = (categoryId: string) => {
     updateDraft({ categoryId })
-    navigate(returnPath)
+    void navigate(returnPath)
   }
 
   const handleCreateCategory = () => {
@@ -51,7 +51,7 @@ export function CategoryPickerPage() {
     if (searchQuery.trim()) {
       params.set('initialName', searchQuery.trim())
     }
-    navigate(`/categories/new?${params.toString()}`)
+    void navigate(`/categories/new?${params.toString()}`)
   }
 
   const handleEditCategory = (categoryId: string) => {
@@ -59,11 +59,11 @@ export function CategoryPickerPage() {
       returnPath: pickerPath,
       expenseFormPath: returnPath,
     })
-    navigate(`/categories/${categoryId}?${params.toString()}`)
+    void navigate(`/categories/${categoryId}?${params.toString()}`)
   }
 
   const handleBack = () => {
-    navigate(returnPath)
+    void navigate(returnPath)
   }
 
   return (
