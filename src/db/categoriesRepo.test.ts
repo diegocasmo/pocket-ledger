@@ -3,7 +3,6 @@ import { db } from '@/db'
 import {
   initDefaultCategories,
   listCategories,
-  getCategory,
   createCategory,
   updateCategory,
   deleteCategory,
@@ -60,25 +59,6 @@ describe('categoriesRepo', () => {
       await db.categories.clear()
       const categories = await listCategories()
       expect(categories).toHaveLength(7)
-    })
-  })
-
-  describe('getCategory', () => {
-    it('returns category by id', async () => {
-      await db.categories.add({
-        id: 'test-id',
-        name: 'Test Category',
-        color: '#123456',
-        lastUsedAt: null,
-      })
-      const category = await getCategory('test-id')
-      expect(category).toBeDefined()
-      expect(category?.name).toBe('Test Category')
-    })
-
-    it('returns undefined for non-existent id', async () => {
-      const category = await getCategory('non-existent')
-      expect(category).toBeUndefined()
     })
   })
 
