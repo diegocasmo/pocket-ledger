@@ -106,7 +106,7 @@ Dexie setup + migrations: `src/db/index.ts`. Schema is at **version 2**; the v1â
 
 **Repository behavior worth knowing (not obvious from signatures)** â€” `src/db/expensesRepo.ts`, `categoriesRepo.ts`, `settingsRepo.ts`:
 
-- `expensesRepo`: `createExpense`/`updateExpense` mark the category recently-used **only when `categoryId` actually changes**; both stamp `updatedAt`. Range queries (`listExpensesForDateRange`, `listExpensesForDay`, `listExpensesByCategory`) use the `date` index. Lookup is `getExpense(id)`.
+- `expensesRepo`: `createExpense` always marks its category recently-used; `updateExpense` does so **only when `categoryId` actually changes**; both stamp `updatedAt`. Range queries (`listExpensesForDateRange`, `listExpensesForDay`, `listExpensesByCategory`) use the `date` index. Lookup is `getExpense(id)`.
 - `categoriesRepo`: `initDefaultCategories` seeds seven defaults on first load; `listCategories` sorts by `lastUsedAt` desc, then name; `deleteCategory` **throws if the category still has expenses**.
 - `settingsRepo`: singleton row `'settings'`; returns and persists defaults when absent.
 
