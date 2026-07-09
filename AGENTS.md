@@ -144,7 +144,7 @@ The expense form (`ExpensePage.tsx`) has subtle, deliberate choices — read it 
 
 ## Components
 
-- **`src/components/ui/`** — presentational primitives only (props in, callbacks out; no data fetching or business logic): `Button`, `Input`, `Select`, `Dialog` (Radix-backed — bottom-sheet on mobile, centered modal on desktop), `ConfirmDialog`, `AmountInput` (cents-based currency input), `AutocompleteInput` (debounced suggestions, ARIA listbox).
+- **`src/components/ui/`** — presentational primitives only (props in, callbacks out; no data fetching or business logic): `Button`, `Input`, `Dialog` (Radix-backed — bottom-sheet on mobile, centered modal on desktop), `ConfirmDialog`, `AmountInput` (cents-based currency input), `AutocompleteInput` (debounced suggestions, ARIA listbox).
 - **`src/components/layout/`** — `AppLayout` (theme, bottom nav, provides `CalendarContext`; consumes `ExpenseFormContext`), `BottomNav` (nav + add-expense FAB), `PageHeader`.
 - `forwardRef` for primitives needing ref access; one component per file. Theme via CSS variables (`var(--color-*)`, defined in `src/index.css`).
 
