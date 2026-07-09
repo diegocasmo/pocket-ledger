@@ -36,10 +36,6 @@ export async function listCategories(): Promise<Category[]> {
   })
 }
 
-export async function getCategory(id: string): Promise<Category | undefined> {
-  return db.categories.get(id)
-}
-
 export async function createCategory(
   input: Pick<Category, 'name' | 'color'>
 ): Promise<Category> {
