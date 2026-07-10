@@ -1,16 +1,16 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { format, addMonths, subMonths, isSameMonth } from 'date-fns'
 import { PeriodNavigator } from '@/components/ui/PeriodNavigator'
 import { MonthGrid } from '@/features/calendar/MonthGrid'
 import { DayExpensePanel } from '@/features/calendar/DayExpensePanel'
 import { useExpensesForMonth } from '@/hooks/useExpenses'
+import { useHorizontalSwipe } from '@/hooks/useHorizontalSwipe'
 import { aggregateExpenses } from '@/services/aggregation'
 import { useCalendarContext } from '@/components/layout/CalendarContext'
 import { getTodayISO } from '@/lib/dates'
 
 export function CalendarPage() {
   const [viewDate, setViewDate] = useState(() => new Date())
-  const touchStartX = useRef<number | null>(null)
   const { selectedDate, setSelectedDate, openExpenseForm } = useCalendarContext()
 
   const year = viewDate.getFullYear()
@@ -38,36 +38,18 @@ export function CalendarPage() {
     setSelectedDate(date)
   }, [setSelectedDate])
 
-  // Swipe gesture handling
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
-  }, [])
-
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (touchStartX.current === null) return
-
-      const touchEndX = e.changedTouches[0].clientX
-      const diff = touchEndX - touchStartX.current
-
-      if (Math.abs(diff) > 50) {
-        if (diff > 0) {
-          goToPreviousMonth()
-        } else if (!isCurrentMonth) {
-          goToNextMonth()
-        }
-      }
-
-      touchStartX.current = null
+  const { onTouchStart, onTouchEnd } = useHorizontalSwipe({
+    onSwipeRight: goToPreviousMonth,
+    onSwipeLeft: () => {
+      if (!isCurrentMonth) goToNextMonth()
     },
-    [goToPreviousMonth, goToNextMonth, isCurrentMonth]
-  )
+  })
 
   return (
     <div
       className="p-4 space-y-6"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
       <PeriodNavigator
         label={format(viewDate, 'MMMM yyyy')}

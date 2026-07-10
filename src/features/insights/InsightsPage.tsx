@@ -1,10 +1,11 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { RangePicker } from '@/features/insights/RangePicker'
 import { PeriodNavigator } from '@/components/ui/PeriodNavigator'
 import { SummaryTile } from '@/features/insights/SummaryTile'
 import { CategoryBreakdownTable } from '@/features/insights/CategoryBreakdownTable'
 import { CategoryExpenseList } from '@/features/insights/CategoryExpenseList'
 import { useExpensesForRange } from '@/hooks/useExpenses'
+import { useHorizontalSwipe } from '@/hooks/useHorizontalSwipe'
 import { useSettings } from '@/hooks/useSettings'
 import { aggregateExpenses } from '@/services/aggregation'
 import { getWeekRange, getMonthRange, getYearRange, isCurrentPeriod, formatPeriodLabel, shiftPeriod } from '@/lib/dates'
@@ -15,7 +16,6 @@ export function InsightsPage() {
   const [rangeType, setRangeType] = useState<RangeType>('month')
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   const [viewDate, setViewDate] = useState(() => new Date())
-  const touchStartX = useRef<number | null>(null)
 
   const weekStartsOn = settings?.weekStartsOn ?? 0
 
@@ -65,29 +65,12 @@ export function InsightsPage() {
     setSelectedCategoryId(null)
   }
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
-  }, [])
-
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (touchStartX.current === null) return
-
-      const touchEndX = e.changedTouches[0].clientX
-      const diff = touchEndX - touchStartX.current
-
-      if (Math.abs(diff) > 50) {
-        if (diff > 0) {
-          goToPrevious()
-        } else if (!currentPeriod) {
-          goToNext()
-        }
-      }
-
-      touchStartX.current = null
+  const { onTouchStart, onTouchEnd } = useHorizontalSwipe({
+    onSwipeRight: goToPrevious,
+    onSwipeLeft: () => {
+      if (!currentPeriod) goToNext()
     },
-    [goToPrevious, goToNext, currentPeriod]
-  )
+  })
 
   if (selectedCategoryId) {
     return (
@@ -103,8 +86,8 @@ export function InsightsPage() {
   return (
     <div
       className="p-4 space-y-6"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
       <PeriodNavigator
         label={formatPeriodLabel(viewDate, rangeType, weekStartsOn)}
