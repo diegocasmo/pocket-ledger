@@ -48,7 +48,6 @@ export function CategoryFormPage() {
       return
     }
 
-    // Existing behavior for picker return or no category
     if (categoryId && returnPath?.includes('/category')) {
       updateDraft({ categoryId })
     }
