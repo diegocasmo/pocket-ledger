@@ -41,17 +41,7 @@ Five layers, presentation → storage:
 
 ## Tech Stack
 
-| Area | Stack (major.minor) |
-|---|---|
-| UI / build | React 19.2, TypeScript 5.9, Vite 8.0, Tailwind 4.3 |
-| Routing | React Router 7.18 |
-| Data | TanStack Query 5.101, Dexie 4.4 (IndexedDB) |
-| Forms | React Hook Form 7.80, Zod 4.4, `@hookform/resolvers` |
-| UI libs | Radix UI (Dialog), lucide-react, react-hot-toast, react-currency-input-field |
-| PWA | vite-plugin-pwa 1.3 (Workbox) |
-| Testing | Vitest 4.1, React Testing Library 16.3, fake-indexeddb 6.2, jsdom |
-
-Authoritative versions: `package.json`. These minors are Dependabot-bumped frequently — don't treat them as exact.
+See `package.json` for the authoritative list of dependencies and versions. Do not list dependency versions in docs; `package.json` is the single source of truth.
 
 ## Project Structure
 
