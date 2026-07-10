@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
-import { subMonths, format } from 'date-fns'
+import { subMonths } from 'date-fns'
 import { useExpensesByCategory } from '@/hooks/useExpenses'
 import { useDebounce } from '@/hooks/useDebounce'
+import { formatDateToISO } from '@/lib/dates'
 
 interface UseNoteSuggestionsOptions {
   categoryId: string | null
@@ -27,8 +28,8 @@ export function useNoteSuggestions({
 
   const today = new Date()
   const sixMonthsAgo = subMonths(today, 6)
-  const start = format(sixMonthsAgo, 'yyyy-MM-dd')
-  const end = format(today, 'yyyy-MM-dd')
+  const start = formatDateToISO(sixMonthsAgo)
+  const end = formatDateToISO(today)
 
   const { data: expenses, isLoading } = useExpensesByCategory(
     categoryId,
