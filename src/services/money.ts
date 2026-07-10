@@ -9,7 +9,7 @@ export function parseUsdToCents(input: string): number | null {
   }
 
   // Remove dollar sign, commas, and whitespace
-  const cleaned = input.replace(/[$\s,]/g, '').trim()
+  const cleaned = input.replace(/[$\s,]/g, '')
 
   if (!cleaned) {
     return null
