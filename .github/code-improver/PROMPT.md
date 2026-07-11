@@ -29,7 +29,7 @@ A theme is ONE of the categories below. Within it, act ONLY on instances where y
 - **Type safety**: remove an `any`, an unnecessary `as` cast, or a non-null assertion; tighten a loose type; infer a type from a Zod schema. Only where it cannot change runtime behavior and matches existing patterns.
 - **Dead code**: remove a provably-unused export, variable, import, or unreachable branch. Verify there are no references anywhere first. Remember page components carry an intentional `default` export for `React.lazy`, so a `default` export is not dead.
 - **Refactor or simplification**: an unambiguous readability or structure win that preserves behavior (for example, collapse duplicated logic into an existing helper, prefer `??` over `||` for a default per `AGENTS.md`, or simplify a needlessly convoluted expression). Never a stylistic preference, never bundled with unrelated cleanup. A refactor theme is one cohesive refactor, not a repo-wide sweep; each is bespoke.
-- **Documentation accuracy** in `README.md` or `AGENTS.md`: a command, convention, or claim that no longer matches the code.
+- **Documentation accuracy** in `README.md` or `AGENTS.md`: a command, convention, or claim that no longer matches the code. Fix per the "Keeping this file useful" section in `AGENTS.md`: delete the stale claim or convert it to a `file` + symbol pointer. Never re-sync a copied detail, paste code, or introduce a `file:line` reference into a doc.
 
 Do NOT: add features, change runtime behavior to fix a latent bug, add validation or guards that change which inputs are accepted, touch an excluded path, or make subjective wording or tone changes. If the obvious candidates are already fine, that is a no-op.
 
