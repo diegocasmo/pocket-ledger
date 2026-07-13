@@ -16,7 +16,6 @@ export function CategoryBreakdownTable({
 }: CategoryBreakdownTableProps) {
   const { data: categories = [] } = useCategories()
 
-  // Memoize sorted categories to avoid recalculation on every render
   const sortedCategories = useMemo(() => {
     return categories
       .filter((cat) => (byCategory[cat.id] ?? 0) > 0)
