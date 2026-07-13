@@ -78,7 +78,6 @@ export async function listExpensesForDateRange(
 
 export async function listExpensesForDay(date: string): Promise<Expense[]> {
   const expenses = await db.expenses.where('date').equals(date).toArray()
-  // Sort by createdAt descending (newest first)
   return expenses.sort((a, b) => b.createdAt - a.createdAt)
 }
 
@@ -92,6 +91,5 @@ export async function listExpensesByCategory(
     .between(start, end, true, true)
     .and((expense) => expense.categoryId === categoryId)
     .toArray()
-  // Sort by createdAt descending
   return expenses.sort((a, b) => b.createdAt - a.createdAt)
 }
