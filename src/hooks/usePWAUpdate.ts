@@ -9,7 +9,6 @@ export function usePWAUpdate() {
   } = useRegisterSW({
     onRegisteredSW(_swUrl, registration) {
       if (registration) {
-        // Check for updates periodically
         setInterval(() => {
           void registration.update()
         }, UPDATE_CHECK_INTERVAL)
