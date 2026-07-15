@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 
 const STORAGE_KEY = 'expense-form-draft'
 
-export interface ExpenseFormDraft {
+interface ExpenseFormDraft {
   amount: string
   categoryId: string
   note: string

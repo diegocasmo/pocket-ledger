@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/Input'
 import { PRESET_COLORS, COLOR_NAMES } from '@/constants/colors'
 import type { Category } from '@/types'
 
-export const categoryFormSchema = z.object({
+const categoryFormSchema = z.object({
   name: z
     .string()
     .transform((val) => val.trim())
