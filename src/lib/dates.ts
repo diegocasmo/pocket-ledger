@@ -135,7 +135,7 @@ export function getTodayISO(): string {
   return formatDateToISO(new Date())
 }
 
-export interface CalendarGrid {
+interface CalendarGrid {
   weeks: Date[][]
 }
 

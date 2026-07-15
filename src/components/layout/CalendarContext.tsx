@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-export interface CalendarContextValue {
+interface CalendarContextValue {
   selectedDate: string | null
   setSelectedDate: (date: string | null) => void
   openExpenseForm: (expense?: { id: string }) => void
