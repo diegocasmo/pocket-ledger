@@ -20,7 +20,7 @@
     "date-fns": "^4.4.0",
     "dexie": "^4.4.4",
     "lucide-react": "^1.25.0",
-    "react": "^19.2.6",
+    "react": "^19.2.8",
     "react-currency-input-field": "^4.0.6",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.82.0",
