@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { MemoryRouter, Routes, Route } from 'react-router-dom'
-import { createTestQueryClient } from '@/test/setup'
+import { screen, fireEvent } from '@testing-library/react'
+import { QueryClient } from '@tanstack/react-query'
+import { Routes, Route } from 'react-router-dom'
+import { renderWithRouter } from '@/test/setup'
 import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { AppLayout } from '@/components/layout/AppLayout'
 import CalendarPage from '@/features/calendar/CalendarPage'
@@ -10,36 +10,30 @@ import ExpensePage from '@/features/expenses/ExpensePage'
 
 const DRAFT_KEY = 'expense-form-draft'
 
-function renderForm(route: string, qc = createTestQueryClient()) {
-  return render(
-    <MemoryRouter initialEntries={[route]}>
-      <QueryClientProvider client={qc}>
-        <ExpenseFormProvider>
-          <Routes>
-            <Route path="/expenses/new" element={<ExpensePage />} />
-            <Route path="/expenses/:id" element={<ExpensePage />} />
-            <Route path="/calendar" element={<div>Calendar</div>} />
-          </Routes>
-        </ExpenseFormProvider>
-      </QueryClientProvider>
-    </MemoryRouter>
+function renderForm(route: string, queryClient?: QueryClient) {
+  return renderWithRouter(
+    <ExpenseFormProvider>
+      <Routes>
+        <Route path="/expenses/new" element={<ExpensePage />} />
+        <Route path="/expenses/:id" element={<ExpensePage />} />
+        <Route path="/calendar" element={<div>Calendar</div>} />
+      </Routes>
+    </ExpenseFormProvider>,
+    { route, queryClient }
   )
 }
 
 function renderRealFlow() {
-  return render(
-    <MemoryRouter initialEntries={['/calendar']}>
-      <QueryClientProvider client={createTestQueryClient()}>
-        <ExpenseFormProvider>
-          <AppLayout>
-            <Routes>
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/expenses/new" element={<ExpensePage />} />
-            </Routes>
-          </AppLayout>
-        </ExpenseFormProvider>
-      </QueryClientProvider>
-    </MemoryRouter>
+  return renderWithRouter(
+    <ExpenseFormProvider>
+      <AppLayout>
+        <Routes>
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/expenses/new" element={<ExpensePage />} />
+        </Routes>
+      </AppLayout>
+    </ExpenseFormProvider>,
+    { route: '/calendar' }
   )
 }
 

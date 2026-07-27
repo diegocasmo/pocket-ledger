@@ -1,10 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createElement } from 'react'
-import { render } from '@testing-library/react'
-import { MemoryRouter, Routes, Route } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Routes, Route } from 'react-router-dom'
+import { renderWithRouter } from '@/test/setup'
 import { CategoryFormPage } from '@/features/categories/CategoryFormPage'
 import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { createCategory } from '@/db/categoriesRepo'
@@ -19,36 +17,15 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
-function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  })
-}
-
 function renderCategoryFormPage(route: string) {
-  const queryClient = createTestQueryClient()
-  return render(
-    createElement(
-      MemoryRouter,
-      { initialEntries: [route] },
-      createElement(
-        QueryClientProvider,
-        { client: queryClient },
-        createElement(
-          ExpenseFormProvider,
-          null,
-          createElement(
-            Routes,
-            null,
-            createElement(Route, { path: '/categories/new', element: createElement(CategoryFormPage) }),
-            createElement(Route, { path: '/categories/:id', element: createElement(CategoryFormPage) })
-          )
-        )
-      )
-    )
+  return renderWithRouter(
+    <ExpenseFormProvider>
+      <Routes>
+        <Route path="/categories/new" element={<CategoryFormPage />} />
+        <Route path="/categories/:id" element={<CategoryFormPage />} />
+      </Routes>
+    </ExpenseFormProvider>,
+    { route }
   )
 }
 

@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor, act } from '@testing-library/react'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { createElement } from 'react'
 import {
   useCategories,
   useCategoryHasExpenses,
@@ -93,10 +91,9 @@ describe('useCategories hooks', () => {
       const queryClient = createTestQueryClient()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
-        createElement(QueryClientProvider, { client: queryClient }, children)
-
-      const { result } = renderHook(() => useCreateCategory(), { wrapper })
+      const { result } = renderHook(() => useCreateCategory(), {
+        wrapper: createWrapper(queryClient),
+      })
 
       await act(async () => {
         await result.current.mutateAsync({
@@ -125,10 +122,9 @@ describe('useCategories hooks', () => {
       const queryClient = createTestQueryClient()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
-        createElement(QueryClientProvider, { client: queryClient }, children)
-
-      const { result } = renderHook(() => useUpdateCategory(), { wrapper })
+      const { result } = renderHook(() => useUpdateCategory(), {
+        wrapper: createWrapper(queryClient),
+      })
 
       await act(async () => {
         await result.current.mutateAsync({
@@ -157,10 +153,9 @@ describe('useCategories hooks', () => {
       const queryClient = createTestQueryClient()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
-        createElement(QueryClientProvider, { client: queryClient }, children)
-
-      const { result } = renderHook(() => useDeleteCategory(), { wrapper })
+      const { result } = renderHook(() => useDeleteCategory(), {
+        wrapper: createWrapper(queryClient),
+      })
 
       await act(async () => {
         await result.current.mutateAsync('cat-to-delete')
