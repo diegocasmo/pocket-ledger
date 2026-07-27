@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor, act } from '@testing-library/react'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { createElement } from 'react'
 import {
   useExpensesForMonth,
   useExpensesForDay,
@@ -118,10 +116,9 @@ describe('useExpenses hooks', () => {
       const queryClient = createTestQueryClient()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
-        createElement(QueryClientProvider, { client: queryClient }, children)
-
-      const { result } = renderHook(() => useCreateExpense(), { wrapper })
+      const { result } = renderHook(() => useCreateExpense(), {
+        wrapper: createWrapper(queryClient),
+      })
 
       await act(async () => {
         await result.current.mutateAsync({
@@ -152,10 +149,9 @@ describe('useExpenses hooks', () => {
       const queryClient = createTestQueryClient()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
-        createElement(QueryClientProvider, { client: queryClient }, children)
-
-      const { result } = renderHook(() => useUpdateExpense(), { wrapper })
+      const { result } = renderHook(() => useUpdateExpense(), {
+        wrapper: createWrapper(queryClient),
+      })
 
       await act(async () => {
         await result.current.mutateAsync({
@@ -185,10 +181,9 @@ describe('useExpenses hooks', () => {
       const queryClient = createTestQueryClient()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
-        createElement(QueryClientProvider, { client: queryClient }, children)
-
-      const { result } = renderHook(() => useDeleteExpense(), { wrapper })
+      const { result } = renderHook(() => useDeleteExpense(), {
+        wrapper: createWrapper(queryClient),
+      })
 
       await act(async () => {
         await result.current.mutateAsync('delete-expense')

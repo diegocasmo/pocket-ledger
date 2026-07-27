@@ -37,8 +37,7 @@ export function createTestQueryClient() {
   })
 }
 
-export function createWrapper() {
-  const queryClient = createTestQueryClient()
+export function createWrapper(queryClient: QueryClient = createTestQueryClient()) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return createElement(QueryClientProvider, { client: queryClient }, children)
   }
@@ -53,9 +52,11 @@ export function renderWithClient(ui: React.ReactElement) {
 
 export function renderWithRouter(
   ui: React.ReactElement,
-  { route = '/' }: { route?: string } = {}
+  {
+    route = '/',
+    queryClient = createTestQueryClient(),
+  }: { route?: string; queryClient?: QueryClient } = {}
 ) {
-  const queryClient = createTestQueryClient()
   return render(
     createElement(
       MemoryRouter,
