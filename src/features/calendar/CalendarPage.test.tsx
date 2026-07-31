@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithRouter } from '@/test/setup'
@@ -6,7 +6,6 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { createCategory } from '@/db/categoriesRepo'
-import { format } from 'date-fns'
 
 function renderCalendarPage() {
   return renderWithRouter(
@@ -20,12 +19,23 @@ function renderCalendarPage() {
 }
 
 describe('CalendarPage', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    // A 31st is load-bearing: stepping back a month must land on Jun 30, so
+    // month arithmetic that doesn't clamp gives Jul 1 and fails the assertion
+    vi.setSystemTime(new Date(2025, 6, 31, 12, 0, 0))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   describe('rendering', () => {
     it('renders the current month', async () => {
       renderCalendarPage()
 
       await waitFor(() => {
-        expect(screen.getByText(format(new Date(), 'MMMM yyyy'))).toBeInTheDocument()
+        expect(screen.getByText('July 2025')).toBeInTheDocument()
       })
     })
 
@@ -49,11 +59,8 @@ describe('CalendarPage', () => {
       const prevButton = await screen.findByLabelText('Previous month')
       await user.click(prevButton)
 
-      const prevMonth = new Date()
-      prevMonth.setMonth(prevMonth.getMonth() - 1)
-
       await waitFor(() => {
-        expect(screen.getByText(format(prevMonth, 'MMMM yyyy'))).toBeInTheDocument()
+        expect(screen.getByText('June 2025')).toBeInTheDocument()
       })
     })
   })
