@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithRouter } from '@/test/setup'
@@ -6,7 +6,11 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { createCategory } from '@/db/categoriesRepo'
-import { format } from 'date-fns'
+
+// July 31 is a month-end the previous month doesn't have, which is the case
+// naive `setMonth(-1)` arithmetic gets wrong. Pinning it keeps that path
+// covered on every run instead of 7 days a year.
+const FIXED_NOW = new Date(2025, 6, 31, 12, 0, 0)
 
 function renderCalendarPage() {
   return renderWithRouter(
@@ -20,12 +24,22 @@ function renderCalendarPage() {
 }
 
 describe('CalendarPage', () => {
+  beforeEach(() => {
+    // shouldAdvanceTime keeps userEvent and waitFor progressing under fake timers
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.setSystemTime(FIXED_NOW)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   describe('rendering', () => {
     it('renders the current month', async () => {
       renderCalendarPage()
 
       await waitFor(() => {
-        expect(screen.getByText(format(new Date(), 'MMMM yyyy'))).toBeInTheDocument()
+        expect(screen.getByText('July 2025')).toBeInTheDocument()
       })
     })
 
@@ -49,11 +63,8 @@ describe('CalendarPage', () => {
       const prevButton = await screen.findByLabelText('Previous month')
       await user.click(prevButton)
 
-      const prevMonth = new Date()
-      prevMonth.setMonth(prevMonth.getMonth() - 1)
-
       await waitFor(() => {
-        expect(screen.getByText(format(prevMonth, 'MMMM yyyy'))).toBeInTheDocument()
+        expect(screen.getByText('June 2025')).toBeInTheDocument()
       })
     })
   })
