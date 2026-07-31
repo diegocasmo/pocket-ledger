@@ -7,11 +7,6 @@ import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { createCategory } from '@/db/categoriesRepo'
 
-// July 31 is a month-end the previous month doesn't have, which is the case
-// naive `setMonth(-1)` arithmetic gets wrong. Pinning it keeps that path
-// covered on every run instead of 7 days a year.
-const FIXED_NOW = new Date(2025, 6, 31, 12, 0, 0)
-
 function renderCalendarPage() {
   return renderWithRouter(
     <ExpenseFormProvider>
@@ -25,9 +20,10 @@ function renderCalendarPage() {
 
 describe('CalendarPage', () => {
   beforeEach(() => {
-    // shouldAdvanceTime keeps userEvent and waitFor progressing under fake timers
-    vi.useFakeTimers({ shouldAdvanceTime: true })
-    vi.setSystemTime(FIXED_NOW)
+    vi.useFakeTimers({ toFake: ['Date'] })
+    // A 31st is load-bearing: stepping back a month must land on Jun 30, so
+    // month arithmetic that doesn't clamp gives Jul 1 and fails the assertion
+    vi.setSystemTime(new Date(2025, 6, 31, 12, 0, 0))
   })
 
   afterEach(() => {
