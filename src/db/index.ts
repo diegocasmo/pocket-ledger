@@ -20,7 +20,7 @@ db.version(2)
     settings: 'id',
   })
   .upgrade(async (tx) => {
-    const expenses = (await tx.table('expenses').toArray()) as Expense[]
+    const expenses = await tx.table<Expense>('expenses').toArray()
     const latestByCategory = new Map<string, number>()
 
     for (const expense of expenses) {
