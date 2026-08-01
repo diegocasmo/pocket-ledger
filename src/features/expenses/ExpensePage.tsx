@@ -103,11 +103,14 @@ export function ExpensePage() {
   // category-picker round trip wins; otherwise the loaded expense (edit) or
   // empty (create). react-hook-form's `values` prop re-syncs the form when this
   // changes — e.g. when the expense finishes loading — so no init/sync effect.
-  const draftMatchesForm = isEditing
-    ? draft?.expenseId === id
-    : !!draft && !draft.expenseId
-  const values: ExpenseFormInput = draftMatchesForm
-    ? { amount: draft!.amount, categoryId: draft!.categoryId, note: draft!.note }
+  const matchingDraft =
+    draft && (isEditing ? draft.expenseId === id : !draft.expenseId) ? draft : null
+  const values: ExpenseFormInput = matchingDraft
+    ? {
+        amount: matchingDraft.amount,
+        categoryId: matchingDraft.categoryId,
+        note: matchingDraft.note,
+      }
     : isEditing && expense
       ? {
           amount: (expense.amountCents / 100).toFixed(2),
