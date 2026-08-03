@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  skipToken,
+} from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import {
   createExpense,
@@ -27,8 +32,7 @@ export function useExpensesForMonth(year: number, month: number) {
 export function useExpensesForDay(date: string | null) {
   return useQuery({
     queryKey: [...EXPENSES_KEY, 'day', date],
-    queryFn: () => listExpensesForDay(date!),
-    enabled: !!date,
+    queryFn: date ? () => listExpensesForDay(date) : skipToken,
   })
 }
 
@@ -47,16 +51,17 @@ export function useExpensesByCategory(
 ) {
   return useQuery({
     queryKey: [...EXPENSES_KEY, 'category', categoryId, start, end],
-    queryFn: () => listExpensesByCategory(categoryId!, start, end),
-    enabled: !!categoryId && !!start && !!end,
+    queryFn:
+      categoryId && start && end
+        ? () => listExpensesByCategory(categoryId, start, end)
+        : skipToken,
   })
 }
 
 export function useExpense(id: string | null) {
   return useQuery({
     queryKey: [...EXPENSES_KEY, id],
-    queryFn: () => getExpense(id!),
-    enabled: !!id,
+    queryFn: id ? () => getExpense(id) : skipToken,
   })
 }
 
