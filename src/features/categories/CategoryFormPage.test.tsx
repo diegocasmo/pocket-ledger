@@ -7,7 +7,6 @@ import { CategoryFormPage } from '@/features/categories/CategoryFormPage'
 import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { createCategory } from '@/db/categoriesRepo'
 
-// Mock useNavigate
 const mockNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
@@ -37,7 +36,6 @@ describe('CategoryFormPage', () => {
 
   describe('creating a new category from expense flow', () => {
     it('navigates directly to expense form with replace after saving', async () => {
-      // Initialize draft
       sessionStorage.setItem(
         'expense-form-draft',
         JSON.stringify({ amount: '100', categoryId: '', note: '', date: '2024-01-01' })
@@ -48,7 +46,6 @@ describe('CategoryFormPage', () => {
         '/categories/new?returnPath=%2Fexpenses%2Fnew%2Fcategory&expenseFormPath=%2Fexpenses%2Fnew'
       )
 
-      // Fill in the form
       const nameInput = await screen.findByLabelText(/name/i)
       await user.type(nameInput, 'New Category')
 
@@ -69,7 +66,6 @@ describe('CategoryFormPage', () => {
 
       await screen.findByLabelText(/name/i)
 
-      // Click cancel
       const cancelButton = screen.getByRole('button', { name: /cancel/i })
       await user.click(cancelButton)
 
@@ -81,7 +77,6 @@ describe('CategoryFormPage', () => {
     it('navigates directly to expense form with replace after saving', async () => {
       const category = await createCategory({ name: 'Food', color: '#22c55e' })
 
-      // Initialize draft
       sessionStorage.setItem(
         'expense-form-draft',
         JSON.stringify({ amount: '100', categoryId: category.id, note: '', date: '2024-01-01' })
@@ -92,12 +87,10 @@ describe('CategoryFormPage', () => {
         `/categories/${category.id}?returnPath=%2Fexpenses%2Fnew%2Fcategory&expenseFormPath=%2Fexpenses%2Fnew`
       )
 
-      // Wait for category to load
       await waitFor(() => {
         expect(screen.getByDisplayValue('Food')).toBeInTheDocument()
       })
 
-      // Modify the name
       const nameInput = screen.getByLabelText(/name/i)
       await user.clear(nameInput)
       await user.type(nameInput, 'Food Updated')
@@ -119,7 +112,6 @@ describe('CategoryFormPage', () => {
         `/categories/${category.id}?returnPath=%2Fexpenses%2Fnew%2Fcategory&expenseFormPath=%2Fexpenses%2Fnew`
       )
 
-      // Wait for category to load
       await waitFor(() => {
         expect(screen.getByDisplayValue('Food')).toBeInTheDocument()
       })
@@ -134,7 +126,6 @@ describe('CategoryFormPage', () => {
 
   describe('without expenseFormPath (direct category management)', () => {
     it('returns to returnPath after saving new category', async () => {
-      // Initialize draft
       sessionStorage.setItem(
         'expense-form-draft',
         JSON.stringify({ amount: '100', categoryId: '', note: '', date: '2024-01-01' })
@@ -143,7 +134,6 @@ describe('CategoryFormPage', () => {
       const user = userEvent.setup()
       renderCategoryFormPage('/categories/new?returnPath=%2Fexpenses%2Fnew%2Fcategory')
 
-      // Fill in the form
       const nameInput = await screen.findByLabelText(/name/i)
       await user.type(nameInput, 'New Category')
 
@@ -162,7 +152,6 @@ describe('CategoryFormPage', () => {
 
       await screen.findByLabelText(/name/i)
 
-      // Click cancel
       const cancelButton = screen.getByRole('button', { name: /cancel/i })
       await user.click(cancelButton)
 

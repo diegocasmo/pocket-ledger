@@ -28,7 +28,6 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, AutocompleteInputP
     const [isOpen, setIsOpen] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
 
-    // Merge forwarded ref with local ref
     const setRefs = useCallback(
       (node: HTMLInputElement | null) => {
         inputRef.current = node
@@ -69,7 +68,6 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, AutocompleteInputP
       (suggestion: string) => {
         onChange(suggestion)
         setIsOpen(false)
-        // Keep focus on input
         inputRef.current?.focus()
       },
       [onChange]

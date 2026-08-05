@@ -16,7 +16,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [selectedDate, setSelectedDate] = useState<string | null>(getTodayISO())
 
   const handleAddExpense = useCallback(() => {
-    // Use selected date if available and not in the future, otherwise use today.
     // startExpenseForm clears any leftover draft and navigates (the date travels
     // in the URL), so an abandoned entry can't leak into a fresh add.
     const dateToUse = selectedDate && !isFutureDate(selectedDate) ? selectedDate : getTodayISO()
@@ -52,7 +51,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   }, [settings?.theme])
 
-  // Listen for system theme changes
   useEffect(() => {
     if (settings?.theme !== 'system') return
 

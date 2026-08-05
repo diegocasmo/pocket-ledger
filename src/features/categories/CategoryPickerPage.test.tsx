@@ -7,7 +7,6 @@ import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { createCategory } from '@/db/categoriesRepo'
 import { createElement } from 'react'
 
-// Mock useNavigate
 const mockNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')

@@ -82,7 +82,6 @@ export function CategoryFormPage() {
     handleReturn()
   }
 
-  // Redirect if category not found
   const categoryNotFound = id && !category && categories.length > 0
   useEffect(() => {
     if (categoryNotFound) {

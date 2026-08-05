@@ -47,7 +47,6 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
         <DialogPrimitive.Content
           className="fixed z-50 md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2"
           onOpenAutoFocus={(e) => {
-            // Focus first focusable element inside the dialog
             const dialog = e.currentTarget as HTMLElement | null
             const firstInput = dialog?.querySelector<HTMLElement>(
               'input, select, textarea, button:not([aria-label="Close"])'
