@@ -208,7 +208,6 @@ export function ExpensePage() {
     void navigate('/calendar')
   }
 
-  // Show loading state when editing and expense not loaded yet
   if (isEditing && expenseLoading) {
     return (
       <>
@@ -273,7 +272,6 @@ export function ExpensePage() {
             )}
           />
 
-          {/* Category Select - navigates to picker page */}
           <div className="w-full">
             <span className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
               Category

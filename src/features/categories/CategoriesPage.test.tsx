@@ -5,7 +5,6 @@ import { renderWithRouter } from '@/test/setup'
 import { CategoriesPage } from '@/features/categories/CategoriesPage'
 import { createCategory } from '@/db/categoriesRepo'
 
-// Mock useNavigate
 const mockNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')

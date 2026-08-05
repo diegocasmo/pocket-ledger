@@ -39,7 +39,6 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
       return Math.round(parsed * 100)
     }, [value])
 
-    // Format cents for display (with $ and commas)
     const displayValue = useMemo(() => {
       if (!isFocused && centsValue === 0) return ''
       return new Intl.NumberFormat('en-US', {
@@ -49,7 +48,6 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
     }, [centsValue, isFocused])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      // Extract only digits from input
       const digits = e.target.value.replace(/\D/g, '')
 
       // Parse as cents (max 99999999 = $999,999.99)
@@ -62,7 +60,6 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
 
     const handleFocus = () => {
       setIsFocused(true)
-      // If empty or zero, initialize to $0.00
       if (!value || value === '0' || value === '0.00') {
         onChange('0.00')
       }

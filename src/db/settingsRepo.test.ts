@@ -21,12 +21,10 @@ describe('settingsRepo', () => {
     it('returns existing settings without creating duplicates', async () => {
       // First call creates defaults
       await getSettings()
-      // Modify settings
       await db.settings.update('settings', { theme: 'dark' })
       // Second call should return modified settings
       const settings = await getSettings()
       expect(settings.theme).toBe('dark')
-      // Verify only one settings record exists
       const count = await db.settings.count()
       expect(count).toBe(1)
     })
@@ -36,7 +34,6 @@ describe('settingsRepo', () => {
     it('merges partial updates', async () => {
       // Initialize with defaults
       await getSettings()
-      // Update only theme
       const updated = await updateSettings({ theme: 'dark' })
       expect(updated.theme).toBe('dark')
       expect(updated.weekStartsOn).toBe(0) // Original value preserved

@@ -70,7 +70,6 @@ export function CategoryPickerPage() {
     <>
       <PageHeader title="Select Category" onBack={handleBack} />
       <div className="p-4 space-y-4">
-        {/* Search input */}
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
@@ -78,7 +77,6 @@ export function CategoryPickerPage() {
           autoFocus
         />
 
-        {/* Category list */}
         <div className="space-y-1">
           {!hasFilteredCategories ? (
             <div className="flex flex-col items-center justify-center py-8 gap-3">
@@ -121,7 +119,6 @@ export function CategoryPickerPage() {
           )}
         </div>
 
-        {/* Add category button - only show when categories exist */}
         {hasFilteredCategories && (
           <Button onClick={handleCreateCategory} className="w-full">
             {getCreateButtonText()}
