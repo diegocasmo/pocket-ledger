@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Calendar, BarChart3, Tag, Settings, Plus } from 'lucide-react'
 
@@ -5,7 +6,13 @@ interface BottomNavProps {
   onAddExpense: () => void
 }
 
-const navItems = [
+interface NavItemProps {
+  to: string
+  label: string
+  icon: ReactNode
+}
+
+const navItems: NavItemProps[] = [
   {
     to: '/calendar',
     label: 'Calendar',
@@ -28,25 +35,30 @@ const navItems = [
   },
 ]
 
+function NavItem({ to, label, icon }: NavItemProps) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex flex-col items-center py-4 px-4 text-xs transition-colors ${
+          isActive
+            ? 'text-primary-500'
+            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+        }`
+      }
+    >
+      {icon}
+      <span className="mt-1">{label}</span>
+    </NavLink>
+  )
+}
+
 export function BottomNav({ onAddExpense }: BottomNavProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-[var(--color-bg-primary)] border-t border-[var(--color-border)] safe-bottom">
       <div className="max-w-lg mx-auto flex justify-around items-center relative">
         {navItems.slice(0, 2).map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `flex flex-col items-center py-4 px-4 text-xs transition-colors ${
-                isActive
-                  ? 'text-primary-500'
-                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-              }`
-            }
-          >
-            {item.icon}
-            <span className="mt-1">{item.label}</span>
-          </NavLink>
+          <NavItem key={item.to} {...item} />
         ))}
 
         {/* FAB Add Button */}
@@ -59,20 +71,7 @@ export function BottomNav({ onAddExpense }: BottomNavProps) {
         </button>
 
         {navItems.slice(2).map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `flex flex-col items-center py-4 px-4 text-xs transition-colors ${
-                isActive
-                  ? 'text-primary-500'
-                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-              }`
-            }
-          >
-            {item.icon}
-            <span className="mt-1">{item.label}</span>
-          </NavLink>
+          <NavItem key={item.to} {...item} />
         ))}
       </div>
     </nav>
