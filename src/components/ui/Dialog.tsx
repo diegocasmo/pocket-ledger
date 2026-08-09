@@ -10,6 +10,31 @@ interface DialogProps {
   children: ReactNode
 }
 
+interface DialogHeaderProps {
+  title: string
+  className?: string
+}
+
+function DialogHeader({ title, className = '' }: DialogHeaderProps) {
+  return (
+    <div
+      className={`flex items-center justify-between px-4 border-b border-[var(--color-border)] ${className}`}
+    >
+      <DialogPrimitive.Title className="text-lg font-semibold text-[var(--color-text-primary)]">
+        {title}
+      </DialogPrimitive.Title>
+      <DialogPrimitive.Close asChild>
+        <button
+          className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+          aria-label="Close"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </DialogPrimitive.Close>
+    </div>
+  )
+}
+
 export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
@@ -78,41 +103,13 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
             >
               <div className="w-10 h-1 bg-[var(--color-border)] rounded-full" />
             </div>
-            {title && (
-              <div className="flex items-center justify-between px-4 pb-3 border-b border-[var(--color-border)]">
-                <DialogPrimitive.Title className="text-lg font-semibold text-[var(--color-text-primary)]">
-                  {title}
-                </DialogPrimitive.Title>
-                <DialogPrimitive.Close asChild>
-                  <button
-                    className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
-                    aria-label="Close"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </DialogPrimitive.Close>
-              </div>
-            )}
+            {title && <DialogHeader title={title} className="pb-3" />}
             <div className="p-4 pb-8 touch-action-manipulation">{children}</div>
           </div>
 
           {/* Desktop modal */}
           <div className="relative hidden md:block w-full min-w-80 max-w-lg bg-[var(--color-bg-primary)] rounded-xl shadow-xl max-h-[85vh] overflow-auto">
-            {title && (
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
-                <DialogPrimitive.Title className="text-lg font-semibold text-[var(--color-text-primary)]">
-                  {title}
-                </DialogPrimitive.Title>
-                <DialogPrimitive.Close asChild>
-                  <button
-                    className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
-                    aria-label="Close"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </DialogPrimitive.Close>
-              </div>
-            )}
+            {title && <DialogHeader title={title} className="py-3" />}
             <div className="p-4">{children}</div>
           </div>
         </DialogPrimitive.Content>
