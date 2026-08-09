@@ -32,6 +32,16 @@ describe('Dialog', () => {
       expect(screen.getAllByText('Test Title')[0]).toBeInTheDocument()
     })
 
+    it('renders the title and close button in both the mobile and desktop views', () => {
+      render(
+        <Dialog isOpen={true} onClose={vi.fn()} title="Test Title">
+          <div>Content</div>
+        </Dialog>
+      )
+      expect(screen.getAllByText('Test Title')).toHaveLength(2)
+      expect(screen.getAllByLabelText('Close')).toHaveLength(2)
+    })
+
     it('renders children content', () => {
       render(
         <Dialog isOpen={true} onClose={vi.fn()} title="Test">
