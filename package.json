@@ -45,7 +45,7 @@
     "fake-indexeddb": "^6.2.5",
     "globals": "^17.9.0",
     "jsdom": "^30.0.1",
-    "postcss": "^8.5.25",
+    "postcss": "^8.5.26",
     "tailwindcss": "^4.3.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.66.0",
