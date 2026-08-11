@@ -38,7 +38,7 @@ describe('CategoryFormPage', () => {
     it('navigates directly to expense form with replace after saving', async () => {
       sessionStorage.setItem(
         'expense-form-draft',
-        JSON.stringify({ amount: '100', categoryId: '', note: '', date: '2024-01-01' })
+        JSON.stringify({ amount: '100', categoryId: '', note: '' })
       )
 
       const user = userEvent.setup()
@@ -79,7 +79,7 @@ describe('CategoryFormPage', () => {
 
       sessionStorage.setItem(
         'expense-form-draft',
-        JSON.stringify({ amount: '100', categoryId: category.id, note: '', date: '2024-01-01' })
+        JSON.stringify({ amount: '100', categoryId: category.id, note: '' })
       )
 
       const user = userEvent.setup()
@@ -128,7 +128,7 @@ describe('CategoryFormPage', () => {
     it('returns to returnPath after saving new category', async () => {
       sessionStorage.setItem(
         'expense-form-draft',
-        JSON.stringify({ amount: '100', categoryId: '', note: '', date: '2024-01-01' })
+        JSON.stringify({ amount: '100', categoryId: '', note: '' })
       )
 
       const user = userEvent.setup()
