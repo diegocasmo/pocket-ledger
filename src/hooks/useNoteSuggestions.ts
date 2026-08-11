@@ -14,7 +14,6 @@ interface UseNoteSuggestionsOptions {
 
 interface UseNoteSuggestionsResult {
   suggestions: string[]
-  isLoading: boolean
 }
 
 export function useNoteSuggestions({
@@ -31,11 +30,7 @@ export function useNoteSuggestions({
   const start = formatDateToISO(sixMonthsAgo)
   const end = formatDateToISO(today)
 
-  const { data: expenses, isLoading } = useExpensesByCategory(
-    categoryId,
-    start,
-    end
-  )
+  const { data: expenses } = useExpensesByCategory(categoryId, start, end)
 
   const suggestions = useMemo(() => {
     if (!categoryId || debouncedQuery.length < minQueryLength) {
@@ -61,8 +56,5 @@ export function useNoteSuggestions({
     return Array.from(uniqueNotes)
   }, [categoryId, debouncedQuery, minQueryLength, maxSuggestions, expenses])
 
-  return {
-    suggestions,
-    isLoading,
-  }
+  return { suggestions }
 }

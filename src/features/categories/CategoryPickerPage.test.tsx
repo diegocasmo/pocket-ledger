@@ -101,7 +101,7 @@ describe('CategoryPickerPage', () => {
       // Initialize draft in sessionStorage so updateDraft works
       sessionStorage.setItem(
         'expense-form-draft',
-        JSON.stringify({ amount: '', categoryId: '', note: '', date: '2024-01-01' })
+        JSON.stringify({ amount: '', categoryId: '', note: '' })
       )
 
       const user = userEvent.setup()
