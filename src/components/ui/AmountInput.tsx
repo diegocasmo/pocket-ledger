@@ -7,7 +7,6 @@ interface AmountInputProps {
   error?: string
   label?: string
   placeholder?: string
-  disabled?: boolean
   autoFocus?: boolean
 }
 
@@ -20,7 +19,6 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
       error,
       label = 'Amount',
       placeholder = '$0.00',
-      disabled = false,
       autoFocus = false,
     },
     ref
@@ -89,7 +87,6 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder={placeholder}
-            disabled={disabled}
             autoFocus={autoFocus}
             aria-invalid={!!error}
             aria-describedby={error ? `${errorId} ${descriptionId}` : descriptionId}
@@ -98,7 +95,6 @@ export const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
               bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
               placeholder:text-[var(--color-text-secondary)]
               focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-              disabled:opacity-50 disabled:cursor-not-allowed
               ${error ? 'border-red-500' : 'border-[var(--color-border)]'}
             `}
           />
