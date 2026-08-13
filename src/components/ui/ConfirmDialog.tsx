@@ -8,8 +8,6 @@ interface ConfirmDialogProps {
   title: string
   message: string
   confirmLabel?: string
-  cancelLabel?: string
-  variant?: 'danger' | 'primary'
   isLoading?: boolean
 }
 
@@ -20,8 +18,6 @@ export function ConfirmDialog({
   title,
   message,
   confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
-  variant = 'danger',
   isLoading = false,
 }: ConfirmDialogProps) {
   return (
@@ -29,10 +25,10 @@ export function ConfirmDialog({
       <p className="text-[var(--color-text-secondary)] mb-6">{message}</p>
       <div className="flex gap-3 justify-end">
         <Button variant="secondary" onClick={onClose} disabled={isLoading}>
-          {cancelLabel}
+          Cancel
         </Button>
         <Button
-          variant={variant}
+          variant="danger"
           onClick={onConfirm}
           disabled={isLoading}
         >
