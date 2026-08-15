@@ -16,10 +16,10 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
-function renderCategoryPickerPage(route = '/expenses/new/category') {
+function renderCategoryPickerPage() {
   return renderWithRouter(
     createElement(ExpenseFormProvider, null, createElement(CategoryPickerPage)),
-    { route }
+    { route: '/expenses/new/category' }
   )
 }
 

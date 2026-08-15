@@ -23,14 +23,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [selectedDate, startExpenseForm])
 
   const openExpenseForm = useCallback(
-    (expense?: { id: string }) => {
-      if (expense) {
-        startExpenseForm({ id: expense.id })
-      } else {
-        handleAddExpense()
-      }
+    (expense: { id: string }) => {
+      startExpenseForm({ id: expense.id })
     },
-    [handleAddExpense, startExpenseForm]
+    [startExpenseForm]
   )
 
   useEffect(() => {

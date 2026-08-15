@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react'
 interface CalendarContextValue {
   selectedDate: string | null
   setSelectedDate: (date: string | null) => void
-  openExpenseForm: (expense?: { id: string }) => void
+  openExpenseForm: (expense: { id: string }) => void
 }
 
 export const CalendarContext = createContext<CalendarContextValue | null>(null)
