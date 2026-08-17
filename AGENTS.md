@@ -143,7 +143,7 @@ The expense form (`ExpensePage.tsx`) has subtle, deliberate choices — read it 
 - Config: `vite.config.ts` (`VitePWA`, `registerType: 'prompt'` — user-controlled updates).
 - Update detection: `src/hooks/usePWAUpdate.ts` (polls hourly) → `src/components/pwa/UpdatePrompt.tsx`.
 - Offline: Workbox-cached app shell + IndexedDB data; no CDN/external assets.
-- Mobile: safe-area insets (`safe-bottom` in `src/index.css`), ≥44px touch targets, `viewport-fit=cover`.
+- Mobile: safe-area insets (`safe-bottom` in `src/index.css`), ≥44px touch targets.
 
 ## Testing
 
