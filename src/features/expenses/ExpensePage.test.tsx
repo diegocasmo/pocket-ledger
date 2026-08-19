@@ -3,6 +3,7 @@ import { screen, fireEvent } from '@testing-library/react'
 import { QueryClient } from '@tanstack/react-query'
 import { Routes, Route } from 'react-router-dom'
 import { renderWithRouter } from '@/test/setup'
+import { db } from '@/db'
 import { ExpenseFormProvider } from '@/contexts/ExpenseFormContext'
 import { AppLayout } from '@/components/layout/AppLayout'
 import CalendarPage from '@/features/calendar/CalendarPage'
@@ -114,5 +115,32 @@ describe('ExpensePage date prefill (URL-derived)', () => {
     renderForm('/expenses/e1', qc)
     expect(screen.getByTestId('date-trigger')).toHaveTextContent('Jun 5')
     expect(screen.getByLabelText('Amount')).toHaveValue('$12.34')
+  })
+})
+
+describe('ExpensePage amount validation', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+  })
+
+  it('blocks submit and reports a non-positive amount', async () => {
+    renderForm('/expenses/new?date=2025-06-20')
+    fireEvent.click(screen.getByRole('button', { name: 'Add Expense' }))
+
+    expect(await screen.findByText('Please enter a valid amount')).toBeInTheDocument()
+    expect(await db.expenses.count()).toBe(0)
+  })
+
+  it('stores a submitted amount as integer cents', async () => {
+    sessionStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ amount: '12.34', categoryId: 'default-1', note: '' })
+    )
+    renderForm('/expenses/new?date=2025-06-20')
+    fireEvent.click(screen.getByRole('button', { name: 'Add Expense' }))
+
+    await screen.findByText('Calendar')
+    const [expense] = await db.expenses.toArray()
+    expect(expense.amountCents).toBe(1234)
   })
 })

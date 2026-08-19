@@ -38,14 +38,14 @@ const expenseFormSchema = z.object({
   amount: z
     .string()
     .min(1, 'Please enter a valid amount')
-    .refine(
-      (val) => {
-        const cents = parseUsdToCents(val)
-        return cents !== null && cents > 0
-      },
-      { message: 'Please enter a valid amount' }
-    )
-    .transform((val) => parseUsdToCents(val) as number),
+    .transform((val, ctx) => {
+      const cents = parseUsdToCents(val)
+      if (cents === null || cents <= 0) {
+        ctx.addIssue('Please enter a valid amount')
+        return z.NEVER
+      }
+      return cents
+    }),
 
   categoryId: z.string().min(1, 'Please select a category'),
 
