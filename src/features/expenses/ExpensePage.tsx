@@ -73,14 +73,18 @@ export function ExpensePage() {
   const updateExpense = useUpdateExpense()
   const deleteExpense = useDeleteExpense()
 
+  // Every exit from the form discards the draft, so a later add/edit can't be
+  // prefilled from an abandoned one.
+  const closeForm = () => {
+    clearDraft()
+    void navigate('/calendar')
+  }
+
   const deletion = useDeleteConfirmation<Expense>({
     onDelete: async (item) => {
       await deleteExpense.mutateAsync(item.id)
     },
-    onSuccess: () => {
-      clearDraft()
-      void navigate('/calendar')
-    },
+    onSuccess: closeForm,
   })
 
   const isEditing = !!id
@@ -193,8 +197,7 @@ export function ExpensePage() {
       })
     }
 
-    clearDraft()
-    void navigate('/calendar')
+    closeForm()
   }
 
   const handleDelete = () => {
@@ -203,15 +206,10 @@ export function ExpensePage() {
     }
   }
 
-  const handleCancel = () => {
-    clearDraft()
-    void navigate('/calendar')
-  }
-
   if (isEditing && expenseLoading) {
     return (
       <>
-        <PageHeader title="Edit Expense" onBack={handleCancel} />
+        <PageHeader title="Edit Expense" onBack={closeForm} />
         <div className="flex items-center justify-center p-8">
           <div className="animate-pulse text-[var(--color-text-secondary)]">
             Loading...
@@ -230,7 +228,7 @@ export function ExpensePage() {
     <>
       <PageHeader
         title={isEditing ? 'Edit Expense' : 'Add Expense'}
-        onBack={handleCancel}
+        onBack={closeForm}
       />
       <div className="p-4">
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
