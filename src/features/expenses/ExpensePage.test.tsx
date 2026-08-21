@@ -144,3 +144,22 @@ describe('ExpensePage amount validation', () => {
     expect(expense.amountCents).toBe(1234)
   })
 })
+
+describe('ExpensePage leaving the form', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+  })
+
+  it('discards the draft and returns to the calendar on back', async () => {
+    sessionStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ amount: '5.00', categoryId: 'c1', note: 'lunch' })
+    )
+    renderForm('/expenses/new?date=2025-06-20')
+
+    fireEvent.click(screen.getByLabelText('Go back'))
+
+    await screen.findByText('Calendar')
+    expect(sessionStorage.getItem(DRAFT_KEY)).toBeNull()
+  })
+})
