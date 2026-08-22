@@ -1,6 +1,13 @@
 name: CI
 
-on: [push]
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   ci:
@@ -17,6 +24,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Check pull request
+        if: github.event_name == 'pull_request'
+        run: npm run danger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lint
         run: npm run lint

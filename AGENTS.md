@@ -165,7 +165,9 @@ npm run build      # tsc -b && vite build
 npm run preview    # serve production build
 ```
 
-- Conventional commits: `feat` / `fix` / `refactor` / `test` / `docs`.
+- Keep each pull request at or below the added-line limit that [the Dangerfile](./dangerfile.mts) defines and enforces. The check counts tests like other files. Split the work instead.
+- `.gitattributes` marks generated files that the size check excludes.
+- Write commit messages and pull request titles in the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
 - There is **no error boundary** in `src/` — an uncaught render throw unmounts the whole tree (relevant when handling untrusted input like the `?date=` param).
 - Inspect data at DevTools → Application → IndexedDB → `PocketLedgerDB`.
 
