@@ -20,6 +20,7 @@ function renderCategoryFormPage(route: string) {
   return renderWithRouter(
     <ExpenseFormProvider>
       <Routes>
+        <Route path="/categories" element={<div>Categories list</div>} />
         <Route path="/categories/new" element={<CategoryFormPage />} />
         <Route path="/categories/:id" element={<CategoryFormPage />} />
       </Routes>
@@ -121,6 +122,14 @@ describe('CategoryFormPage', () => {
       await user.click(backButton)
 
       expect(mockNavigate).toHaveBeenCalledWith('/expenses/new/category')
+    })
+  })
+
+  describe('unknown category id', () => {
+    it('redirects to the categories list once categories have loaded', async () => {
+      renderCategoryFormPage('/categories/does-not-exist')
+
+      expect(await screen.findByText('Categories list')).toBeInTheDocument()
     })
   })
 
