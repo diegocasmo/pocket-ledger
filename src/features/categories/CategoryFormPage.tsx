@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams, Navigate } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CategoryForm, type CategoryFormData } from '@/features/categories/CategoryForm'
@@ -83,15 +82,8 @@ export function CategoryFormPage() {
   }
 
   const categoryNotFound = id && !category && categories.length > 0
-  useEffect(() => {
-    if (categoryNotFound) {
-      void navigate('/categories')
-    }
-  }, [categoryNotFound, navigate])
-
-  // Category not found - render nothing while redirecting
   if (categoryNotFound) {
-    return null
+    return <Navigate to="/categories" />
   }
 
   return (
