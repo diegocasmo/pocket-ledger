@@ -59,7 +59,7 @@ export function CategoryFormPage() {
   }
 
   const handleSave = async (data: CategoryFormData) => {
-    if (isEditing && category) {
+    if (isEditing) {
       await updateCategory.mutateAsync({
         id: category.id,
         ...data,

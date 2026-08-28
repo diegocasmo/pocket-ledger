@@ -45,7 +45,7 @@ export async function updateExpense(
   const updated: Expense = {
     ...existing,
     ...patch,
-    note: patch.note !== undefined ? patch.note?.trim() : existing.note,
+    note: patch.note !== undefined ? patch.note.trim() : existing.note,
     updatedAt: Date.now(),
   }
   await db.expenses.put(updated)
