@@ -39,11 +39,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     } else {
       // System preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      if (prefersDark) {
-        root.classList.add('dark')
-      } else {
-        root.classList.remove('dark')
-      }
+      root.classList.toggle('dark', prefersDark)
     }
   }, [settings?.theme])
 
@@ -52,11 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = (e: MediaQueryListEvent) => {
-      if (e.matches) {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
-      }
+      document.documentElement.classList.toggle('dark', e.matches)
     }
 
     mediaQuery.addEventListener('change', handleChange)
