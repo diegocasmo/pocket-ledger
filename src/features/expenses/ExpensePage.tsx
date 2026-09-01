@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import {
   useParams,
   useNavigate,
@@ -58,6 +58,39 @@ const expenseFormSchema = z.object({
 
 type ExpenseFormInput = z.input<typeof expenseFormSchema>
 type ExpenseFormData = z.output<typeof expenseFormSchema>
+
+interface FieldTriggerProps {
+  label: string
+  testId: string
+  error?: string
+  onClick: () => void
+  children: ReactNode
+}
+
+function FieldTrigger({ label, testId, error, onClick, children }: FieldTriggerProps) {
+  return (
+    <div className="w-full">
+      <span className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={onClick}
+        data-testid={testId}
+        className={`
+          w-full py-2 px-3 rounded-lg border text-left flex items-center gap-2
+          bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
+          focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+          ${error ? 'border-red-500' : 'border-[var(--color-border)]'}
+        `}
+      >
+        {children}
+        <ChevronDown className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
+      </button>
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+    </div>
+  )
+}
 
 export function ExpensePage() {
   const { id } = useParams<{ id: string }>()
@@ -232,29 +265,15 @@ export function ExpensePage() {
       />
       <div className="p-4">
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-          <div className="w-full">
-            <span className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-              Date
-            </span>
-            <button
-              type="button"
-              onClick={() => setIsDatePickerOpen(true)}
-              data-testid="date-trigger"
-              className={`
-                w-full py-2 px-3 rounded-lg border text-left flex items-center gap-2
-                bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
-                focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                ${errors.root?.date ? 'border-red-500' : 'border-[var(--color-border)]'}
-              `}
-            >
-              <Calendar className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
-              <span className="flex-1 truncate">{formatRelativeDate(formDate)}</span>
-              <ChevronDown className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
-            </button>
-            {errors.root?.date && (
-              <p className="mt-1 text-sm text-red-500">{errors.root.date.message}</p>
-            )}
-          </div>
+          <FieldTrigger
+            label="Date"
+            testId="date-trigger"
+            error={errors.root?.date?.message}
+            onClick={() => setIsDatePickerOpen(true)}
+          >
+            <Calendar className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
+            <span className="flex-1 truncate">{formatRelativeDate(formDate)}</span>
+          </FieldTrigger>
 
           <Controller
             name="amount"
@@ -270,40 +289,26 @@ export function ExpensePage() {
             )}
           />
 
-          <div className="w-full">
-            <span className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
-              Category
-            </span>
-            <button
-              type="button"
-              onClick={handleCategoryClick}
-              data-testid="category-trigger"
-              className={`
-                w-full py-2 px-3 rounded-lg border text-left flex items-center gap-2
-                bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]
-                focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                ${errors.categoryId ? 'border-red-500' : 'border-[var(--color-border)]'}
-              `}
-            >
-              {selectedCategory ? (
-                <>
-                  <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: selectedCategory.color }}
-                  />
-                  <span className="flex-1 truncate">{selectedCategory.name}</span>
-                </>
-              ) : (
-                <span className="flex-1 text-[var(--color-text-secondary)]">
-                  Select a category
-                </span>
-              )}
-              <ChevronDown className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0" />
-            </button>
-            {errors.categoryId && (
-              <p className="mt-1 text-sm text-red-500">{errors.categoryId.message}</p>
+          <FieldTrigger
+            label="Category"
+            testId="category-trigger"
+            error={errors.categoryId?.message}
+            onClick={handleCategoryClick}
+          >
+            {selectedCategory ? (
+              <>
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: selectedCategory.color }}
+                />
+                <span className="flex-1 truncate">{selectedCategory.name}</span>
+              </>
+            ) : (
+              <span className="flex-1 text-[var(--color-text-secondary)]">
+                Select a category
+              </span>
             )}
-          </div>
+          </FieldTrigger>
 
           <Controller
             name="note"
