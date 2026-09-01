@@ -145,6 +145,19 @@ describe('ExpensePage amount validation', () => {
   })
 })
 
+describe('ExpensePage category field', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+  })
+
+  it('reports a missing category below the category trigger', async () => {
+    renderForm('/expenses/new?date=2025-06-20')
+    fireEvent.click(screen.getByRole('button', { name: 'Add Expense' }))
+
+    expect(await screen.findByText('Please select a category')).toBeInTheDocument()
+  })
+})
+
 describe('ExpensePage leaving the form', () => {
   beforeEach(() => {
     sessionStorage.clear()
